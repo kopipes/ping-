@@ -207,7 +207,7 @@ export function MessageBubble(props: {
             {message.content && (
               <div className="px-3.5 py-2 text-white leading-[1.46] whitespace-pre-wrap break-words"
                 style={{ fontSize: "var(--app-font-size, 15px)" }}>
-                {message.content}
+                {renderContent(message.content, true)}
               </div>
             )}
 
@@ -357,7 +357,7 @@ export function MessageBubble(props: {
             {message.content && (
               <p className="leading-[1.46668] text-textp whitespace-pre-wrap break-words"
                 style={{ fontSize: "var(--app-font-size, 15px)" }}>
-                {message.content}
+                {renderContent(message.content, false)}
               </p>
             )}
 
@@ -455,6 +455,31 @@ const URL_RE = /https?:\/\/[^\s<>"]+/g;
 function extractUrls(text: string | null): string[] {
   if (!text) return [];
   return Array.from(new Set(text.match(URL_RE) ?? [])).slice(0, 3);
+}
+
+// Render message text with clickable links
+function renderContent(text: string, dark: boolean) {
+  const parts = text.split(URL_RE);
+  const urls = text.match(URL_RE) ?? [];
+  return parts.map((part, i) => {
+    const url = urls[i - 1];
+    return (
+      <span key={i}>
+        {i > 0 && url && (
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className={`underline underline-offset-2 break-all ${dark ? "text-sky-200 hover:text-sky-100" : "text-primary hover:text-primaryhover"}`}
+          >
+            {url}
+          </a>
+        )}
+        {part}
+      </span>
+    );
+  });
 }
 
 interface OGPreview {

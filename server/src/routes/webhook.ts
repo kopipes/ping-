@@ -27,6 +27,14 @@ import { createMessage } from "../services/messages.js";
 
 const BOT_EMAIL = "pingbot@system.local";
 
+function roomOf(conversationId: string) {
+  return "convo:" + conversationId;
+}
+
+function userRoomOf(userId: string) {
+  return "user:" + userId;
+}
+
 async function getBotUser() {
   // Find or create the system bot user
   let bot = await prisma.user.findUnique({ where: { email: BOT_EMAIL } });
@@ -200,9 +208,20 @@ export async function webhookRoutes(app: FastifyInstance) {
     }
 
     // Broadcast via Socket.IO if available
+    // Also emit to each member's personal user room so recipients get it
+    // even if they haven't joined the conversation room yet (e.g. first DM from bot)
     const io = (app as any).io;
     if (io) {
-      io.to(conversationId).emit("message:new", { message });
+      io.to(roomOf(conversationId)).emit("message:new", { message });
+      const members = await prisma.conversationMember.findMany({
+        where: { conversationId },
+        select: { userId: true },
+      });
+      for (const m of members) {
+        if (m.userId !== bot.id) {
+          io.to(userRoomOf(m.userId)).emit("message:new", { message });
+        }
+      }
     }
 
     reply.code(201).send({
