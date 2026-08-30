@@ -23,7 +23,7 @@
   --color-rail-icon-hover:  rgba(255,255,255,0.85);
   --color-rail-icon-active: #FFFFFF;
   --color-rail-active-pill: linear-gradient(135deg, #2E46E0, #3B5BFA);
-  --rail-width: 72px;
+  --rail-width: 44px;
   --sidebar-width: 288px;
 
   /* Sidebar — Midnight Navy (dark, same family as rail) */
