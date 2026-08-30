@@ -12,14 +12,17 @@ interface NewUser {
 
 // FR-1.4b Onboarding: user baru otomatis member Announcement & General Chat
 export async function onboardUser(userId: string) {
-  // Enroll user in ALL pinned channels (isPinnedTop = true)
-  // This covers system channels (Announcement, General Chat) + any admin-pinned groups
-  const pinnedTopics = await prisma.conversation.findMany({
-    where: { isPinnedTop: true },
+  // Enroll user in system channels (Announcement + General Chat) only.
+  // Public groups are visible to all via getSidebar without needing membership.
+  const systemTopics = await prisma.conversation.findMany({
+    where: {
+      isPinnedTop: true,
+      name: { in: [SYSTEM_ANNOUNCEMENT_NAME, SYSTEM_GENERAL_NAME] },
+    },
     select: { id: true },
   });
 
-  for (const topic of pinnedTopics) {
+  for (const topic of systemTopics) {
     await prisma.conversationMember.create({
       data: { conversationId: topic.id, userId },
     }).catch(() => {

@@ -141,6 +141,19 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
     } catch (e: any) { toast(e?.message || "Gagal update Pinned"); }
   };
 
+  const togglePublic = async () => {
+    const isCurrentlyPublic = !!convo?.isPublic;
+    try {
+      await api(`/api/conversations/${conversationId}`, {
+        method: "PATCH",
+        body: { isPublic: !isCurrentlyPublic },
+      });
+      await loadSidebar();
+      await openConversation(conversationId);
+      toast(isCurrentlyPublic ? "Group jadi Member Only" : "Group jadi Public — semua bisa melihat");
+    } catch (e: any) { toast(e?.message || "Gagal update visibilitas"); }
+  };
+
   const nonMembers = allUsers.filter(
     (u) => !members.some((m) => m.user.id === u.id) &&
     (!userSearch || u.name.toLowerCase().includes(userSearch.toLowerCase()) || u.email.toLowerCase().includes(userSearch.toLowerCase()))
@@ -342,6 +355,16 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
           {isAdminish && !isDM && (
             <section className="px-5 py-4 border-t border-gray-100">
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Admin</p>
+              {/* Public / Member-only toggle */}
+              <button
+                onClick={togglePublic}
+                className={`w-full h-9 rounded-lg border text-sm font-semibold transition mb-2 ${
+                  convo?.isPublic
+                    ? "bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+                    : "bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100"
+                }`}>
+                {convo?.isPublic ? "🌐 Public — semua bisa melihat" : "🔒 Member Only"}
+              </button>
               {/* Pin/unpin */}
               <button
                 onClick={togglePinnedTop}

@@ -294,11 +294,19 @@ async function postMessage(
   });
   if (!conversation) throw new Error("Conversation tidak ditemukan");
 
-  const member = await prisma.conversationMember.findUnique({
+  let member = await prisma.conversationMember.findUnique({
     where: {
       conversationId_userId: { conversationId: data.conversationId, userId },
     },
   });
+
+  // Auto-join public groups when user sends their first message
+  if (!member && conversation.isPublic) {
+    member = await prisma.conversationMember.create({
+      data: { conversationId: data.conversationId, userId, role: "STAFF" },
+    });
+  }
+
   if (!member) throw new Error("Anda bukan member topic ini");
 
   const user = await prisma.user.findUnique({ where: { id: userId } });

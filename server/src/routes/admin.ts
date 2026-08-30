@@ -158,29 +158,13 @@ export async function adminRoutes(app: FastifyInstance) {
     async (req) => {
       const { id } = req.params as { id: string };
       const { isPinnedTop } = (req.body ?? {}) as { isPinnedTop?: boolean };
+      // When pinning: also set isPublic=true so all users can see it
+      // When unpinning: set isPublic=false so it returns to member-only
       const convo = await prisma.conversation.update({
         where: { id },
-        data: { isPinnedTop: !!isPinnedTop },
-        select: { id: true, name: true, isPinnedTop: true },
+        data: { isPinnedTop: !!isPinnedTop, isPublic: !!isPinnedTop },
+        select: { id: true, name: true, isPinnedTop: true, isPublic: true },
       });
-
-      if (isPinnedTop) {
-        // When pinning: enroll ALL users so everyone can see and chat
-        const allUsers = await prisma.user.findMany({
-          where: { status: { not: "pending" } },
-          select: { id: true },
-        });
-        for (const u of allUsers) {
-          await prisma.conversationMember.create({
-            data: { conversationId: id, userId: u.id },
-          }).catch(() => { /* duplicate ignore */ });
-        }
-      } else {
-        // When unpinning: remove ALL members so it becomes member-only again
-        // (admin should then manually re-add the intended members)
-        await prisma.conversationMember.deleteMany({ where: { conversationId: id } });
-      }
-
       await prisma.auditLog.create({
         data: {
           userId: req.user.id,

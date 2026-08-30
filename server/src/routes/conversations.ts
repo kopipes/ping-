@@ -481,6 +481,7 @@ export async function conversationRoutes(app: FastifyInstance) {
       name?: string;
       description?: string;
       icon?: string;
+      isPublic?: boolean;
     };
     const user = await prisma.user.findUnique({ where: { id: req.user.id } });
     const conv = await prisma.conversation.findUnique({
@@ -505,6 +506,7 @@ export async function conversationRoutes(app: FastifyInstance) {
     if (body.name?.trim()) data.name = body.name.trim();
     if (body.description !== undefined) data.description = body.description?.trim() || null;
     if (body.icon?.trim()) data.icon = body.icon.trim();
+    if (typeof body.isPublic === "boolean") data.isPublic = body.isPublic;
     const updated = await prisma.conversation.update({ where: { id }, data });
     await prisma.auditLog.create({
       data: {

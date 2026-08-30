@@ -82,6 +82,7 @@ export interface Conversation {
   isArchived: boolean;
   isPinnedTop: boolean;
   isReadOnly: boolean;
+  isPublic: boolean;
   members?: ConversationMember[];
   subTopics?: { id: string; name: string; icon: string | null; isReadOnly: boolean }[];
 }

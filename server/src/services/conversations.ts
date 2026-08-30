@@ -83,10 +83,33 @@ export async function getSidebar(userId: string) {
           icon: true,
           isPinnedTop: true,
           isReadOnly: true,
+          isPublic: true,
           parentId: true,
           isArchived: true,
         },
       },
+    },
+  });
+
+  // Also fetch public groups the user is NOT a member of
+  const memberIds = new Set(memberships.map((m) => m.conversationId));
+  const publicGroups = await prisma.conversation.findMany({
+    where: {
+      isPublic: true,
+      isArchived: false,
+      type: "TOPIC",
+      id: { notIn: memberIds.size > 0 ? [...memberIds] : undefined },
+    },
+    select: {
+      id: true,
+      type: true,
+      name: true,
+      icon: true,
+      isPinnedTop: true,
+      isReadOnly: true,
+      isPublic: true,
+      parentId: true,
+      isArchived: true,
     },
   });
 
@@ -116,6 +139,7 @@ export async function getSidebar(userId: string) {
   const level1: SidebarItem[] = [];
   const pendingSubs: (SidebarItem & { parentId: string })[] = [];
 
+  // Process member conversations
   for (const m of memberships) {
     const conv = m.conversation;
     if (conv.isArchived) continue;
@@ -136,6 +160,28 @@ export async function getSidebar(userId: string) {
     if (conv.type === "DM") {
       dms.push(item);
     } else if (conv.isPinnedTop) {
+      pinnedTop.push(item);
+    } else if (conv.parentId) {
+      pendingSubs.push({ ...item, parentId: conv.parentId });
+    } else {
+      level1.push({ ...item, subTopics: [] });
+    }
+  }
+
+  // Process public groups (not already a member)
+  for (const conv of publicGroups) {
+    const item: SidebarItem = {
+      id: conv.id,
+      type: conv.type,
+      name: conv.name,
+      icon: conv.icon,
+      isPinnedTop: conv.isPinnedTop,
+      isReadOnly: conv.isReadOnly,
+      parentId: conv.parentId,
+      unread: 0,
+    };
+
+    if (conv.isPinnedTop) {
       pinnedTop.push(item);
     } else if (conv.parentId) {
       pendingSubs.push({ ...item, parentId: conv.parentId });
