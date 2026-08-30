@@ -7,7 +7,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["icon.svg"],
+      includeAssets: ["icon.svg", "logo.png", "favicon-192x192.png"],
       manifest: {
         name: "Ping!",
         short_name: "Ping!",
@@ -18,10 +18,16 @@ export default defineConfig({
         start_url: "/",
         icons: [
           {
-            src: "/icon.svg",
-            sizes: "any",
-            type: "image/svg+xml",
+            src: "/favicon-192x192.png",
+            sizes: "192x192",
+            type: "image/png",
             purpose: "any",
+          },
+          {
+            src: "/logo.png",
+            sizes: "any",
+            type: "image/png",
+            purpose: "maskable",
           },
         ],
       },

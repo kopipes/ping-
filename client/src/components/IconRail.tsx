@@ -86,8 +86,8 @@ export function IconRail() {
   return (
     <aside className="icon-rail" style={{ background: "var(--color-rail-bg)" }}>
       {/* Logo mark */}
-      <div className="icon-rail-logo" style={{ background: "var(--color-rail-active-pill)" }}>
-        Pi
+      <div className="icon-rail-logo" style={{ background: "var(--color-rail-active-pill)", overflow: "hidden", padding: 0 }}>
+        <img src="/logo.png" alt="Ping!" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
       </div>
 
       {/* Nav items */}
