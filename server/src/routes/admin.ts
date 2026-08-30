@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { prisma } from "../lib/prisma.js";
 import { requireRole } from "../plugins/auth.js";
+import { json } from "../lib/json.js";
 import {
   getDashboardStats,
   getStorageInfo,
@@ -196,6 +197,36 @@ export async function adminRoutes(app: FastifyInstance) {
         },
       });
       return convo;
+    }
+  );
+
+  // Clear all messages in a conversation (admin only)
+  app.delete(
+    "/conversations/:id/messages",
+    { preHandler: requireRole("ADMIN") },
+    async (req, reply) => {
+      const { id } = req.params as { id: string };
+      const conv = await prisma.conversation.findUnique({
+        where: { id },
+        select: { name: true, type: true },
+      });
+      if (!conv) {
+        reply.code(404).send({ error: "Conversation tidak ditemukan" });
+        return;
+      }
+      await prisma.reaction.deleteMany({ where: { message: { conversationId: id } } });
+      await prisma.attachment.deleteMany({ where: { message: { conversationId: id } } });
+      await prisma.pinnedItem.deleteMany({ where: { conversationId: id } });
+      await prisma.message.deleteMany({ where: { conversationId: id } });
+      await prisma.auditLog.create({
+        data: {
+          userId: req.user.id,
+          action: "CONVERSATION_CLEAR",
+          targetId: id,
+          metadata: json({ name: conv.name, type: conv.type }),
+        },
+      });
+      reply.send({ ok: true });
     }
   );
 

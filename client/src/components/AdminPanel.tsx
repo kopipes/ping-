@@ -529,6 +529,20 @@ function TopicsTab() {
     } catch (e: any) { toast(e?.message || "Gagal update"); }
   };
 
+  const clearChat = async (id: string, name: string | null) => {
+    const ok = await confirm({
+      title: "Hapus Semua Pesan",
+      message: `Hapus SEMUA pesan di "${name || "group ini"}"? Tindakan ini tidak bisa dibatalkan.`,
+      confirmLabel: "Hapus Semua",
+      danger: true,
+    });
+    if (!ok) return;
+    try {
+      await api(`/api/admin/conversations/${id}/messages`, { method: "DELETE" });
+      toast("Semua pesan berhasil dihapus");
+    } catch (e: any) { toast(e?.message || "Gagal hapus pesan"); }
+  };
+
   const deleteConversation = async (id: string, name: string | null, type: string) => {
     const label = type === "DM" ? "DM" : `channel "${name}"`;
     const ok = await confirm({
@@ -598,6 +612,11 @@ function TopicsTab() {
                     {t.isArchived ? "Restore" : "Archive"}
                   </button>
                 )}
+                {/* Clear chat */}
+                <button onClick={() => clearChat(t.id, t.name)}
+                  className="px-2 py-1 rounded text-xs font-semibold bg-orange-50 text-orange-600 border border-orange-200 hover:bg-orange-100 transition">
+                  🗑 Clear Chat
+                </button>
                 {/* Delete — admin only, not for system channels */}
                 {!t.isPinnedTop && (
                   <button onClick={() => deleteConversation(t.id, t.name, t.type)}

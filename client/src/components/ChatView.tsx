@@ -50,7 +50,8 @@ export function ChatView() {
   }, [messages.length]);
 
   const isDM = convo?.type === "DM";
-  const readOnly = convo?.isReadOnly || perms?.canPost === false;
+  // Use server-computed canPost — it already accounts for isReadOnly AND admin role
+  const readOnly = perms?.canPost === false;
   const isOwn = (m: Message) => m.userId === myId;
   const chanPrefix = isDM ? "" : "#";
   // For DMs, the server stores name=null and resolves partner name only in sidebar.
