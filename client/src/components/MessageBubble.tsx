@@ -65,11 +65,16 @@ export function MessageBubble(props: {
   const openMenu = () => {
     if (menuBtnRef.current) {
       const r = menuBtnRef.current.getBoundingClientRect();
+      const menuH = 280;
+      const spaceAbove = r.top;
       const spaceBelow = window.innerHeight - r.bottom;
-      const menuH = 280; // approx menu height
-      const rawTop = spaceBelow > menuH ? r.bottom + 4 : r.top - menuH - 4;
+      // Prefer below; only flip up if there's more space above AND not enough below
+      const openDown = spaceBelow >= menuH || spaceAbove < menuH;
+      const top = openDown
+        ? Math.min(r.bottom + 4, window.innerHeight - menuH - 8)
+        : r.top - menuH - 4;
       setMenuPos({
-        top: Math.max(8, Math.min(rawTop, window.innerHeight - menuH - 8)),
+        top: Math.max(8, top),
         left: Math.min(Math.max(8, r.left), window.innerWidth - 216),
       });
     }

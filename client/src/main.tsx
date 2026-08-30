@@ -6,6 +6,17 @@ import "./index.css";
 import App from "./App";
 import { ModalProvider } from "./components/Modal";
 
+// Force-clear stale service worker caches on every load.
+// Old SWs cached assets with immutable headers — this ensures the new SW
+// takes control immediately without waiting for all tabs to close.
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.getRegistrations().then((regs) => {
+    regs.forEach((reg) => {
+      reg.update(); // trigger SW update check immediately
+    });
+  });
+}
+
 registerSW({ immediate: true });
 
 // Apply saved font size on boot

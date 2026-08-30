@@ -11,12 +11,14 @@ export function Composer({
   parentId,
   replyTo,
   onCancelReply,
+  onBack,
 }: {
   conversationId: string;
   readOnly: boolean;
   parentId?: string | null;
   replyTo?: { name: string; content: string | null } | null;
   onCancelReply?: () => void;
+  onBack?: () => void;
 }) {
   const { t } = useTranslation();
   const { toast, prompt } = useModal();
@@ -132,7 +134,15 @@ export function Composer({
 
         {/* Toolbar */}
         <div className="flex items-center gap-0.5 px-2 pb-2 pt-0.5">
-          {/* Format hint */}
+          {/* Back button — mobile only */}
+          {onBack && (
+            <button onClick={onBack}
+              className="md:hidden w-8 h-8 flex items-center justify-center rounded text-sb bg-sb/10 hover:bg-sb/20 transition mr-1"
+              aria-label="Kembali">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+          )}
+          {/* Attachment */}
           <ToolBtn title="Lampiran" onClick={() => fileRef.current?.click()}>
             {uploading ? <span className="text-xs text-primary font-bold">…</span> : (
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="m21.4 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
