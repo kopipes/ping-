@@ -222,20 +222,12 @@ export function Sidebar() {
     >
       {/* ── Search bar ── */}
       <div className="shrink-0 flex items-center gap-2 px-3 pt-3 pb-2">
-        {/* App icon */}
-        <div className="w-8 h-8 rounded-lg shrink-0 flex items-center justify-center font-black text-white text-sm"
-          style={{ background: "linear-gradient(135deg, var(--color-brand, #2E46E0), #7c3aed)" }}>
-          Pi
-        </div>
-        {/* Search input */}
+        {/* Search input — same left edge as Pi icon in rail */}
         <div className="flex-1 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10">
-          <svg className="w-3.5 h-3.5 shrink-0 text-white/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
-            <circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>
-          </svg>
           <input
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            placeholder={showDMs ? "Cari DM…" : "Cari channel…"}
+            placeholder={showDMs ? "Cari DM…" : "Cari group…"}
             className="flex-1 bg-transparent text-sm text-white/70 placeholder:text-white/40 outline-none"
           />
           {filter && (
@@ -261,7 +253,7 @@ export function Sidebar() {
               />
             </div>
 
-            {/* Pinned top / Unreads section */}
+            {/* Pinned top / Unggulan section */}
             {(sidebar?.pinnedTop || []).filter(matchItem).length > 0 && (
               <>
                 <SectionHeader label="Unggulan" />
@@ -269,7 +261,7 @@ export function Sidebar() {
                   {(sidebar?.pinnedTop || []).filter(matchItem).map((item) => (
                     <SbItem
                       key={item.id}
-                      label={item.name || "Channel"}
+                      label={item.name || "Group"}
                       active={activeId === item.id}
                       unread={item.unread > 0}
                       unreadCount={item.unread}
@@ -284,7 +276,7 @@ export function Sidebar() {
             {(sidebar?.level1 || []).length > 0 ? (
               <>
                 <SectionHeader
-                  label="Channels"
+                  label="Groups"
                   collapsed={collapsed["channels"]}
                   onToggle={() => toggleCollapse("channels")}
                   onAdd={isAdminish ? () => setShowNewTopic(true) : undefined}
@@ -337,13 +329,13 @@ export function Sidebar() {
               </>
             ) : !sidebarLoading ? (
               <div className="px-4 py-6 text-center">
-                <p className="text-sm text-white/40">Belum ada channel.</p>
+                <p className="text-sm text-white/40">Belum ada group.</p>
                 {isAdminish && (
                   <button
                     onClick={() => setShowNewTopic(true)}
                     className="mt-2 text-sm text-white/60 underline hover:text-white transition"
                   >
-                    Buat channel pertama
+                    Buat group pertama
                   </button>
                 )}
               </div>

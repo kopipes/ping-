@@ -36,8 +36,12 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
   const [addingIds, setAddingIds] = useState<string[]>([]);
 
   const isDM = convo?.type === "DM";
-  const canEdit = perms?.isAdmin || perms?.isOwner || false;
-  const canManageMembers = perms?.canManageMembers || false;
+  // #6: only owner (creator) can edit, not all admins
+  const canEdit = perms?.isOwner || false;
+  // #8: group admin (MANAGER role in conversation) OR app admin can manage members
+  const myMemberRole = members.find((m) => m.user.id === myId)?.role;
+  const isGroupAdmin = myMemberRole === "MANAGER" || myMemberRole === "ADMIN";
+  const canManageMembers = perms?.canManageMembers || isGroupAdmin || false;
   const isAdminish = myRole === "ADMIN" || myRole === "SUPER_ADMIN";
 
   useEffect(() => {
@@ -73,13 +77,13 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
       await openConversation(conversationId);
       await loadSidebar();
       setEditMode(false);
-      toast("Channel berhasil diperbarui");
+                    toast("Group berhasil diperbarui");
     } catch (e: any) { toast(e?.message || "Gagal simpan"); }
     finally { setSaving(false); }
   };
 
   const removeMember = async (userId: string, name: string) => {
-    const ok = await confirm({ title: "Hapus Member", message: `Hapus ${name} dari channel ini?`, confirmLabel: "Hapus", danger: true });
+    const ok = await confirm({ title: "Hapus Member", message: `Hapus ${name} dari group ini?`, confirmLabel: "Hapus", danger: true });
     if (!ok) return;
     try {
       await api(`/api/conversations/${conversationId}/members/${userId}`, { method: "DELETE" });
@@ -100,8 +104,8 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
 
   const deleteConversation = async () => {
     const ok = await confirm({
-      title: "Hapus Channel",
-      message: `Hapus channel "${convo?.name}" secara permanen? Semua pesan dan data akan hilang.`,
+      title: "Hapus Group",
+      message: `Hapus group "${convo?.name}" secara permanen? Semua pesan dan data akan hilang.`,
       confirmLabel: "Hapus",
       danger: true,
     });
@@ -111,6 +115,19 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
       await loadSidebar();
       onClose();
     } catch (e: any) { toast(e?.message || "Gagal hapus"); }
+  };
+
+  const togglePinnedTop = async () => {
+    const isPinned = !!(convo as any)?.isPinnedTop;
+    try {
+      await api(`/api/admin/conversations/${conversationId}/pinned-top`, {
+        method: "PATCH",
+        body: { isPinnedTop: !isPinned },
+      });
+      await loadSidebar();
+      await openConversation(conversationId);
+      toast(isPinned ? "Dihapus dari Unggulan" : "Ditambahkan ke Unggulan");
+    } catch (e: any) { toast(e?.message || "Gagal update Unggulan"); }
   };
 
   const nonMembers = allUsers.filter(
@@ -139,7 +156,7 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <h2 className="font-bold text-gray-900 text-base truncate">{isDM ? "Info DM" : (convo?.name || "Channel")}</h2>
+            <h2 className="font-bold text-gray-900 text-base truncate">{isDM ? "Info DM" : (convo?.name || "Group")}</h2>
             {!isDM && convo?.parent && (
               <p className="text-xs text-gray-500">dalam {convo.parent.name}</p>
             )}
@@ -203,7 +220,7 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
                     <button onClick={() => setEditMode(true)}
                       className="flex items-center gap-1.5 text-sm text-primary hover:underline">
                       <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                      Edit info channel
+                      Edit info group
                     </button>
                   )}
                 </div>
@@ -243,7 +260,11 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-sm font-medium text-gray-900 truncate">{m.user.name}</div>
-                        <div className="text-xs text-gray-500 truncate capitalize">{m.role || m.user.role}</div>
+                        <div className="text-xs text-gray-500 truncate">
+                          {m.role === "MANAGER" ? "Admin Group" : m.role === "ADMIN" ? "Admin Group" : "Anggota"}
+                          {" · "}
+                          {m.user.role === "SUPER_ADMIN" ? "Super Admin" : m.user.role === "ADMIN" ? "Admin" : m.user.role === "MANAGER" ? "Manager" : "Staff"}
+                        </div>
                       </div>
                       {m.user.status === "online" && (
                         <span className="text-[10px] text-green-600 font-medium shrink-0">● Online</span>
@@ -252,7 +273,7 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
                         <button
                           onClick={() => removeMember(m.user.id, m.user.name)}
                           className="opacity-0 group-hover:opacity-100 w-6 h-6 rounded flex items-center justify-center text-red-500 hover:bg-red-50 transition text-xs shrink-0"
-                          title="Hapus dari channel">
+                       title="Hapus dari group">
                           ✕
                         </button>
                       )}
@@ -289,15 +310,28 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
             )}
           </section>
 
-          {/* ── Danger zone (admin only) ── */}
-          {isAdminish && !isDM && !(convo as any)?.isPinnedTop && (
+          {/* ── Admin actions (admin only) ── */}
+          {isAdminish && !isDM && (
             <section className="px-5 py-4 border-t border-gray-100">
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Zona Berbahaya</p>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Admin</p>
+              {/* Pin/unpin to Unggulan */}
               <button
-                onClick={deleteConversation}
-                className="w-full h-9 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm font-semibold hover:bg-red-100 transition">
-                🗑 Hapus Channel Permanen
+                onClick={togglePinnedTop}
+                className={`w-full h-9 rounded-lg border text-sm font-semibold transition mb-2 ${
+                  (convo as any)?.isPinnedTop
+                    ? "bg-yellow-50 border-yellow-200 text-yellow-700 hover:bg-yellow-100"
+                    : "bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100"
+                }`}>
+                {(convo as any)?.isPinnedTop ? "★ Hapus dari Unggulan" : "☆ Tambahkan ke Unggulan"}
               </button>
+              {/* Delete — not for system channels */}
+              {!(convo as any)?.isPinnedTop && (
+                <button
+                  onClick={deleteConversation}
+                  className="w-full h-9 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm font-semibold hover:bg-red-100 transition">
+                  🗑 Hapus Group Permanen
+                </button>
+              )}
             </section>
           )}
         </div>
