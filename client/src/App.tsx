@@ -53,10 +53,19 @@ export default function App() {
       });
       // Re-join all conversation rooms after reconnect (server drops membership on disconnect)
       const offReconnected = on("socket:reconnected", () => {
-        const { activeId, messages } = useChatStore.getState();
+        const { sidebar, activeId, messages } = useChatStore.getState();
         const roomIds = new Set<string>();
         if (activeId) roomIds.add(activeId);
         Object.keys(messages).forEach((id) => roomIds.add(id));
+        // Also re-join all sidebar conversations so messages arrive without opening them
+        if (sidebar) {
+          sidebar.pinnedTop?.forEach((c) => roomIds.add(c.id));
+          sidebar.level1?.forEach((c) => {
+            roomIds.add(c.id);
+            c.subTopics?.forEach((s) => roomIds.add(s.id));
+          });
+          sidebar.dms?.forEach((c) => roomIds.add(c.id));
+        }
         roomIds.forEach((id) => joinConversation(id));
       });
 

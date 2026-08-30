@@ -157,7 +157,7 @@ export function ChatView() {
        tab === "library" ? <LibraryTab conversationId={id} /> : (
         <>
           {/* Message list */}
-          <div className="flex-1 overflow-y-auto overflow-x-hidden slim-scroll py-2">
+          <div className="flex-1 overflow-y-auto overflow-x-clip slim-scroll py-2">
             {loading && messages.length === 0 ? (
               <div className="px-5 space-y-4 pt-4">
                 {[...Array(6)].map((_, i) => (

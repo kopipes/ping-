@@ -49,7 +49,7 @@
   /* Message list needs overflow visible for action menus */
   .msg-list {
     overflow-y: auto;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
   /* Sidebar item */
   .sb-item {
