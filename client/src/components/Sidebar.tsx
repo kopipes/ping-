@@ -269,7 +269,6 @@ export function Sidebar() {
                   {(sidebar?.pinnedTop || []).filter(matchItem).map((item) => (
                     <SbItem
                       key={item.id}
-                      icon={item.icon || "#"}
                       label={item.name || "Channel"}
                       active={activeId === item.id}
                       unread={item.unread > 0}
