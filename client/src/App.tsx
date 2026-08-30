@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useAuthStore } from "./store/auth";
 import { useChatStore } from "./store/chat";
-import { on } from "./lib/socket";
+import { on, joinConversation } from "./lib/socket";
 import { Login } from "./pages/Login";
 import { Layout } from "./components/Layout";
 import type { Message } from "./types";
@@ -51,6 +51,14 @@ export default function App() {
         const cur = useAuthStore.getState().user;
         if (cur) useAuthStore.getState().setUser({ ...cur, status: "online" });
       });
+      // Re-join all conversation rooms after reconnect (server drops membership on disconnect)
+      const offReconnected = on("socket:reconnected", () => {
+        const { activeId, messages } = useChatStore.getState();
+        const roomIds = new Set<string>();
+        if (activeId) roomIds.add(activeId);
+        Object.keys(messages).forEach((id) => roomIds.add(id));
+        roomIds.forEach((id) => joinConversation(id));
+      });
 
       return () => {
         offMessage();
@@ -62,6 +70,7 @@ export default function App() {
         offReaction();
         offReactionRemove();
         offConnected();
+        offReconnected();
       };
     }
   }, [user, loadSidebar, receiveMessage, receiveEdited, receiveRemoved, toggleTyping, toggleReaction, loadPinned]);
@@ -70,7 +79,7 @@ export default function App() {
     return (
       <div className="h-full flex items-center justify-center bg-appbg">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center text-white text-xl font-bold">PC</div>
+          <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center text-white text-xl font-bold">Pi</div>
           <div className="skeleton h-3 w-28 rounded-full" />
         </div>
       </div>

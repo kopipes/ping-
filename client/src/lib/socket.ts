@@ -46,6 +46,8 @@ export function connectSocket() {
     console.log("[socket] connected");
     // notify auth store that we're online
     emitLocal("socket:connected", {});
+    // Re-join all conversation rooms — server drops membership on disconnect
+    emitLocal("socket:reconnected", {});
   });
 
   socket.on("disconnect", (reason) => {
