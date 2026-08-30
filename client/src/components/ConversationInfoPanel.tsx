@@ -148,6 +148,10 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
         method: "PATCH",
         body: { isPublic: !isCurrentlyPublic },
       });
+      // Force fresh fetch of conversation metadata by clearing the cache entry
+      useChatStore.setState((s) => ({
+        conversation: { ...s.conversation, [conversationId]: undefined as any },
+      }));
       await loadSidebar();
       await openConversation(conversationId);
       toast(isCurrentlyPublic ? "Group jadi Member Only" : "Group jadi Public — semua bisa melihat");
@@ -355,16 +359,24 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
           {isAdminish && !isDM && (
             <section className="px-5 py-4 border-t border-gray-100">
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Admin</p>
-              {/* Public / Member-only toggle */}
-              <button
-                onClick={togglePublic}
-                className={`w-full h-9 rounded-lg border text-sm font-semibold transition mb-2 ${
-                  convo?.isPublic
-                    ? "bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
-                    : "bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100"
-                }`}>
-                {convo?.isPublic ? "🌐 Public — semua bisa melihat" : "🔒 Member Only"}
-              </button>
+              {/* Public / Member-only toggle — shows status + action button */}
+              <div className="mb-2">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs text-gray-500">Visibilitas</span>
+                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                    convo?.isPublic
+                      ? "bg-green-100 text-green-700"
+                      : "bg-gray-100 text-gray-600"
+                  }`}>
+                    {convo?.isPublic ? "🌐 Public" : "🔒 Member Only"}
+                  </span>
+                </div>
+                <button
+                  onClick={togglePublic}
+                  className="w-full h-9 rounded-lg border border-gray-300 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition">
+                  {convo?.isPublic ? "Jadikan Member Only" : "Jadikan Public (semua bisa melihat)"}
+                </button>
+              </div>
               {/* Pin/unpin */}
               <button
                 onClick={togglePinnedTop}
