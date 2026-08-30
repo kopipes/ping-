@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useChatStore } from "../store/chat";
 import { useUIStore } from "../store/ui";
-import { BackIcon, FileIcon } from "./icons";
+import { FileIcon } from "./icons";
 import type { SearchResult } from "../types";
 
 type QTab = "all" | "messages" | "files" | "links";
@@ -13,7 +13,6 @@ export function SearchView() {
   const setSearchActive = useChatStore((s) => s.setSearchActive);
   const openConversation = useChatStore((s) => s.openConversation);
   const setChatOpen = useUIStore((s) => s.setChatOpen);
-  const setMobileTab = useUIStore((s) => s.setMobileTab);
 
   const [q, setQ] = useState("");
   const [tab, setTab] = useState<QTab>("all");
@@ -29,7 +28,6 @@ export function SearchView() {
     openConversation(id);
     setSearchActive(false);
     setChatOpen(true);
-    setMobileTab("list");
   };
 
   const tabs: { key: QTab; label: string }[] = [
@@ -61,11 +59,6 @@ export function SearchView() {
     <div className="h-full flex flex-col bg-appbg">
       {/* Header */}
       <div className="shrink-0 flex items-center gap-2 px-3 py-2.5 border-b border-border bg-white">
-        <button
-          onClick={() => { setSearchActive(false); setChatOpen(false); setMobileTab("list"); }}
-          className="w-8 h-8 flex items-center justify-center rounded hover:bg-hover text-textm transition">
-          <BackIcon className="w-5 h-5" />
-        </button>
         <div className="flex-1 flex items-center gap-2 h-10 px-3 rounded-lg bg-hover border border-border focus-within:border-primary transition">
           <svg className="w-4 h-4 text-textm shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
           <input
