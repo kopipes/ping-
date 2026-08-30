@@ -100,6 +100,77 @@
   --touch-target-min: 44px;
 }
 
+/* ── Color Themes ────────────────────────────────────────────────────────────
+   Each theme overrides rail, sidebar, brand, and accent colors.
+   The light content area (page bg, cards, text) stays the same across all themes.
+   Apply by setting data-theme="..." on <html>.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/* Theme 1: Navy (default) — Signal Blue */
+[data-theme="navy"] {
+  --color-rail-bg:        #111D33;
+  --color-sidebar-bg:     #1A2540;
+  --color-brand-50:       #EEF1FE;
+  --color-brand-100:      #DDE4FD;
+  --color-brand-500:      #3B5BFA;
+  --color-brand-600:      #2E46E0;
+  --color-brand-700:      #2436B8;
+  --surface-active:       #EEF1FE;
+  --shadow-focus:         0 0 0 3px #DDE4FD;
+}
+
+/* Theme 2: Slate — Deep Indigo */
+[data-theme="slate"] {
+  --color-rail-bg:        #0F172A;
+  --color-sidebar-bg:     #1E293B;
+  --color-brand-50:       #EEF2FF;
+  --color-brand-100:      #E0E7FF;
+  --color-brand-500:      #6366F1;
+  --color-brand-600:      #4F46E5;
+  --color-brand-700:      #4338CA;
+  --surface-active:       #EEF2FF;
+  --shadow-focus:         0 0 0 3px #E0E7FF;
+}
+
+/* Theme 3: Forest — Deep Emerald */
+[data-theme="forest"] {
+  --color-rail-bg:        #0D1F1A;
+  --color-sidebar-bg:     #14302A;
+  --color-brand-50:       #ECFDF5;
+  --color-brand-100:      #D1FAE5;
+  --color-brand-500:      #10B981;
+  --color-brand-600:      #059669;
+  --color-brand-700:      #047857;
+  --surface-active:       #ECFDF5;
+  --shadow-focus:         0 0 0 3px #D1FAE5;
+}
+
+/* Theme 4: Charcoal — Warm Gray */
+[data-theme="charcoal"] {
+  --color-rail-bg:        #18181B;
+  --color-sidebar-bg:     #27272A;
+  --color-brand-50:       #F4F4F5;
+  --color-brand-100:      #E4E4E7;
+  --color-brand-500:      #71717A;
+  --color-brand-600:      #52525B;
+  --color-brand-700:      #3F3F46;
+  --surface-active:       #F4F4F5;
+  --shadow-focus:         0 0 0 3px #E4E4E7;
+}
+
+/* Theme 5: Bordeaux — Deep Rose */
+[data-theme="bordeaux"] {
+  --color-rail-bg:        #1A0E14;
+  --color-sidebar-bg:     #2D1520;
+  --color-brand-50:       #FFF1F2;
+  --color-brand-100:      #FFE4E6;
+  --color-brand-500:      #F43F5E;
+  --color-brand-600:      #E11D48;
+  --color-brand-700:      #BE123C;
+  --surface-active:       #FFF1F2;
+  --shadow-focus:         0 0 0 3px #FFE4E6;
+}
+
 @layer base {
   html {
     overflow-x: hidden;

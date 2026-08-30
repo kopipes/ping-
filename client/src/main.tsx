@@ -28,6 +28,10 @@ document.documentElement.style.setProperty("--app-font-size", sizeMap[savedSize]
 const savedChatBg = localStorage.getItem("pvc-chat-bg") || "#FFFFFF";
 document.documentElement.style.setProperty("--chat-bg", savedChatBg);
 
+// Apply saved color theme on boot
+const savedTheme = localStorage.getItem("pvc-theme") || "navy";
+document.documentElement.setAttribute("data-theme", savedTheme);
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <ModalProvider>

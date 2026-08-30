@@ -15,6 +15,21 @@ import {
   getNotificationPermission,
 } from "../lib/push";
 
+const THEMES = [
+  { key: "navy",     label: "Navy",      rail: "#111D33", sidebar: "#1A2540", brand: "#2E46E0", description: "Signal Blue — default" },
+  { key: "slate",    label: "Slate",     rail: "#0F172A", sidebar: "#1E293B", brand: "#4F46E5", description: "Deep Indigo" },
+  { key: "forest",   label: "Forest",    rail: "#0D1F1A", sidebar: "#14302A", brand: "#059669", description: "Emerald Green" },
+  { key: "charcoal", label: "Charcoal",  rail: "#18181B", sidebar: "#27272A", brand: "#52525B", description: "Warm Gray" },
+  { key: "bordeaux", label: "Bordeaux",  rail: "#1A0E14", sidebar: "#2D1520", brand: "#E11D48", description: "Deep Rose" },
+] as const;
+
+type ThemeKey = typeof THEMES[number]["key"];
+
+function applyTheme(key: ThemeKey) {
+  document.documentElement.setAttribute("data-theme", key);
+  localStorage.setItem("pvc-theme", key);
+}
+
 const FONT_SIZES = [
   { key: "small",  label: "Kecil",  px: "13px" },
   { key: "normal", label: "Normal", px: "15px" },
@@ -79,6 +94,11 @@ export function ProfileView({ onClose }: { onClose?: () => void }) {
   // Font size
   const [fontSize, setFontSize] = useState<FontSizeKey>(
     (localStorage.getItem("pvc-font-size") as FontSizeKey) || "normal"
+  );
+
+  // Color theme
+  const [theme, setTheme] = useState<ThemeKey>(
+    (localStorage.getItem("pvc-theme") as ThemeKey) || "navy"
   );
 
   // Chat background
@@ -288,6 +308,44 @@ export function ProfileView({ onClose }: { onClose?: () => void }) {
                 {l.label}
               </button>
             ))}
+          </div>
+        </section>
+
+        {/* Color Theme */}
+        <section>
+          <h4 className="text-sm font-semibold text-textp mb-3">Tema Warna</h4>
+          <div className="grid grid-cols-5 gap-2">
+            {THEMES.map((t) => {
+              const isActive = theme === t.key;
+              return (
+                <button
+                  key={t.key}
+                  onClick={() => {
+                    setTheme(t.key);
+                    applyTheme(t.key);
+                  }}
+                  title={`${t.label} — ${t.description}`}
+                  className={`flex flex-col items-center gap-1.5 p-2 rounded-xl border-2 transition ${
+                    isActive ? "border-primary bg-primary/5" : "border-border hover:border-gray-300 bg-white"
+                  }`}
+                >
+                  {/* Mini preview: rail + sidebar + brand swatch */}
+                  <div className="flex rounded-lg overflow-hidden w-full h-8 shrink-0">
+                    <div className="w-2 shrink-0" style={{ background: t.rail }} />
+                    <div className="w-4 shrink-0" style={{ background: t.sidebar }} />
+                    <div className="flex-1 flex items-center justify-center" style={{ background: "#F8F9FC" }}>
+                      <div className="w-3 h-3 rounded-full" style={{ background: t.brand }} />
+                    </div>
+                  </div>
+                  <span className={`text-[10px] font-semibold leading-none ${isActive ? "text-primary" : "text-textm"}`}>
+                    {t.label}
+                  </span>
+                  {isActive && (
+                    <span className="text-[9px] text-primary leading-none">✓ Aktif</span>
+                  )}
+                </button>
+              );
+            })}
           </div>
         </section>
 
