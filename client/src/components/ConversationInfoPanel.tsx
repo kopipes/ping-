@@ -137,8 +137,8 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
       });
       await loadSidebar();
       await openConversation(conversationId);
-      toast(isPinned ? "Dihapus dari Unggulan" : "Ditambahkan ke Unggulan");
-    } catch (e: any) { toast(e?.message || "Gagal update Unggulan"); }
+      toast(isPinned ? "Dihapus dari Pinned" : "Ditambahkan ke Pinned");
+    } catch (e: any) { toast(e?.message || "Gagal update Pinned"); }
   };
 
   const nonMembers = allUsers.filter(
@@ -342,7 +342,7 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
           {isAdminish && !isDM && (
             <section className="px-5 py-4 border-t border-gray-100">
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Admin</p>
-              {/* Pin/unpin to Unggulan */}
+              {/* Pin/unpin */}
               <button
                 onClick={togglePinnedTop}
                 className={`w-full h-9 rounded-lg border text-sm font-semibold transition mb-2 ${
@@ -350,7 +350,7 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
                     ? "bg-yellow-50 border-yellow-200 text-yellow-700 hover:bg-yellow-100"
                     : "bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100"
                 }`}>
-                {(convo as any)?.isPinnedTop ? "★ Hapus dari Unggulan" : "☆ Tambahkan ke Unggulan"}
+                {(convo as any)?.isPinnedTop ? "★ Hapus dari Pinned" : "☆ Tambahkan ke Pinned"}
               </button>
               {/* Delete — not for system channels */}
               {!(convo as any)?.isPinnedTop && (
