@@ -430,17 +430,26 @@ export async function conversationRoutes(app: FastifyInstance) {
     reply.send({ ok: true });
   });
 
-  // Update setting per-topic
+  // Update setting per-topic (name, description, icon, allowStaffPin)
   app.patch("/:id", async (req, reply) => {
     const { id } = req.params as { id: string };
-    const body = (req.body ?? {}) as { allowStaffPin?: boolean };
+    const body = (req.body ?? {}) as {
+      allowStaffPin?: boolean;
+      name?: string;
+      description?: string;
+      icon?: string;
+    };
     const user = await prisma.user.findUnique({ where: { id: req.user.id } });
     const conv = await prisma.conversation.findUnique({
       where: { id },
-      select: { ownerId: true },
+      select: { ownerId: true, type: true },
     });
     if (!conv) {
       reply.code(404).send({ error: "Conversation tidak ditemukan" });
+      return;
+    }
+    if (conv.type === "DM") {
+      reply.code(400).send({ error: "DM tidak bisa diedit" });
       return;
     }
     const isAdmin = user?.role === "SUPER_ADMIN" || user?.role === "ADMIN";
@@ -450,11 +459,67 @@ export async function conversationRoutes(app: FastifyInstance) {
     }
     const data: any = {};
     if (typeof body.allowStaffPin === "boolean") data.allowStaffPin = body.allowStaffPin;
-    const updated = await prisma.conversation.update({
-      where: { id },
-      data,
+    if (body.name?.trim()) data.name = body.name.trim();
+    if (body.description !== undefined) data.description = body.description?.trim() || null;
+    if (body.icon?.trim()) data.icon = body.icon.trim();
+    const updated = await prisma.conversation.update({ where: { id }, data });
+    await prisma.auditLog.create({
+      data: {
+        userId: req.user.id,
+        action: "TOPIC_EDIT",
+        targetId: id,
+        metadata: json({ name: updated.name }),
+      },
     });
-    return { allowStaffPin: updated.allowStaffPin };
+    return { ok: true, name: updated.name, description: updated.description, icon: updated.icon, allowStaffPin: updated.allowStaffPin };
+  });
+
+  // Delete conversation (channel/DM) — admin only
+  app.delete("/:id", async (req, reply) => {
+    const { id } = req.params as { id: string };
+    const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+    if (user?.role !== "SUPER_ADMIN" && user?.role !== "ADMIN") {
+      reply.code(403).send({ error: "Hanya Admin yang bisa menghapus channel" });
+      return;
+    }
+    const conv = await prisma.conversation.findUnique({
+      where: { id },
+      select: { name: true, type: true, isPinnedTop: true },
+    });
+    if (!conv) {
+      reply.code(404).send({ error: "Conversation tidak ditemukan" });
+      return;
+    }
+    if (conv.isPinnedTop) {
+      reply.code(400).send({ error: "Channel sistem tidak bisa dihapus" });
+      return;
+    }
+    // Delete all related data in order
+    await prisma.reaction.deleteMany({ where: { message: { conversationId: id } } });
+    await prisma.attachment.deleteMany({ where: { message: { conversationId: id } } });
+    await prisma.message.deleteMany({ where: { conversationId: id } });
+    await prisma.pinnedItem.deleteMany({ where: { conversationId: id } });
+    await prisma.conversationMember.deleteMany({ where: { conversationId: id } });
+    // Delete sub-topics first
+    const subs = await prisma.conversation.findMany({ where: { parentId: id }, select: { id: true } });
+    for (const sub of subs) {
+      await prisma.reaction.deleteMany({ where: { message: { conversationId: sub.id } } });
+      await prisma.attachment.deleteMany({ where: { message: { conversationId: sub.id } } });
+      await prisma.message.deleteMany({ where: { conversationId: sub.id } });
+      await prisma.pinnedItem.deleteMany({ where: { conversationId: sub.id } });
+      await prisma.conversationMember.deleteMany({ where: { conversationId: sub.id } });
+      await prisma.conversation.delete({ where: { id: sub.id } });
+    }
+    await prisma.conversation.delete({ where: { id } });
+    await prisma.auditLog.create({
+      data: {
+        userId: req.user.id,
+        action: "CONVERSATION_DELETE",
+        targetId: id,
+        metadata: json({ name: conv.name, type: conv.type }),
+      },
+    });
+    reply.send({ ok: true });
   });
 
   // Periksa izin relatif untuk UI

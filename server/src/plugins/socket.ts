@@ -137,8 +137,9 @@ export function setupSocket(io: Server) {
                   select: { name: true },
                 });
                 const convName =
-                  conversation?.name ||
-                  (conversation?.type === "DM" ? "Pesan Langsung" : "Chat");
+                  conversation?.type === "DM"
+                    ? (sender?.name ?? "Pesan Langsung") // DM: use sender name as title
+                    : (conversation?.name || "Chat");
                 await notifyConversationMembers({
                   conversationId: data.conversationId,
                   senderUserId: userId,

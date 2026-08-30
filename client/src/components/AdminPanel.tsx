@@ -494,7 +494,7 @@ function TopicsTab() {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(true);
   const [managingId, setManagingId] = useState<string | null>(null);
-  const { toast } = useModal();
+  const { toast, confirm } = useModal();
 
   const load = () => {
     setLoading(true);
@@ -527,6 +527,22 @@ function TopicsTab() {
       await api(`/api/admin/conversations/${id}/read-only`, { method: "PATCH", body: { isReadOnly: val } });
       setTopics((ts) => ts.map((t) => t.id === id ? { ...t, isReadOnly: val } : t));
     } catch (e: any) { toast(e?.message || "Gagal update"); }
+  };
+
+  const deleteConversation = async (id: string, name: string | null, type: string) => {
+    const label = type === "DM" ? "DM" : `channel "${name}"`;
+    const ok = await confirm({
+      title: "Hapus Channel",
+      message: `Hapus ${label} secara permanen? Semua pesan dan data akan hilang. Tindakan ini tidak bisa dibatalkan.`,
+      confirmLabel: "Hapus",
+      danger: true,
+    });
+    if (!ok) return;
+    try {
+      await api(`/api/conversations/${id}`, { method: "DELETE" });
+      setTopics((ts) => ts.filter((t) => t.id !== id));
+      toast(`${label} berhasil dihapus`);
+    } catch (e: any) { toast(e?.message || "Gagal hapus"); }
   };
 
   return (
@@ -580,6 +596,13 @@ function TopicsTab() {
                       t.isArchived ? "bg-success/10 text-success" : "bg-textm/10 text-textm hover:bg-hover"
                     }`}>
                     {t.isArchived ? "Restore" : "Archive"}
+                  </button>
+                )}
+                {/* Delete — admin only, not for system channels */}
+                {!t.isPinnedTop && (
+                  <button onClick={() => deleteConversation(t.id, t.name, t.type)}
+                    className="px-2 py-1 rounded text-xs font-semibold bg-danger/10 text-danger border border-danger/20 hover:bg-danger/20 transition">
+                    🗑 Hapus
                   </button>
                 )}
               </div>

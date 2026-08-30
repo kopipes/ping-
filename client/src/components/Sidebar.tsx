@@ -269,7 +269,7 @@ export function Sidebar() {
                   {(sidebar?.pinnedTop || []).filter(matchItem).map((item) => (
                     <SbItem
                       key={item.id}
-                      icon={<span>{item.icon || "#"}</span>}
+                      icon={item.icon || "#"}
                       label={item.name || "Channel"}
                       active={activeId === item.id}
                       unread={item.unread > 0}
@@ -294,18 +294,35 @@ export function Sidebar() {
                   <div className="px-1">
                     {(sidebar?.level1 || []).filter(matchItem).map((lv) => (
                       <div key={lv.id}>
-                        <SbItem
-                          icon={<span className="text-white/40">#</span>}
-                          label={lv.name || "channel"}
-                          active={activeId === lv.id}
-                          unread={lv.unread > 0}
-                          unreadCount={lv.unread}
-                          onClick={() => onOpen(lv.id)}
-                        />
-                        {(lv.subTopics || []).filter((s) => matchItem(s)).map((sub) => (
+                        {/* Group header — collapsible, with icon */}
+                        <div className="flex items-center group/grp">
+                          <button
+                            onClick={() => toggleCollapse(`grp-${lv.id}`)}
+                            className="flex items-center gap-1.5 flex-1 min-w-0 px-3 py-1 text-left"
+                          >
+                            <span className="text-[10px] text-white/40 shrink-0">
+                              {collapsed[`grp-${lv.id}`] ? "▶" : "▼"}
+                            </span>
+                            <span className="text-sm shrink-0">{lv.icon || "#"}</span>
+                            <span className={`flex-1 truncate text-sm font-medium ${lv.unread > 0 ? "text-white font-semibold" : "text-white/70"} ${activeId === lv.id ? "text-white" : ""}`}>
+                              {lv.name || "channel"}
+                            </span>
+                            {lv.unread > 0 && activeId !== lv.id && <UnreadBadge count={lv.unread} />}
+                          </button>
+                          {/* Click icon to open the group itself */}
+                          <button
+                            onClick={() => onOpen(lv.id)}
+                            className={`w-7 h-7 mr-1 rounded flex items-center justify-center transition shrink-0 ${activeId === lv.id ? "bg-[var(--color-brand,#2E46E0)]" : "hover:bg-white/10"}`}
+                            title={`Buka ${lv.name}`}
+                          >
+                            <svg className="w-3.5 h-3.5 text-white/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                          </button>
+                        </div>
+                        {/* Sub-topics */}
+                        {!collapsed[`grp-${lv.id}`] && (lv.subTopics || []).filter((s) => matchItem(s)).map((sub) => (
                           <SbItem
                             key={sub.id}
-                            icon={<span className="text-white/30">#</span>}
+                            icon={sub.icon || "#"}
                             label={sub.name || "sub-channel"}
                             active={activeId === sub.id}
                             unread={sub.unread > 0}
@@ -387,7 +404,7 @@ export function Sidebar() {
                   {unreadItems.map((item) => (
                     <SbItem
                       key={item.id}
-                      icon={<span>{item.type === "DM" ? "💬" : (item.icon || "#")}</span>}
+                      icon={item.type === "DM" ? "💬" : (item.icon || "#")}
                       label={item.name || "Direct Message"}
                       active={activeId === item.id}
                       unread={true}

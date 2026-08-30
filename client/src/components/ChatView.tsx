@@ -9,6 +9,7 @@ import { MessageBubble, Avatar } from "./MessageBubble";
 import { Composer } from "./Composer";
 import { PinnedTab } from "./PinnedTab";
 import { LibraryTab } from "./LibraryTab";
+import { ConversationInfoPanel } from "./ConversationInfoPanel";
 import { useModal } from "./Modal";
 import type { Message } from "../types";
 
@@ -35,6 +36,7 @@ export function ChatView() {
   const [editing, setEditing] = useState<Message | null>(null);
   const [editText, setEditText] = useState("");
   const [replyTo, setReplyTo] = useState<Message | null>(null);
+  const [infoOpen, setInfoOpen] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -121,11 +123,15 @@ export function ChatView() {
         )}
         {!isDM && (
           <div className="w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center shrink-0">
-            <span className="text-white/90 font-bold text-sm">#</span>
+            <span className="text-white/90 font-bold text-sm">{convo?.icon || "#"}</span>
           </div>
         )}
 
-        <div className="flex-1 min-w-0">
+        {/* Clickable title area — opens info panel */}
+        <button
+          onClick={() => setInfoOpen(true)}
+          className="flex-1 min-w-0 text-left hover:opacity-80 transition"
+        >
           <h2 className="font-bold text-white text-[1.05em] truncate leading-tight">
             {name}
           </h2>
@@ -135,13 +141,15 @@ export function ChatView() {
             </p>
           ) : convo?.description ? (
             <p className="text-[0.72em] text-white/55 truncate hidden md:block">{convo.description}</p>
-          ) : null}
-        </div>
+          ) : (
+            <p className="text-[0.72em] text-white/40 hidden md:block">Klik untuk info & pengaturan</p>
+          )}
+        </button>
 
         {/* Right actions */}
         <div className="flex items-center gap-0.5">
           {memberCount && !isDM && (
-            <button className="flex items-center gap-1 px-2 h-8 rounded-lg hover:bg-white/10 text-white/70 text-sm transition">
+            <button onClick={() => setInfoOpen(true)} className="flex items-center gap-1 px-2 h-8 rounded-lg hover:bg-white/10 text-white/70 text-sm transition">
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="7" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg>
               <span className="text-xs">{memberCount}</span>
             </button>
@@ -251,6 +259,11 @@ export function ChatView() {
             onCancelReply={() => setReplyTo(null)}
           />
         </>
+      )}
+
+      {/* Conversation Info Panel */}
+      {infoOpen && (
+        <ConversationInfoPanel conversationId={id} onClose={() => setInfoOpen(false)} />
       )}
     </div>
   );
