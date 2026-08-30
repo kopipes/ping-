@@ -36,8 +36,8 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
   const [addingIds, setAddingIds] = useState<string[]>([]);
 
   const isDM = convo?.type === "DM";
-  // #6: only owner (creator) can edit, not all admins
-  const canEdit = perms?.isOwner || false;
+  // Owner can always edit. App admins can edit any group including system channels.
+  const canEdit = perms?.isOwner || myRole === "ADMIN" || myRole === "SUPER_ADMIN" || false;
   // #8: group admin (MANAGER role in conversation) OR app admin can manage members
   const myMemberRole = members.find((m) => m.user.id === myId)?.role;
   const isGroupAdmin = myMemberRole === "MANAGER" || myMemberRole === "ADMIN";
