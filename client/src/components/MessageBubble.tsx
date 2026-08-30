@@ -210,37 +210,37 @@ export function MessageBubble(props: {
                 {message.content}
               </div>
             )}
+
+            {/* Meta row — INSIDE bubble so white text is visible on dark blue */}
+            <div className="flex items-center justify-end gap-1.5 px-3 pb-1.5 -mt-1">
+              {message.isEdited && <span className="text-[10px] text-white/60">(diubah)</span>}
+              {isSending && <span className="text-[10px] text-white/60">Mengirim…</span>}
+              {isFailed && (
+                <button onClick={() => onRetry?.(message)} className="text-[10px] text-red-300 underline">Gagal — kirim ulang</button>
+              )}
+              <span className="text-[11px] text-white/70">{formatMessageTime(message.createdAt)}</span>
+              {!isFailed && !isSending && (
+                <span
+                  className={`text-[12px] font-bold leading-none ${isRead ? "text-sky-200" : "text-white/70"}`}
+                  title={isRead ? "Dibaca" : "Terkirim"}
+                >
+                  {isRead ? "✓✓" : "✓"}
+                </span>
+              )}
+              {/* Mobile-only menu trigger */}
+              {!isSending && !isFailed && (
+                <button onClick={() => setMenuOpen(true)}
+                  className="md:hidden ml-1 w-6 h-6 flex items-center justify-center text-white/60 hover:text-white rounded text-[10px] font-bold">
+                  •••
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Link previews — own message */}
           {!isSending && !isFailed && extractUrls(message.content).map((url) => (
             <LinkPreviewCard key={url} url={url} dark />
           ))}
-
-          {/* Meta row */}
-          <div className="flex items-center gap-1.5 mt-0.5 pr-0.5">
-            {message.isEdited && <span className="text-[10px] text-textm">(diubah)</span>}
-            {isSending && <span className="text-[10px] text-textm">Mengirim…</span>}
-            {isFailed && (
-              <button onClick={() => onRetry?.(message)} className="text-[10px] text-danger underline">Gagal — kirim ulang</button>
-            )}
-            <span className="text-[11px] text-textm">{formatMessageTime(message.createdAt)}</span>
-            {!isFailed && !isSending && (
-              <span
-                className={`text-[11px] font-medium ${isRead ? "text-sky-200" : "text-white/80"}`}
-                title={isRead ? "Dibaca" : "Terkirim"}
-              >
-                {isRead ? "✓✓" : "✓"}
-              </span>
-            )}
-            {/* Mobile-only menu trigger */}
-            {!isSending && !isFailed && (
-              <button onClick={() => setMenuOpen(true)}
-                className="md:hidden ml-1 w-6 h-6 flex items-center justify-center text-white/60 hover:text-white rounded text-[10px] font-bold">
-                •••
-              </button>
-            )}
-          </div>
 
           {/* Reactions */}
           {message.reactions.length > 0 && (
