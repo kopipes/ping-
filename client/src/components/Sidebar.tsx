@@ -137,8 +137,8 @@ function SbItem({
         width: "calc(100% - 8px)",
       }}
     >
-      {icon && <span className="shrink-0 text-sm leading-none">{icon}</span>}
-      <span className="flex-1 truncate text-sm">{label}</span>
+      {icon && <span className="shrink-0 text-base leading-none">{icon}</span>}
+      <span className="flex-1 truncate text-base">{label}</span>
       {unread && !active && unreadCount != null && unreadCount > 0 && (
         <UnreadBadge count={unreadCount} />
       )}
@@ -296,7 +296,7 @@ export function Sidebar() {
                               {collapsed[`grp-${lv.id}`] ? "▶" : "▼"}
                             </span>
                             <span className="text-sm shrink-0">{lv.icon || "#"}</span>
-                            <span className={`flex-1 truncate text-sm font-medium ${lv.unread > 0 ? "text-white font-semibold" : "text-white/70"} ${activeId === lv.id ? "text-white" : ""}`}>
+                            <span className={`flex-1 truncate text-base font-medium ${lv.unread > 0 ? "text-white font-semibold" : "text-white/70"} ${activeId === lv.id ? "text-white" : ""}`}>
                               {lv.name || "channel"}
                             </span>
                             {lv.unread > 0 && activeId !== lv.id && <UnreadBadge count={lv.unread} />}
@@ -369,7 +369,7 @@ export function Sidebar() {
                         style={{ width: "calc(100% - 8px)" }}
                       >
                         <Avatar name={dm.name || "?"} avatarUrl={null} size={20} />
-                        <span className="flex-1 truncate text-sm">{dm.name || "Direct Message"}</span>
+                        <span className="flex-1 truncate text-base">{dm.name || "Direct Message"}</span>
                         {dm.unread > 0 && activeId !== dm.id && <UnreadBadge count={dm.unread} />}
                       </button>
                     ))}
@@ -450,7 +450,7 @@ export function Sidebar() {
                       size={24}
                       online={dm.partnerId ? undefined : undefined}
                     />
-                    <span className="flex-1 truncate text-sm">{dm.name || "Direct Message"}</span>
+                    <span className="flex-1 truncate text-base">{dm.name || "Direct Message"}</span>
                     {dm.unread > 0 && activeId !== dm.id && <UnreadBadge count={dm.unread} />}
                   </button>
                 ))
