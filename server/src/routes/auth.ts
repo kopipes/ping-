@@ -83,4 +83,15 @@ export async function authRoutes(app: FastifyInstance) {
     reply.clearCookie("refreshToken", { path: "/" });
     reply.send({ ok: true });
   });
+
+  // Public — no auth required — used by registration form
+  app.get("/divisions", async () => {
+    const setting = await prisma.auditLog.findFirst({
+      where: { action: "DIVISIONS_SET" },
+      orderBy: { createdAt: "desc" },
+      take: 1,
+    });
+    const divisions: string[] = setting?.metadata ? JSON.parse(setting.metadata) : [];
+    return { divisions };
+  });
 }

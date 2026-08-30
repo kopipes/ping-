@@ -28,7 +28,7 @@ export function Login() {
   // Fetch division master data when register tab is active
   useEffect(() => {
     if (mode === "register" && divisions.length === 0) {
-      api<{ divisions: string[] }>("/api/users/divisions")
+      api<{ divisions: string[] }>("/api/auth/divisions")
         .then((res) => setDivisions(res.divisions || []))
         .catch(() => {});
     }
