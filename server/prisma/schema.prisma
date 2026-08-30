@@ -1,0 +1,175 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Role disimpan sebagai String (nilai valid diawasi di lapisan service/routes):
+// SUPER_ADMIN | ADMIN | MANAGER | STAFF
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  avatarUrl    String?
+  division     String?
+  role         String   @default("STAFF")
+  status       String   @default("offline") // online, offline, away, disabled
+  lastSeenAt   DateTime?
+  locale       String   @default("id") // preferensi bahasa: id | en
+  createdAt    DateTime @default(now())
+
+  memberships ConversationMember[]
+  messages    Message[]
+  pinnedItems PinnedItem[]
+  reactions   Reaction[]
+  auditLogs   AuditLog[]
+  ownedConversations Conversation[]
+  pushSubscriptions  PushSubscription[]
+}
+
+// ConversationType sebagai String: TOPIC | DM
+model Conversation {
+  id             String   @id @default(cuid())
+  type           String // TOPIC | DM
+  name           String? // null untuk DM
+  description    String?
+  icon           String? // emoji atau url icon
+  parentId       String? // null = Topic Level 1 (divisi); diisi = Sub-topic
+  ownerId        String? // userId Manager pemilik sub-topic
+  allowStaffPin  Boolean  @default(true)
+  isArchived     Boolean  @default(false)
+  isPinnedTop    Boolean  @default(false) // true utk Announcement & General Chat
+  isReadOnly     Boolean  @default(false) // true khusus utk Announcement
+  createdAt      DateTime @default(now())
+
+  parent        Conversation?         @relation("SubTopics", fields: [parentId], references: [id])
+  subTopics     Conversation[]        @relation("SubTopics")
+  owner         User?                 @relation(fields: [ownerId], references: [id])
+  members       ConversationMember[]
+  messages      Message[]
+  pinnedItems   PinnedItem[]
+
+  @@index([type])
+  @@index([parentId])
+}
+
+model ConversationMember {
+  id                 String    @id @default(cuid())
+  conversationId     String
+  userId             String
+  role               String    @default("STAFF") // role spesifik di conversation ini
+  isMuted            Boolean   @default(false)
+  mutedLevel         String    @default("all") // all | mentions | none
+  lastReadMessageAt  DateTime? // utk unread count / read sync
+  joinedAt           DateTime  @default(now())
+
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  user           User         @relation(fields: [userId], references: [id])
+
+  @@unique([conversationId, userId])
+  @@index([userId])
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  userId         String
+  parentId       String? // untuk thread (reply ke message lain)
+  content        String?
+  isEdited       Boolean  @default(false)
+  isDeleted      Boolean  @default(false)
+  isArchived     Boolean  @default(false) // true jika sudah di-auto-archive
+  deletedById    String? // userId admin yang menghapus pesan (jika oleh admin)
+  // Info forward (FR-forward): snapshot sumber pesan asli yang diteruskan
+  forwardedFromId            String? // id pesan asli sumber forward
+  forwardedFromConversationId String? // id conversation asal (utk tampilan nama topic/DM)
+  forwardedFromName          String? // snapshot nama pengirim asli
+  createdAt      DateTime @default(now())
+
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  user           User         @relation(fields: [userId], references: [id])
+  parent         Message?     @relation("ThreadReplies", fields: [parentId], references: [id])
+  replies        Message[]    @relation("ThreadReplies")
+  attachments    Attachment[]
+  pinnedAs       PinnedItem[]
+  reactions      Reaction[]
+
+  @@index([conversationId, createdAt])
+  @@index([parentId])
+}
+
+// AttachmentType sebagai String: IMAGE | FILE | LINK
+model Attachment {
+  id            String   @id @default(cuid())
+  messageId     String
+  type          String // IMAGE | FILE | LINK
+  fileUrl       String
+  thumbnailUrl  String?
+  fileName      String?
+  fileSize      Int?
+  linkMetadata  String? // JSON string { title, description, image } utk OG preview
+  createdAt     DateTime @default(now())
+
+  message       Message  @relation(fields: [messageId], references: [id])
+
+  @@index([messageId])
+}
+
+model PinnedItem {
+  id             String   @id @default(cuid())
+  conversationId String
+  messageId      String
+  pinnedById     String
+  note           String?
+  pinnedAt       DateTime @default(now())
+
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  message        Message      @relation(fields: [messageId], references: [id])
+  pinnedBy       User         @relation(fields: [pinnedById], references: [id])
+
+  @@unique([conversationId, messageId])
+}
+
+model Reaction {
+  id        String   @id @default(cuid())
+  messageId String
+  userId    String
+  emoji     String
+  createdAt DateTime @default(now())
+
+  message   Message  @relation(fields: [messageId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([messageId, userId, emoji])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String // siapa yang melakukan aksi
+  action    String // misal: "TOPIC_CREATE", "MEMBER_REMOVE", "ROLE_CHANGE", "MESSAGE_DELETE_BY_ADMIN"
+  targetId  String? // id target (topicId/userId/messageId terkait)
+  metadata  String? // JSON string detail tambahan
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([createdAt])
+}
+
+// Web Push subscriptions — satu per device per user
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String   // client public key
+  auth      String   // auth secret
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}

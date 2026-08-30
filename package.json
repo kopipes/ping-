@@ -1,0 +1,12 @@
+{
+  "name": "pvchat",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Ping! — Internal Company Chat App",
+  "scripts": {
+    "dev": "pnpm --parallel --filter ./server --filter ./client run dev",
+    "build": "pnpm --filter ./server run build && pnpm --filter ./client run build",
+    "typecheck": "pnpm --filter ./server run typecheck && pnpm --filter ./client run typecheck",
+    "seed": "pnpm --filter ./server run seed"
+  }
+}
