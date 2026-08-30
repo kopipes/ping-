@@ -108,17 +108,16 @@
   .msg-own:hover .msg-actions {
     @apply flex;
   }
-  /* Action bar — vertically centered on message row, right-aligned */
+  /* Action bar — floats above the message row */
   .msg-actions {
-    @apply hidden absolute right-4 bg-white border border-border rounded-lg shadow-md z-10 items-center;
-    top: 50%;
-    transform: translateY(-50%);
+    @apply hidden absolute right-4 -top-4 bg-white border border-border rounded-lg shadow-md z-10 items-center;
     overflow: visible;
   }
-  /* Message list */
+  /* Message list — pt-8 gives first message enough clearance so action bar doesn't clip under header */
   .msg-list {
     overflow-y: auto;
     overflow-x: clip;
+    padding-top: 2rem;
   }
   /* Sidebar item */
   .sb-item {
