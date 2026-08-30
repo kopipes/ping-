@@ -26,7 +26,7 @@ export default function App() {
   useEffect(() => {
     if (user) {
       loadSidebar();
-      const offMessage = on("message:new", (m: Message) => receiveMessage(m));
+      const offMessage = on("message:new", (payload: { message: Message }) => receiveMessage(payload.message));
       const offEdited = on("message:edited", (payload: { conversationId: string; message: Message }) =>
         receiveEdited(payload.conversationId, payload.message)
       );
