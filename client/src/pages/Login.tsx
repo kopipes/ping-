@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "../store/auth";
 import { api } from "../lib/api";
@@ -23,6 +23,16 @@ export function Login() {
   const [regError, setRegError] = useState("");
   const [regLoading, setRegLoading] = useState(false);
   const [regSuccess, setRegSuccess] = useState(false);
+  const [divisions, setDivisions] = useState<string[]>([]);
+
+  // Fetch division master data when register tab is active
+  useEffect(() => {
+    if (mode === "register" && divisions.length === 0) {
+      api<{ divisions: string[] }>("/api/users/divisions")
+        .then((res) => setDivisions(res.divisions || []))
+        .catch(() => {});
+    }
+  }, [mode]);
 
   const onLogin = async (e: FormEvent) => {
     e.preventDefault();
@@ -118,8 +128,21 @@ export function Login() {
               </label>
               <label className="flex flex-col gap-1.5">
                 <span className="text-sm font-semibold text-textp">Divisi <span className="font-normal text-textm">(opsional)</span></span>
-                <input type="text" placeholder="Marketing, IT, Finance…" className="input-base"
-                  value={regDivision} onChange={(e) => setRegDivision(e.target.value)} />
+                {divisions.length > 0 ? (
+                  <select
+                    className="input-base"
+                    value={regDivision}
+                    onChange={(e) => setRegDivision(e.target.value)}
+                  >
+                    <option value="">Pilih divisi…</option>
+                    {divisions.map((d) => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <input type="text" placeholder="Marketing, IT, Finance…" className="input-base"
+                    value={regDivision} onChange={(e) => setRegDivision(e.target.value)} />
+                )}
               </label>
               <label className="flex flex-col gap-1.5">
                 <span className="text-sm font-semibold text-textp">Password</span>

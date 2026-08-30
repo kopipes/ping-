@@ -34,6 +34,8 @@ interface ChatStore {
   pinned: Record<string, PinnedItem[]>;
   library: Record<string, LibraryItem[]>;
   typing: Record<string, { userId: string; userName: string }[]>;
+  // readAt[conversationId][userId] = ISO timestamp of last read
+  readAt: Record<string, Record<string, string>>;
   searchActive: boolean;
   searchQuery: string;
   searchResult: SearchResponse | null;
@@ -53,6 +55,7 @@ interface ChatStore {
   toggleReaction: (conversationId: string, messageId: string, emoji: string) => void;
   toggleTyping: (conversationId: string, userId: string, typing: boolean, userName?: string) => void;
   markReadCurrent: () => void;
+  markConversationRead: (conversationId: string, userId: string, at: string) => void;
   setSearchActive: (active: boolean) => void;
   reset: () => void;
 }
@@ -68,6 +71,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   pinned: {},
   library: {},
   typing: {},
+  readAt: {},
   searchActive: false,
   searchQuery: "",
   searchResult: null,
@@ -386,6 +390,18 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     if (get().activeId) markRead(get().activeId!);
   },
 
+  markConversationRead: (conversationId, userId, at) => {
+    set((s) => ({
+      readAt: {
+        ...s.readAt,
+        [conversationId]: {
+          ...(s.readAt[conversationId] || {}),
+          [userId]: at,
+        },
+      },
+    }));
+  },
+
   setSearchActive: (active) => set({ searchActive: active }),
 
   reset: () =>
@@ -398,6 +414,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       pinned: {},
       library: {},
       typing: {},
+      readAt: {},
       searchResult: null,
     }),
 }));

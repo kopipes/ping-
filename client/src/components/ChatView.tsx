@@ -51,7 +51,15 @@ export function ChatView() {
   const readOnly = convo?.isReadOnly || perms?.canPost === false;
   const isOwn = (m: Message) => m.userId === myId;
   const chanPrefix = isDM ? "" : "#";
-  const name = convo?.name || (isDM ? "Direct Message" : "Chat");
+  // For DMs, the server stores name=null and resolves partner name only in sidebar.
+  // Resolve it here from the members list, falling back to sidebar data.
+  const sidebar = useChatStore((s) => s.sidebar);
+  const dmPartnerName = isDM
+    ? convo?.members?.find((m) => m.user.id !== myId)?.user?.name
+      ?? sidebar?.dms.find((d) => d.id === id)?.name
+      ?? null
+    : null;
+  const name = isDM ? (dmPartnerName || "Direct Message") : (convo?.name || "Chat");
 
   const handleForward = (m: Message) =>
     openForward({ message: m, sourceConversationId: id, sourceName: convo?.name ?? null });

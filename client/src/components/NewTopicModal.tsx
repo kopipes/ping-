@@ -92,28 +92,34 @@ export function NewTopicModal({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
-          {/* Level 1 or Sub-group toggle — only for MANAGER+ */}
-          {canCreateL1 && parents.length > 0 && (
+          {/* Level 1 or Sub-group toggle:
+              - MANAGER+ always sees both options (even when no parents exist yet — they can create the first group)
+              - STAFF only sees sub-group option, but only when there are parents to pick from */}
+          {canCreateL1 && (
             <div className="flex gap-2">
               <button onClick={() => setType("level1")}
-                className={`flex-1 h-10 rounded-lg border text-sm font-medium ${type === "level1" ? "border-primary bg-primary/10 text-primary" : "border-border text-textm"}`}>
+                className={`flex-1 h-10 rounded-lg border text-sm font-medium transition ${type === "level1" ? "border-primary bg-primary/10 text-primary" : "border-border text-textm hover:bg-hover"}`}>
                 Group Baru
               </button>
               <button onClick={() => setType("sub")}
-                className={`flex-1 h-10 rounded-lg border text-sm font-medium ${type === "sub" ? "border-primary bg-primary/10 text-primary" : "border-border text-textm"}`}>
+                className={`flex-1 h-10 rounded-lg border text-sm font-medium transition ${type === "sub" ? "border-primary bg-primary/10 text-primary" : "border-border text-textm hover:bg-hover"}`}>
                 Sub-group
               </button>
             </div>
           )}
 
           {/* Parent selection for sub-group */}
-          {type === "sub" && parents.length > 0 && (
+          {type === "sub" && (
             <label className="flex flex-col gap-1.5">
               <span className="text-sm font-semibold text-textp">Group Parent</span>
-              <select className="input-base" value={parentId} onChange={(e) => setParentId(e.target.value)}>
-                <option value="">Pilih group…</option>
-                {parents.map((p) => <option key={p.id} value={p.id}>{p.icon} {p.name}</option>)}
-              </select>
+              {parents.length === 0 ? (
+                <p className="text-sm text-danger">Belum ada group yang bisa dijadikan parent. Buat Group Baru terlebih dahulu.</p>
+              ) : (
+                <select className="input-base" value={parentId} onChange={(e) => setParentId(e.target.value)}>
+                  <option value="">Pilih group…</option>
+                  {parents.map((p) => <option key={p.id} value={p.id}>{p.icon} {p.name}</option>)}
+                </select>
+              )}
             </label>
           )}
 

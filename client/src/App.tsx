@@ -26,7 +26,56 @@ export default function App() {
   useEffect(() => {
     if (user) {
       loadSidebar();
-      const offMessage = on("message:new", (payload: { message: Message }) => receiveMessage(payload.message));
+      // Guard against flooding loadSidebar for unknown conversations.
+      // Tracks CIDs currently being reloaded so we don't fire multiple parallel requests.
+      const pendingReload = new Set<string>();
+
+      const offMessage = on("message:new", (payload: { message: Message }) => {
+        const { sidebar } = useChatStore.getState();
+        const cid = payload.message.conversationId;
+
+        // Build known-ID set from current sidebar
+        const knownIds = new Set<string>();
+        if (sidebar) {
+          sidebar.pinnedTop?.forEach((c) => knownIds.add(c.id));
+          sidebar.level1?.forEach((c) => {
+            knownIds.add(c.id);
+            c.subTopics?.forEach((s) => knownIds.add(s.id));
+          });
+          sidebar.dms?.forEach((c) => knownIds.add(c.id));
+        }
+
+        if (!knownIds.has(cid)) {
+          // Unknown conversation (e.g. new incoming DM).
+          // Guard: skip if a reload for this cid is already in flight.
+          if (!pendingReload.has(cid)) {
+            pendingReload.add(cid);
+            useChatStore.getState().loadSidebar().then(() => {
+              // Only join & show the message if the conversation now exists in sidebar
+              // (confirms membership — discards events for rooms we're not in).
+              const refreshed = useChatStore.getState().sidebar;
+              const confirmedIds = new Set<string>();
+              if (refreshed) {
+                refreshed.pinnedTop?.forEach((c) => confirmedIds.add(c.id));
+                refreshed.level1?.forEach((c) => {
+                  confirmedIds.add(c.id);
+                  c.subTopics?.forEach((s) => confirmedIds.add(s.id));
+                });
+                refreshed.dms?.forEach((c) => confirmedIds.add(c.id));
+              }
+              if (confirmedIds.has(cid)) {
+                joinConversation(cid);
+                receiveMessage(payload.message);
+              }
+              pendingReload.delete(cid);
+            }).catch(() => pendingReload.delete(cid));
+          }
+          // Don't call receiveMessage here — wait for sidebar confirmation above
+          return;
+        }
+
+        receiveMessage(payload.message);
+      });
       const offEdited = on("message:edited", (payload: { conversationId: string; message: Message }) =>
         receiveEdited(payload.conversationId, payload.message)
       );
@@ -70,6 +119,11 @@ export default function App() {
       // socket:reconnected kept for backwards compat but now a no-op
       const offReconnected = on("socket:reconnected", () => {});
 
+      // Track when the DM partner reads messages (read:updated from server)
+      const offReadUpdated = on("read:updated", (p: { conversationId: string; userId: string; at: string }) => {
+        useChatStore.getState().markConversationRead(p.conversationId, p.userId, p.at);
+      });
+
       return () => {
         offMessage();
         offEdited();
@@ -81,6 +135,7 @@ export default function App() {
         offReactionRemove();
         offConnected();
         offReconnected();
+        offReadUpdated();
       };
     }
   }, [user, loadSidebar, receiveMessage, receiveEdited, receiveRemoved, toggleTyping, toggleReaction, loadPinned]);

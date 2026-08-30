@@ -1,4 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
+
+// Stable empty object — avoids creating a new reference on every render
+// when a conversation has no read receipts yet
+const EMPTY_READ_AT: Record<string, string> = {};
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "../store/auth";
@@ -57,10 +61,20 @@ export function MessageBubble(props: {
   const myId = useAuthStore((s) => s.user?.id);
   const toggleReaction = useChatStore((s) => s.toggleReaction);
   const activeId = useChatStore((s) => s.activeId);
+  const readAt = useChatStore((s) => s.readAt[message.conversationId] ?? EMPTY_READ_AT);
   const openForward = useUIStore((s) => s.openForward);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuBtnRef = useRef<HTMLButtonElement>(null);
   const [menuPos, setMenuPos] = useState({ top: 0, left: 0 });
+
+  // Determine read status for own messages.
+  // Uses stable EMPTY_READ_AT to avoid re-renders when no receipts exist.
+  // useMemo avoids repeated Date parsing across N bubbles × M store updates.
+  const msgTime = useMemo(() => new Date(message.createdAt).getTime(), [message.createdAt]);
+  const isRead = useMemo(
+    () => isOwn && Object.entries(readAt).some(([uid, at]) => uid !== myId && new Date(at).getTime() >= msgTime),
+    [isOwn, readAt, myId, msgTime]
+  );
 
   const openMenu = () => {
     if (menuBtnRef.current) {
@@ -211,7 +225,11 @@ export function MessageBubble(props: {
               <button onClick={() => onRetry?.(message)} className="text-[10px] text-danger underline">Gagal — kirim ulang</button>
             )}
             <span className="text-[11px] text-textm">{formatMessageTime(message.createdAt)}</span>
-            {!isFailed && !isSending && <span className="text-[10px] text-primary">✓</span>}
+            {!isFailed && !isSending && (
+              <span className={`text-[10px] ${isRead ? "text-sky-300" : "text-white/50"}`} title={isRead ? "Dibaca" : "Terkirim"}>
+                {isRead ? "✓✓" : "✓"}
+              </span>
+            )}
             {/* Mobile-only menu trigger */}
             {!isSending && !isFailed && (
               <button onClick={() => setMenuOpen(true)}
