@@ -2,7 +2,71 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lato:wght@400;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* Design system tokens from pvchat-design-system.css */
+:root {
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+
+  /* Brand — Signal Blue */
+  --color-brand-50:  #EEF2FF;
+  --color-brand-100: #E0E7FF;
+  --color-brand-500: #4F67F5;
+  --color-brand-600: #3B52F0;
+  --color-brand-700: #2A3FD9;
+
+  /* Sidebar — Midnight Navy */
+  --color-sidebar-bg:     #1A2540;
+  --color-sidebar-hover:  rgba(255,255,255,0.07);
+  --color-sidebar-active: rgba(255,255,255,0.13);
+  --color-sidebar-text:   rgba(255,255,255,0.65);
+  --color-sidebar-text-active: #FFFFFF;
+
+  /* Surfaces */
+  --surface-page:    #F4F6FA;
+  --surface-card:    #FFFFFF;
+  --surface-sunken:  #ECEEF3;
+  --surface-overlay: rgba(15,20,40,0.45);
+
+  /* Text */
+  --text-primary:   #18243F;
+  --text-secondary: #475470;
+  --text-tertiary:  #8A96AE;
+  --text-on-brand:  #FFFFFF;
+
+  /* Border */
+  --border-default: #DDE2EE;
+  --border-strong:  #C4CBDB;
+
+  /* Status */
+  --color-success: #12B76A;
+  --color-warning: #F79009;
+  --color-danger:  #F04438;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+
+  /* Radius */
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   14px;
+  --radius-xl:   18px;
+  --radius-full: 9999px;
+
+  /* Shadow */
+  --shadow-sm: 0 1px 3px rgba(15,20,40,0.08), 0 1px 2px rgba(15,20,40,0.04);
+  --shadow-md: 0 4px 12px rgba(15,20,40,0.10), 0 2px 4px rgba(15,20,40,0.06);
+  --shadow-lg: 0 12px 28px rgba(15,20,40,0.14), 0 4px 8px rgba(15,20,40,0.08);
+
+  /* Touch target */
+  --touch-target-min: 44px;
+}
 
 @layer base {
   html {
@@ -15,13 +79,15 @@
   }
   body {
     @apply bg-appbg text-textp antialiased;
-    font-family: "Inter", "Lato", system-ui, sans-serif;
+    font-family: var(--font-sans);
     font-size: var(--app-font-size, 15px);
-    line-height: 1.46668;
+    line-height: 1.5;
     overscroll-behavior: none;
     overflow-x: hidden;
     word-break: break-word;
     overflow-wrap: anywhere;
+    color: var(--text-primary);
+    background: var(--surface-page);
   }
   .chat-window-bg {
     background-color: var(--chat-bg, #FFFFFF);
@@ -42,11 +108,14 @@
   .msg-own:hover .msg-actions {
     @apply flex;
   }
+  /* Action bar — vertically centered on message row, right-aligned */
   .msg-actions {
-    @apply hidden absolute right-4 -top-4 bg-white border border-border rounded-lg shadow-md z-10 items-center;
+    @apply hidden absolute right-4 bg-white border border-border rounded-lg shadow-md z-10 items-center;
+    top: 50%;
+    transform: translateY(-50%);
     overflow: visible;
   }
-  /* Message list needs overflow visible for action menus */
+  /* Message list */
   .msg-list {
     overflow-y: auto;
     overflow-x: clip;
@@ -58,12 +127,15 @@
     width: calc(100% - 8px);
     margin-left: 4px;
     margin-right: 4px;
+    border-radius: var(--radius-sm);
   }
   .sb-item:hover {
-    @apply bg-sb-hover text-sb-white;
+    background: var(--color-sidebar-hover);
+    @apply text-sb-white;
   }
   .sb-item.active {
-    @apply bg-sb-active text-sb-white font-bold;
+    background: var(--color-sidebar-active);
+    @apply text-sb-white font-bold;
   }
   .sb-item.unread {
     @apply text-sb-white font-bold;
@@ -71,28 +143,31 @@
   /* Composer */
   .composer-box {
     @apply border border-border rounded-xl bg-white overflow-hidden;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    box-shadow: var(--shadow-sm);
+    border-radius: var(--radius-lg);
   }
   .composer-box:focus-within {
-    @apply border-border;
-    box-shadow: 0 0 0 1px #1264A3;
+    border-color: var(--color-brand-500);
+    box-shadow: 0 0 0 3px rgba(79,103,245,0.15);
   }
   /* Input base */
   .input-base {
     @apply w-full rounded border border-border bg-white px-3 py-2 outline-none;
     font-size: var(--app-font-size, 15px);
+    font-family: var(--font-sans);
+    border-radius: var(--radius-md);
     @apply focus:border-primary focus:ring-2 focus:ring-primary/20 transition;
   }
-  /* Scrollbar — Slack-thin */
-  .slim-scroll::-webkit-scrollbar { width: 6px; height: 0; }
+  /* Scrollbar — thin */
+  .slim-scroll::-webkit-scrollbar { width: 4px; height: 0; }
   .slim-scroll::-webkit-scrollbar-track { background: transparent; }
-  .slim-scroll::-webkit-scrollbar-thumb { @apply bg-border rounded-full; }
+  .slim-scroll::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: var(--radius-full); }
   .slim-scroll { overflow-x: hidden; }
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   /* Skeleton */
   .skeleton {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+    background: linear-gradient(90deg, var(--surface-sunken) 25%, var(--border-default) 50%, var(--surface-sunken) 75%);
     background-size: 200% 100%;
     animation: skeleton 1.4s infinite linear;
     @apply rounded;

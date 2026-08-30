@@ -102,9 +102,12 @@ export function setupSocket(io: Server) {
     void socket.join(userRoomOf(userId));
 
     // === daftarkan handler SEMUANYA secara sinkron, tanpa await apa pun ===
+    console.log(`[socket] user ${userId} connected, socketId=${socket.id}`);
+
     socket.on("join", (conversationId: string) => {
       if (typeof conversationId !== "string") return;
       void socket.join(roomOf(conversationId));
+      console.log(`[socket] user ${userId} joined room convo:${conversationId}`);
     });
 
     socket.on("message:send", (data) => {

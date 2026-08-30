@@ -227,13 +227,20 @@ export function ChatView() {
           )}
 
           {/* Composer */}
+          {/* Mobile back button — sits above composer, full width, easy thumb reach */}
+          <button
+            onClick={() => setChatOpen(false)}
+            className="md:hidden shrink-0 mx-4 mb-1 h-10 flex items-center gap-2 px-3 rounded-xl border border-border bg-white text-texts text-sm font-medium hover:bg-hover transition active:scale-[0.98]"
+            aria-label="Kembali ke daftar chat">
+            <svg className="w-4 h-4 text-sb" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            <span>← Kembali</span>
+          </button>
           <Composer
             conversationId={id}
             readOnly={!!readOnly}
             parentId={replyTo ? replyTo.id : null}
             replyTo={replyTo ? { name: replyTo.user?.name || "", content: replyTo.content } : null}
             onCancelReply={() => setReplyTo(null)}
-            onBack={() => setChatOpen(false)}
           />
         </>
       )}

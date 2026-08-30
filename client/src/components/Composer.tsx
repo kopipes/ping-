@@ -11,14 +11,12 @@ export function Composer({
   parentId,
   replyTo,
   onCancelReply,
-  onBack,
 }: {
   conversationId: string;
   readOnly: boolean;
   parentId?: string | null;
   replyTo?: { name: string; content: string | null } | null;
   onCancelReply?: () => void;
-  onBack?: () => void;
 }) {
   const { t } = useTranslation();
   const { toast, prompt } = useModal();
@@ -134,14 +132,6 @@ export function Composer({
 
         {/* Toolbar */}
         <div className="flex items-center gap-0.5 px-2 pb-2 pt-0.5">
-          {/* Back button — mobile only */}
-          {onBack && (
-            <button onClick={onBack}
-              className="md:hidden w-8 h-8 flex items-center justify-center rounded text-sb bg-sb/10 hover:bg-sb/20 transition mr-1"
-              aria-label="Kembali">
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-            </button>
-          )}
           {/* Attachment */}
           <ToolBtn title="Lampiran" onClick={() => fileRef.current?.click()}>
             {uploading ? <span className="text-xs text-primary font-bold">…</span> : (
