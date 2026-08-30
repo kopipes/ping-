@@ -52,17 +52,18 @@ export default function App() {
         if (cur) useAuthStore.getState().setUser({ ...cur, status: "online" });
         // Re-join all rooms on every connect (initial + reconnect).
         // Server drops room membership on disconnect so this must run every time.
+        // Filter out undefined/falsy ids — sidebar may not be loaded yet on first connect.
         const { sidebar, activeId, messages } = useChatStore.getState();
         const roomIds = new Set<string>();
         if (activeId) roomIds.add(activeId);
-        Object.keys(messages).forEach((id) => roomIds.add(id));
+        Object.keys(messages).forEach((id) => id && roomIds.add(id));
         if (sidebar) {
-          sidebar.pinnedTop?.forEach((c) => roomIds.add(c.id));
+          sidebar.pinnedTop?.forEach((c) => c.id && roomIds.add(c.id));
           sidebar.level1?.forEach((c) => {
-            roomIds.add(c.id);
-            c.subTopics?.forEach((s) => roomIds.add(s.id));
+            if (c.id) roomIds.add(c.id);
+            c.subTopics?.forEach((s) => s.id && roomIds.add(s.id));
           });
-          sidebar.dms?.forEach((c) => roomIds.add(c.id));
+          sidebar.dms?.forEach((c) => c.id && roomIds.add(c.id));
         }
         roomIds.forEach((id) => joinConversation(id));
       });

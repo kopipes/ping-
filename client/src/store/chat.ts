@@ -78,7 +78,16 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     try {
       const data = await api<SidebarData>("/api/conversations");
       set({ sidebar: data, sidebarLoading: false });
-      // Room joins handled by socket:connected event in App.tsx
+      // Join all rooms NOW that sidebar is loaded — socket may already
+      // be connected at this point, so join here too (not just on connect)
+      const allIds: string[] = [];
+      if (data.pinnedTop) data.pinnedTop.forEach((c) => c.id && allIds.push(c.id));
+      if (data.level1) data.level1.forEach((c) => {
+        if (c.id) allIds.push(c.id);
+        if (c.subTopics) c.subTopics.forEach((s) => s.id && allIds.push(s.id));
+      });
+      if (data.dms) data.dms.forEach((c) => c.id && allIds.push(c.id));
+      allIds.forEach((id) => joinConversation(id));
     } catch {
       set({ sidebarLoading: false });
     }
