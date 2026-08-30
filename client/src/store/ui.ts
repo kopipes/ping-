@@ -8,10 +8,13 @@ interface ForwardTarget {
 }
 
 type MobileTab = "list" | "search" | "profile";
+export type RailView = "home" | "dms" | "activity" | "search";
 
 interface UIStore {
   mobileTab: MobileTab;
   setMobileTab: (tab: MobileTab) => void;
+  railView: RailView;
+  setRailView: (view: RailView) => void;
   forwardTarget: ForwardTarget | null;
   openForward: (target: ForwardTarget) => void;
   closeForward: () => void;
@@ -30,6 +33,8 @@ interface UIStore {
 export const useUIStore = create<UIStore>((set) => ({
   mobileTab: "list",
   setMobileTab: (mobileTab) => set({ mobileTab }),
+  railView: "home",
+  setRailView: (railView) => set({ railView }),
   forwardTarget: null,
   openForward: (target) => set({ forwardTarget: target }),
   closeForward: () => set({ forwardTarget: null }),

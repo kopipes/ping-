@@ -47,6 +47,7 @@ export function Sidebar() {
   const activeId = useChatStore((s) => s.activeId);
   const setChatOpen = useUIStore((s) => s.setChatOpen);
   const setSearchActive = useChatStore((s) => s.setSearchActive);
+  const railView = useUIStore((s) => s.railView);
 
   const [filter, setFilter] = useState("");
   const [showNewTopic, setShowNewTopic] = useState(false);
@@ -57,7 +58,6 @@ export function Sidebar() {
   const setAdminOpen = useUIStore((s) => s.setAdminOpen);
   const adminOpen = useUIStore((s) => s.adminOpen);
   const setProfileOpen = useUIStore((s) => s.setProfileOpen);
-  const profileOpen = useUIStore((s) => s.profileOpen);
   const setMobileTab = useUIStore((s) => s.setMobileTab);
 
   useEffect(() => {
@@ -82,55 +82,51 @@ export function Sidebar() {
     return (item.subTopics || []).some((s) => (s.name || "").toLowerCase().includes(q));
   };
 
+  // On mobile, show everything. On desktop, filter by railView.
+  const showTopics = railView === "home" || railView === "activity";
+  const showDMs = railView === "dms";
+
   return (
-    <div className="h-full flex flex-col bg-sb text-sb-text select-none overflow-x-hidden w-full">
-      {/* Workspace header */}
-      <div className="shrink-0 px-4 py-3 border-b border-white/10 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="w-6 h-6 rounded bg-sb-white/20 text-sb-white flex items-center justify-center text-xs font-bold">Pi</span>
-          <span className="text-sb-white font-bold text-[15px]">Ping!</span>
-        </div>
-        {user && (
-          <div className="flex items-center gap-2">
-            <span className="relative">
-              <Avatar name={user.name} size={28} />
-              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-success border-2 border-sb" />
-            </span>
-          </div>
-        )}
+    <div className="h-full flex flex-col select-none overflow-x-hidden w-full"
+      style={{ background: "var(--color-sidebar-bg)", color: "var(--color-sidebar-text)" }}>
+
+      {/* Section title */}
+      <div className="shrink-0 px-4 pt-4 pb-2">
+        <h2 className="text-xs font-bold uppercase tracking-widest" style={{ color: "var(--color-sidebar-text)" }}>
+          {railView === "dms" ? "Direct Messages" : railView === "activity" ? "Activity" : "Channels"}
+        </h2>
       </div>
 
-      {/* Search */}
-      <div className="shrink-0 px-3 py-2">
-        <button
-          onClick={() => { setSearchActive(true); setMobileTab("search"); setChatOpen(false); }}
-          className="w-full h-7 flex items-center gap-2 px-2.5 rounded bg-sb-hover text-sb-text text-sm hover:bg-white/10 transition"
-        >
-          <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-          <span className="truncate">Cari Ping!</span>
-        </button>
+      {/* Search bar */}
+      <div className="shrink-0 px-3 pb-2">
+        <div className="flex items-center gap-2 px-2.5 h-7 rounded-md" style={{ background: "rgba(255,255,255,0.08)" }}>
+          <svg className="w-3.5 h-3.5 shrink-0" style={{ color: "var(--color-sidebar-text)" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <input
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            placeholder={railView === "dms" ? "Cari DM…" : "Cari channel…"}
+            className="flex-1 bg-transparent text-sm outline-none"
+            style={{ color: "var(--color-sidebar-text-active)", fontSize: 13 }}
+          />
+        </div>
       </div>
 
       {/* Nav list */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden slim-scroll py-1 overscroll-contain">
-        {sidebarLoading && !sidebar ? (
-          <div className="px-4 space-y-2 pt-2">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="h-7 rounded skeleton opacity-30" />
-            ))}
-          </div>
-        ) : (
+
+        {/* Mobile: show all. Desktop: show based on railView */}
+        {(showTopics || window.innerWidth < 768) && (
           <>
-            {/* Pinned system topics */}
-            {(sidebar?.pinnedTop || []).filter(matchItem).map((c) => (
-              <SbItem key={c.id} item={c} active={activeId === c.id} prefix="★" onOpen={onOpen} />
+            {/* Pinned topics */}
+            {(sidebar?.pinnedTop || []).filter(matchItem).map((item) => (
+              <SbItem key={item.id} item={item} active={activeId === item.id} prefix={item.icon || "#"} onOpen={onOpen} />
             ))}
 
-            {/* Channels (Topics) */}
-            {(sidebar?.level1 || []).some(matchItem) && (
-              <div className="mt-3">
+            {/* Level 1 topics */}
+            {(sidebar?.level1 || []).length > 0 && (
+              <div className="mt-2">
                 <SbSection
-                  label="Groups"
+                  label="Topics"
                   collapsed={collapsed["channels"]}
                   onToggle={() => toggleCollapse("channels")}
                   onAdd={isAdminish ? () => setShowNewTopic(true) : undefined}
@@ -145,34 +141,52 @@ export function Sidebar() {
                 ))}
               </div>
             )}
+          </>
+        )}
 
-            {/* Direct Messages */}
-            <div className="mt-3">
+        {/* DMs — show when railView=dms or on mobile */}
+        {(showDMs || window.innerWidth < 768) && (
+          <div className={showTopics && window.innerWidth >= 768 ? "" : "mt-1"}>
+            {window.innerWidth < 768 && (
               <SbSection
                 label="Direct messages"
                 collapsed={collapsed["dms"]}
                 onToggle={() => toggleCollapse("dms")}
                 onAdd={() => setShowNewDM(true)}
               />
-              {!collapsed["dms"] && (sidebar?.dms || []).filter(matchItem).map((dm) => (
-                <button
-                  key={dm.id}
-                  onClick={() => onOpen(dm.id)}
-                  className={`sb-item w-full ${activeId === dm.id ? "active" : ""} ${dm.unread > 0 ? "unread" : ""}`}
-                >
+            )}
+            {(showDMs || !collapsed["dms"]) && (
+              <>
+                {showDMs && (
+                  <button
+                    onClick={() => setShowNewDM(true)}
+                    className="sb-item w-full mb-1"
+                    style={{ opacity: 0.7 }}
+                  >
+                    <span className="text-lg leading-none">+</span>
+                    <span className="text-sm">Pesan baru</span>
+                  </button>
+                )}
+                {(sidebar?.dms || []).filter(matchItem).map((dm) => (
+                  <button
+                    key={dm.id}
+                    onClick={() => onOpen(dm.id)}
+                    className={`sb-item w-full ${activeId === dm.id ? "active" : ""} ${dm.unread > 0 ? "unread" : ""}`}
+                  >
                     <Avatar name={dm.name || "?"} avatarUrl={dm.partnerId ? undefined : null} size={20} />
-                  <span className="flex-1 truncate">{dm.name || "Direct Message"}</span>
-                  {dm.unread > 0 && <UnreadBadge count={dm.unread} />}
-                </button>
-              ))}
-            </div>
-          </>
+                    <span className="flex-1 truncate">{dm.name || "Direct Message"}</span>
+                    {dm.unread > 0 && <UnreadBadge count={dm.unread} />}
+                  </button>
+                ))}
+              </>
+            )}
+          </div>
         )}
       </div>
 
-      {/* User footer */}
+      {/* User footer — mobile only (desktop uses IconRail avatar) */}
       {user && (
-        <div className="shrink-0 border-t border-white/10 px-3 py-2 flex items-center gap-2">
+        <div className="shrink-0 md:hidden border-t px-3 py-2 flex items-center gap-2" style={{ borderColor: "rgba(255,255,255,0.1)" }}>
           <button
             onClick={() => { setProfileOpen(true); setMobileTab("profile"); setChatOpen(false); }}
             className="flex items-center gap-2 flex-1 min-w-0 rounded hover:bg-white/10 px-1 py-1 transition text-left"
@@ -183,8 +197,8 @@ export function Sidebar() {
               <span className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-sb ${user.status === "online" ? "bg-success" : "bg-textm"}`} />
             </span>
             <div className="flex-1 min-w-0">
-              <div className="text-sm text-sb-white truncate">{user.name}</div>
-              <div className="text-[11px] text-sb-text truncate">{user.status === "online" ? "Online" : "Offline"}</div>
+              <div className="text-sm truncate" style={{ color: "var(--color-sidebar-text-active)" }}>{user.name}</div>
+              <div className="text-[11px] truncate" style={{ color: "var(--color-sidebar-text)" }}>{user.status === "online" ? "Online" : "Offline"}</div>
             </div>
           </button>
           {isAdminish && (
@@ -198,6 +212,25 @@ export function Sidebar() {
               ⚙️
             </button>
           )}
+        </div>
+      )}
+
+      {/* Admin button — desktop only */}
+      {user && isAdminish && (
+        <div className="shrink-0 hidden md:flex px-3 py-2 border-t" style={{ borderColor: "rgba(255,255,255,0.1)" }}>
+          <button
+            onClick={() => setAdminOpen(!adminOpen)}
+            title="Admin Dashboard"
+            className={`w-full flex items-center gap-2 px-3 h-8 rounded text-sm transition ${
+              adminOpen
+                ? "text-white font-semibold"
+                : "hover:bg-white/10"
+            }`}
+            style={{ color: adminOpen ? "var(--color-sidebar-text-active)" : "var(--color-sidebar-text)" }}
+          >
+            <span>⚙️</span>
+            <span>Admin</span>
+          </button>
         </div>
       )}
 

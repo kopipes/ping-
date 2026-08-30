@@ -4,67 +4,99 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=JetBrains+Mono:wght@400;500&display=swap');
 
-/* Design system tokens from pvchat-design-system.css */
+/* Design system tokens — exact values from pvchat-design-system.css */
 :root {
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
 
-  /* Brand — Signal Blue */
-  --color-brand-50:  #EEF2FF;
-  --color-brand-100: #E0E7FF;
-  --color-brand-500: #4F67F5;
-  --color-brand-600: #3B52F0;
-  --color-brand-700: #2A3FD9;
+  /* Brand — Signal Blue (exact from design system) */
+  --color-brand-50:  #EEF1FE;
+  --color-brand-100: #DDE4FD;
+  --color-brand-500: #3B5BFA;
+  --color-brand-600: #2E46E0;
+  --color-brand-700: #2436B8;
 
-  /* Sidebar — Midnight Navy */
-  --color-sidebar-bg:     #1A2540;
-  --color-sidebar-hover:  rgba(255,255,255,0.07);
-  --color-sidebar-active: rgba(255,255,255,0.13);
-  --color-sidebar-text:   rgba(255,255,255,0.65);
+  /* Icon Rail — darker navy (same family as sidebar, not indigo) */
+  --color-rail-bg:          #111D33;
+  --color-rail-bg-active:   rgba(255,255,255,0.12);
+  --color-rail-icon:        rgba(255,255,255,0.55);
+  --color-rail-icon-hover:  rgba(255,255,255,0.85);
+  --color-rail-icon-active: #FFFFFF;
+  --color-rail-active-pill: linear-gradient(135deg, #2E46E0, #3B5BFA);
+  --rail-width: 72px;
+  --sidebar-width: 288px;
+
+  /* Sidebar — Midnight Navy (dark, same family as rail) */
+  --color-sidebar-bg:          #1A2540;
+  --color-sidebar-hover:       rgba(255,255,255,0.07);
+  --color-sidebar-active:      rgba(255,255,255,0.13);
+  --color-sidebar-text:        rgba(255,255,255,0.62);
   --color-sidebar-text-active: #FFFFFF;
 
+  /* Neutral palette */
+  --color-neutral-0:   #FFFFFF;
+  --color-neutral-50:  #F8F9FC;
+  --color-neutral-100: #F1F2F6;
+  --color-neutral-200: #E5E7EF;
+  --color-neutral-300: #D3D6E0;
+  --color-neutral-400: #9A9FB0;
+  --color-neutral-500: #6E7284;
+  --color-neutral-700: #3A3D4D;
+  --color-neutral-900: #14151F;
+
   /* Surfaces */
-  --surface-page:    #F4F6FA;
+  --surface-page:    #F8F9FC;
   --surface-card:    #FFFFFF;
-  --surface-sunken:  #ECEEF3;
-  --surface-overlay: rgba(15,20,40,0.45);
+  --surface-sunken:  #F1F2F6;
+  --surface-hover:   #F1F2F6;
+  --surface-active:  #EEF1FE;
+  --surface-overlay: rgba(20,21,31,0.45);
 
   /* Text */
-  --text-primary:   #18243F;
-  --text-secondary: #475470;
-  --text-tertiary:  #8A96AE;
+  --text-primary:   #14151F;
+  --text-secondary: #6E7284;
+  --text-tertiary:  #9A9FB0;
   --text-on-brand:  #FFFFFF;
 
   /* Border */
-  --border-default: #DDE2EE;
-  --border-strong:  #C4CBDB;
+  --border-default: #E5E7EF;
+  --border-strong:  #D3D6E0;
 
   /* Status */
-  --color-success: #12B76A;
-  --color-warning: #F79009;
-  --color-danger:  #F04438;
+  --color-success:    #12B76A;
+  --color-success-bg: #ECFDF3;
+  --color-warning:    #F79009;
+  --color-warning-bg: #FFFAEB;
+  --color-danger:     #F04438;
+  --color-danger-bg:  #FEF3F2;
 
   /* Spacing */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 24px;
+  --space-1: 4px;  --space-2: 8px;   --space-3: 12px;
+  --space-4: 16px; --space-5: 20px;  --space-6: 24px;
+  --space-8: 32px; --space-10: 40px; --space-12: 48px;
 
   /* Radius */
   --radius-sm:   6px;
   --radius-md:   10px;
-  --radius-lg:   14px;
+  --radius-lg:   16px;
   --radius-xl:   18px;
-  --radius-full: 9999px;
+  --radius-pill: 999px;
 
   /* Shadow */
-  --shadow-sm: 0 1px 3px rgba(15,20,40,0.08), 0 1px 2px rgba(15,20,40,0.04);
-  --shadow-md: 0 4px 12px rgba(15,20,40,0.10), 0 2px 4px rgba(15,20,40,0.06);
-  --shadow-lg: 0 12px 28px rgba(15,20,40,0.14), 0 4px 8px rgba(15,20,40,0.08);
+  --shadow-xs: 0 1px 2px rgba(20,21,31,0.05);
+  --shadow-sm: 0 1px 3px rgba(20,21,31,0.08), 0 1px 2px rgba(20,21,31,0.04);
+  --shadow-md: 0 4px 12px rgba(20,21,31,0.08), 0 2px 4px rgba(20,21,31,0.04);
+  --shadow-lg: 0 12px 32px rgba(20,21,31,0.14), 0 4px 8px rgba(20,21,31,0.06);
+  --shadow-focus: 0 0 0 3px #DDE4FD;
 
-  /* Touch target */
+  /* Motion */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
+
+  /* Layout */
+  --header-height: 60px;
   --touch-target-min: 44px;
 }
 
@@ -118,6 +150,76 @@
     overflow-y: auto;
     overflow-x: clip;
     padding-top: 2rem;
+  }
+  /* Icon Rail */
+  .icon-rail {
+    width: var(--rail-width, 72px);
+    background: var(--color-rail-bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 0;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  @media (max-width: 768px) { .icon-rail { display: none; } }
+  .icon-rail-logo {
+    width: 40px; height: 40px;
+    border-radius: var(--radius-md);
+    background: var(--color-rail-active-pill);
+    color: #FFFFFF;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 13px;
+    margin-bottom: 12px;
+    border: none;
+  }
+  .icon-rail-item {
+    width: 48px; height: 48px;
+    min-height: 44px;
+    border-radius: var(--radius-md);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--color-rail-icon);
+    position: relative;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    transition: background 120ms ease, color 120ms ease;
+  }
+  .icon-rail-item:hover { background: rgba(255,255,255,0.08); color: var(--color-rail-icon-hover); }
+  .icon-rail-item.is-active { background: var(--color-rail-bg-active); color: var(--color-rail-icon-active); }
+  .icon-rail-item.is-active::before {
+    content: '';
+    position: absolute;
+    left: -4px; top: 10px; bottom: 10px;
+    width: 3px;
+    border-radius: 9999px;
+    background: #FFFFFF;
+  }
+  .icon-rail-spacer { flex: 1; }
+  .icon-rail-avatar {
+    width: 36px; height: 36px;
+    border-radius: 9999px;
+    cursor: pointer;
+    background: none;
+    border: 2px solid transparent;
+    transition: border-color 120ms ease;
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .icon-rail-avatar:hover { border-color: rgba(255,255,255,0.4); }
+  /* Badge unread */
+  .badge-unread {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 16px; height: 16px;
+    padding: 0 4px;
+    border-radius: 9999px;
+    background: var(--color-danger, #F04438);
+    color: #FFFFFF;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
   }
   /* Sidebar item */
   .sb-item {

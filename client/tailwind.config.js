@@ -4,25 +4,24 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Design system — Signal Blue + Midnight Navy
-        // Sidebar
+        // Sidebar — Midnight Navy (exact from design system)
         sb:         "#1A2540",
         "sb-hover": "rgba(255,255,255,0.07)",
         "sb-active":"rgba(255,255,255,0.13)",
-        "sb-text":  "rgba(255,255,255,0.65)",
+        "sb-text":  "rgba(255,255,255,0.62)",
         "sb-white": "#FFFFFF",
-        // Main area
-        appbg:      "#F4F6FA",
+        // Main area — light surfaces
+        appbg:      "#F8F9FC",
         "ch-bg":    "#FFFFFF",
-        hover:      "#F0F4FA",
-        border:     "#DDE2EE",
-        // Text
-        textp:      "#18243F",
-        texts:      "#475470",
-        textm:      "#8A96AE",
-        // Brand — Signal Blue
-        primary:    "#3B52F0",
-        primaryhover:"#2A3FD9",
+        hover:      "#F1F2F6",
+        border:     "#E5E7EF",
+        // Text — warm slate
+        textp:      "#14151F",
+        texts:      "#6E7284",
+        textm:      "#9A9FB0",
+        // Brand — Signal Blue (exact from design system)
+        primary:    "#2E46E0",
+        primaryhover:"#2436B8",
         // Status
         success:    "#12B76A",
         warning:    "#F79009",
@@ -30,8 +29,8 @@ export default {
         unread:     "#F04438",
         online:     "#12B76A",
         // Message
-        mention:    "#EEF2FF",
-        "msg-hover":"#F0F4FA",
+        mention:    "#EEF1FE",
+        "msg-hover":"#F1F2F6",
       },
       fontFamily: {
         sans: ["'Plus Jakarta Sans'", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
@@ -44,14 +43,14 @@ export default {
       borderRadius: {
         sm:   "6px",
         md:   "10px",
-        lg:   "14px",
+        lg:   "16px",
         xl:   "18px",
         "2xl":"22px",
       },
       boxShadow: {
-        sm: "0 1px 3px rgba(15,20,40,0.08), 0 1px 2px rgba(15,20,40,0.04)",
-        md: "0 4px 12px rgba(15,20,40,0.10), 0 2px 4px rgba(15,20,40,0.06)",
-        lg: "0 12px 28px rgba(15,20,40,0.14), 0 4px 8px rgba(15,20,40,0.08)",
+        sm: "0 1px 3px rgba(20,21,31,0.08), 0 1px 2px rgba(20,21,31,0.04)",
+        md: "0 4px 12px rgba(20,21,31,0.08), 0 2px 4px rgba(20,21,31,0.04)",
+        lg: "0 12px 32px rgba(20,21,31,0.14), 0 4px 8px rgba(20,21,31,0.06)",
       },
     },
   },
