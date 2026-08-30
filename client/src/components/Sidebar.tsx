@@ -221,7 +221,7 @@ export function Sidebar() {
       style={{ background: "var(--color-sidebar-bg, #1A2540)", color: "var(--color-sidebar-text, rgba(255,255,255,0.7))" }}
     >
       {/* ── Search bar ── */}
-      <div className="shrink-0 flex items-center gap-2 px-3 pt-3 pb-2">
+      <div className="shrink-0 flex items-center gap-2 px-3 pt-4 pb-2">
         {/* Search input — same left edge as Pi icon in rail */}
         <div className="flex-1 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10">
           <input

@@ -390,6 +390,49 @@ export async function conversationRoutes(app: FastifyInstance) {
     reply.send({ ok: true });
   });
 
+  // Update member role in conversation (MANAGER=group admin, STAFF=member)
+  app.patch("/:id/members/:userId/role", async (req, reply) => {
+    const { id, userId } = req.params as { id: string; userId: string };
+    const { role } = (req.body ?? {}) as { role?: string };
+    if (!role || !["MANAGER", "STAFF"].includes(role)) {
+      reply.code(400).send({ error: "Role harus MANAGER atau STAFF" });
+      return;
+    }
+    const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+    const conv = await prisma.conversation.findUnique({
+      where: { id },
+      select: { ownerId: true },
+    });
+    if (!conv) {
+      reply.code(404).send({ error: "Conversation tidak ditemukan" });
+      return;
+    }
+    const isAdmin = user?.role === "SUPER_ADMIN" || user?.role === "ADMIN";
+    const isOwner = conv.ownerId === req.user.id;
+    // Check if requester is group admin (MANAGER role in this conversation)
+    const requesterMember = await prisma.conversationMember.findUnique({
+      where: { conversationId_userId: { conversationId: id, userId: req.user.id } },
+    });
+    const isGroupAdmin = requesterMember?.role === "MANAGER";
+    if (!isAdmin && !isOwner && !isGroupAdmin) {
+      reply.code(403).send({ error: "Tidak punya izin mengubah role member" });
+      return;
+    }
+    await prisma.conversationMember.update({
+      where: { conversationId_userId: { conversationId: id, userId } },
+      data: { role },
+    });
+    await prisma.auditLog.create({
+      data: {
+        userId: req.user.id,
+        action: "MEMBER_ROLE_UPDATE",
+        targetId: id,
+        metadata: json({ userId, role }),
+      },
+    });
+    reply.send({ ok: true });
+  });
+
   // Archive / un-archive (FR-2.7)
   app.patch("/:id/archive", async (req, reply) => {
     const { id } = req.params as { id: string };

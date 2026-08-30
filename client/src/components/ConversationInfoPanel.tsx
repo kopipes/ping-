@@ -102,6 +102,17 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
     finally { setAddingIds((ids) => ids.filter((id) => id !== userId)); }
   };
 
+  const updateMemberRole = async (userId: string, newRole: string) => {
+    try {
+      await api(`/api/conversations/${conversationId}/members/${userId}/role`, {
+        method: "PATCH",
+        body: { role: newRole },
+      });
+      setMembers((m) => m.map((x) => x.user.id === userId ? { ...x, role: newRole } : x));
+      toast(newRole === "MANAGER" ? "Dijadikan Admin Group" : "Dikembalikan jadi Anggota");
+    } catch (e: any) { toast(e?.message || "Gagal ubah role"); }
+  };
+
   const deleteConversation = async () => {
     const ok = await confirm({
       title: "Hapus Group",
@@ -156,7 +167,15 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <h2 className="font-bold text-gray-900 text-base truncate">{isDM ? "Info DM" : (convo?.name || "Group")}</h2>
+            <h2 className="font-bold text-gray-900 text-base truncate">
+              {isDM ? "Info DM" : (() => {
+                const n = convo?.name || "Group";
+                const icon = convo?.icon;
+                // Strip leading emoji+space if it matches the icon (system channels like "📢 Announcement")
+                if (icon && n.startsWith(icon)) return n.slice(icon.length).trimStart();
+                return n;
+              })()}
+            </h2>
             {!isDM && convo?.parent && (
               <p className="text-xs text-gray-500">dalam {convo.parent.name}</p>
             )}
@@ -270,12 +289,21 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
                         <span className="text-[10px] text-green-600 font-medium shrink-0">● Online</span>
                       )}
                       {canManageMembers && m.user.id !== myId && (
-                        <button
-                          onClick={() => removeMember(m.user.id, m.user.name)}
-                          className="opacity-0 group-hover:opacity-100 w-6 h-6 rounded flex items-center justify-center text-red-500 hover:bg-red-50 transition text-xs shrink-0"
-                       title="Hapus dari group">
-                          ✕
-                        </button>
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
+                          {/* Toggle admin/member role */}
+                          <button
+                            onClick={() => updateMemberRole(m.user.id, m.role === "MANAGER" ? "STAFF" : "MANAGER")}
+                            className="w-6 h-6 rounded flex items-center justify-center text-blue-500 hover:bg-blue-50 transition text-[10px] shrink-0"
+                            title={m.role === "MANAGER" ? "Turunkan jadi Anggota" : "Jadikan Admin Group"}>
+                            {m.role === "MANAGER" ? "↓" : "★"}
+                          </button>
+                          <button
+                            onClick={() => removeMember(m.user.id, m.user.name)}
+                            className="w-6 h-6 rounded flex items-center justify-center text-red-500 hover:bg-red-50 transition text-xs shrink-0"
+                            title="Hapus dari group">
+                            ✕
+                          </button>
+                        </div>
                       )}
                     </div>
                   ))}

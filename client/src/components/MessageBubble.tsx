@@ -226,7 +226,10 @@ export function MessageBubble(props: {
             )}
             <span className="text-[11px] text-textm">{formatMessageTime(message.createdAt)}</span>
             {!isFailed && !isSending && (
-              <span className={`text-[10px] ${isRead ? "text-sky-300" : "text-white/50"}`} title={isRead ? "Dibaca" : "Terkirim"}>
+              <span
+                className={`text-[11px] font-medium ${isRead ? "text-sky-200" : "text-white/80"}`}
+                title={isRead ? "Dibaca" : "Terkirim"}
+              >
                 {isRead ? "✓✓" : "✓"}
               </span>
             )}
