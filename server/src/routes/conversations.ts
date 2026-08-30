@@ -25,9 +25,16 @@ export async function conversationRoutes(app: FastifyInstance) {
   app.get("/:id", async (req, reply) => {
     const { id } = req.params as { id: string };
     const member = await getMemberRole(id, req.user.id);
+    // Allow non-members to view public conversations
     if (!member) {
-      reply.code(403).send({ error: "Anda bukan member topic ini" });
-      return;
+      const conv = await prisma.conversation.findUnique({
+        where: { id },
+        select: { isPublic: true },
+      });
+      if (!conv?.isPublic) {
+        reply.code(403).send({ error: "Anda bukan member topic ini" });
+        return;
+      }
     }
     const conv = await prisma.conversation.findUnique({
       where: { id },
@@ -572,8 +579,15 @@ export async function conversationRoutes(app: FastifyInstance) {
     const { id } = req.params as { id: string };
     const member = await getMemberRole(id, req.user.id);
     if (!member) {
-      reply.code(403).send({ error: "Anda bukan member topic ini" });
-      return;
+      // Allow non-members to get permissions for public groups
+      const conv = await prisma.conversation.findUnique({
+        where: { id },
+        select: { isPublic: true },
+      });
+      if (!conv?.isPublic) {
+        reply.code(403).send({ error: "Anda bukan member topic ini" });
+        return;
+      }
     }
     const user = await prisma.user.findUnique({ where: { id: req.user.id } });
     const conv = await prisma.conversation.findUnique({
