@@ -99,7 +99,25 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
   openConversation: async (id) => {
     // aktifkan percakapan segera; jangan reset pesan lama utk menghindari flash
-    set((s) => ({ activeId: id }));
+    set((s) => {
+      // Zero out unread count for this conversation in sidebar immediately
+      let sidebar = s.sidebar;
+      if (sidebar) {
+        const zero = (items: SidebarDataItem[] | undefined): SidebarDataItem[] =>
+          (items || []).map((it) =>
+            it.id === id
+              ? { ...it, unread: 0 }
+              : { ...it, subTopics: it.subTopics ? zero(it.subTopics) : it.subTopics }
+          );
+        sidebar = {
+          ...sidebar,
+          pinnedTop: zero(sidebar.pinnedTop),
+          level1: zero(sidebar.level1),
+          dms: zero(sidebar.dms),
+        };
+      }
+      return { activeId: id, sidebar };
+    });
 
     joinConversation(id);
     markRead(id);
