@@ -526,6 +526,51 @@ export async function conversationRoutes(app: FastifyInstance) {
     return { ok: true, name: updated.name, description: updated.description, icon: updated.icon, allowStaffPin: updated.allowStaffPin };
   });
 
+  // Delete DM — only allowed when the other user no longer exists (account deleted)
+  app.delete("/:id/dm", async (req, reply) => {
+    const { id } = req.params as { id: string };
+    const conv = await prisma.conversation.findUnique({
+      where: { id },
+      select: { type: true, members: { select: { userId: true } } },
+    });
+    if (!conv) {
+      reply.code(404).send({ error: "Conversation tidak ditemukan" });
+      return;
+    }
+    if (conv.type !== "DM") {
+      reply.code(400).send({ error: "Endpoint ini hanya untuk DM" });
+      return;
+    }
+    const isMember = conv.members.some((m) => m.userId === req.user.id);
+    if (!isMember) {
+      reply.code(403).send({ error: "Anda bukan member DM ini" });
+      return;
+    }
+    // Only allow deletion when the other member's account is gone.
+    // When a user is deleted, their ConversationMember rows are removed,
+    // so a DM with only 1 remaining member means the partner no longer exists.
+    if (conv.members.length !== 1) {
+      reply.code(400).send({ error: "DM hanya bisa dihapus jika pengguna lain sudah tidak ada" });
+      return;
+    }
+    // Delete all related data in order
+    await prisma.reaction.deleteMany({ where: { message: { conversationId: id } } });
+    await prisma.attachment.deleteMany({ where: { message: { conversationId: id } } });
+    await prisma.message.deleteMany({ where: { conversationId: id } });
+    await prisma.pinnedItem.deleteMany({ where: { conversationId: id } });
+    await prisma.conversationMember.deleteMany({ where: { conversationId: id } });
+    await prisma.conversation.delete({ where: { id } });
+    await prisma.auditLog.create({
+      data: {
+        userId: req.user.id,
+        action: "CONVERSATION_DELETE",
+        targetId: id,
+        metadata: json({ type: "DM", reason: "other_user_deleted" }),
+      },
+    });
+    reply.send({ ok: true });
+  });
+
   // Delete conversation (channel/DM) — admin only
   app.delete("/:id", async (req, reply) => {
     const { id } = req.params as { id: string };
@@ -592,9 +637,14 @@ export async function conversationRoutes(app: FastifyInstance) {
     const user = await prisma.user.findUnique({ where: { id: req.user.id } });
     const conv = await prisma.conversation.findUnique({
       where: { id },
-      select: { ownerId: true, parentId: true, allowStaffPin: true, isReadOnly: true, name: true, icon: true },
+      select: {
+        ownerId: true, parentId: true, allowStaffPin: true, isReadOnly: true, name: true, icon: true, type: true,
+        members: { select: { userId: true } },
+      },
     });
     const roleRank = tupleRank(user?.role ?? "STAFF");
+    // canDeleteDM: DM where the other user's account is gone (only 1 member remains)
+    const canDeleteDM = conv?.type === "DM" && (conv?.members?.length ?? 0) === 1;
     return {
       isSuperAdmin: roleRank >= 3,
       isAdmin: roleRank >= 2,
@@ -605,6 +655,7 @@ export async function conversationRoutes(app: FastifyInstance) {
       canManageMembers: roleRank >= 2 || conv?.ownerId === req.user.id,
       canStaffPin: conv?.allowStaffPin ?? true,
       isSystemTopic: conv?.name === SYSTEM_ANNOUNCEMENT_NAME || conv?.name === SYSTEM_GENERAL_NAME,
+      canDeleteDM,
     };
   });
 }

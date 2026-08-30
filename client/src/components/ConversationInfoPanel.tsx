@@ -21,6 +21,13 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
   const openConversation = useChatStore((s) => s.openConversation);
   const { toast, confirm } = useModal();
 
+  // Always re-fetch permissions when panel opens so canDeleteDM is fresh
+  useEffect(() => {
+    api<any>(`/api/conversations/${conversationId}/permissions`)
+      .then((p) => useChatStore.setState((s) => ({ permissions: { ...s.permissions, [conversationId]: p } })))
+      .catch(() => {});
+  }, [conversationId]);
+
   // Edit state
   const [editMode, setEditMode] = useState(false);
   const [editName, setEditName] = useState("");
@@ -142,6 +149,21 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
       await openConversation(conversationId);
       toast(isPinned ? "Dihapus dari Pinned" : "Ditambahkan ke Pinned");
     } catch (e: any) { toast(e?.message || "Gagal update Pinned"); }
+  };
+
+  const deleteDM = async () => {
+    const ok = await confirm({
+      title: "Hapus Percakapan",
+      message: "Pengguna ini sudah tidak ada. Hapus percakapan beserta semua pesannya secara permanen?",
+      confirmLabel: "Hapus",
+      danger: true,
+    });
+    if (!ok) return;
+    try {
+      await api(`/api/conversations/${conversationId}/dm`, { method: "DELETE" });
+      await loadSidebar();
+      onClose();
+    } catch (e: any) { toast(e?.message || "Gagal hapus DM"); }
   };
 
   const togglePublic = async () => {
@@ -413,6 +435,19 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
                   🗑 Hapus Group Permanen
                 </button>
               )}
+            </section>
+          )}
+
+          {/* ── DM danger zone — only when other user no longer exists ── */}
+          {isDM && perms?.canDeleteDM && (
+            <section className="px-5 py-4 border-t border-gray-100 mt-auto">
+              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Danger Zone</h3>
+              <button
+                onClick={deleteDM}
+                className="w-full h-9 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm font-semibold hover:bg-red-100 transition">
+                🗑 Hapus Percakapan Ini
+              </button>
+              <p className="text-xs text-gray-400 mt-2 text-center">Pengguna ini sudah tidak ada. Semua pesan akan dihapus permanen.</p>
             </section>
           )}
         </div>

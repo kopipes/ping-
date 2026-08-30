@@ -148,11 +148,10 @@ export const useChatStore = create<ChatStore>((set, get) => ({
         .then((convo) => set((s) => ({ conversation: { ...s.conversation, [id]: convo } })))
         .catch(() => {});
     }
-    if (!get().permissions[id]) {
-      api<Permissions>(`/api/conversations/${id}/permissions`)
-        .then((perms) => set((s) => ({ permissions: { ...s.permissions, [id]: perms } })))
-        .catch(() => {});
-    }
+    // Always re-fetch permissions — they can change (e.g. canDeleteDM after partner is deleted)
+    api<Permissions>(`/api/conversations/${id}/permissions`)
+      .then((perms) => set((s) => ({ permissions: { ...s.permissions, [id]: perms } })))
+      .catch(() => {});
   },
 
   sendMessage: (conversationId, content, attachments = [], parentId = null) => {

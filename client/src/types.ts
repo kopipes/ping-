@@ -136,4 +136,5 @@ export interface Permissions {
   canManageMembers: boolean;
   canStaffPin: boolean;
   isSystemTopic: boolean;
+  canDeleteDM?: boolean;
 }
