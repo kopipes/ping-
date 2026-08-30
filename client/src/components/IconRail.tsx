@@ -141,7 +141,7 @@ export function IconRail() {
           <img
             src={apiUrl(user.avatarUrl)}
             alt={user.name}
-            style={{ width: 27, height: 27, objectFit: "cover" }}
+            style={{ width: 24, height: 24, objectFit: "cover" }}
           />
         ) : (
           <span style={{
