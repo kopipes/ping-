@@ -163,6 +163,24 @@ export async function adminRoutes(app: FastifyInstance) {
         data: { isPinnedTop: !!isPinnedTop },
         select: { id: true, name: true, isPinnedTop: true },
       });
+
+      if (isPinnedTop) {
+        // When pinning: enroll ALL users so everyone can see and chat
+        const allUsers = await prisma.user.findMany({
+          where: { status: { not: "pending" } },
+          select: { id: true },
+        });
+        for (const u of allUsers) {
+          await prisma.conversationMember.create({
+            data: { conversationId: id, userId: u.id },
+          }).catch(() => { /* duplicate ignore */ });
+        }
+      } else {
+        // When unpinning: remove ALL members so it becomes member-only again
+        // (admin should then manually re-add the intended members)
+        await prisma.conversationMember.deleteMany({ where: { conversationId: id } });
+      }
+
       await prisma.auditLog.create({
         data: {
           userId: req.user.id,
