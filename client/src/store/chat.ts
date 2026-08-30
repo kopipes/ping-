@@ -78,16 +78,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     try {
       const data = await api<SidebarData>("/api/conversations");
       set({ sidebar: data, sidebarLoading: false });
-      // Join all conversation rooms so message:new arrives on any device
-      // without needing to explicitly open each conversation first
-      const allIds: string[] = [];
-      if (data.pinnedTop) data.pinnedTop.forEach((c) => allIds.push(c.id));
-      if (data.level1) data.level1.forEach((c) => {
-        allIds.push(c.id);
-        if (c.subTopics) c.subTopics.forEach((s) => allIds.push(s.id));
-      });
-      if (data.dms) data.dms.forEach((c) => allIds.push(c.id));
-      allIds.forEach((id) => joinConversation(id));
+      // Room joins handled by socket:connected event in App.tsx
     } catch {
       set({ sidebarLoading: false });
     }

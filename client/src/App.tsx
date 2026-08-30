@@ -50,14 +50,12 @@ export default function App() {
       const offConnected = on("socket:connected", () => {
         const cur = useAuthStore.getState().user;
         if (cur) useAuthStore.getState().setUser({ ...cur, status: "online" });
-      });
-      // Re-join all conversation rooms after reconnect (server drops membership on disconnect)
-      const offReconnected = on("socket:reconnected", () => {
+        // Re-join all rooms on every connect (initial + reconnect).
+        // Server drops room membership on disconnect so this must run every time.
         const { sidebar, activeId, messages } = useChatStore.getState();
         const roomIds = new Set<string>();
         if (activeId) roomIds.add(activeId);
         Object.keys(messages).forEach((id) => roomIds.add(id));
-        // Also re-join all sidebar conversations so messages arrive without opening them
         if (sidebar) {
           sidebar.pinnedTop?.forEach((c) => roomIds.add(c.id));
           sidebar.level1?.forEach((c) => {
@@ -68,6 +66,8 @@ export default function App() {
         }
         roomIds.forEach((id) => joinConversation(id));
       });
+      // socket:reconnected kept for backwards compat but now a no-op
+      const offReconnected = on("socket:reconnected", () => {});
 
       return () => {
         offMessage();

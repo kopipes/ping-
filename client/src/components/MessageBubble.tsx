@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "../store/auth";
 import { useChatStore } from "../store/chat";
@@ -106,7 +107,7 @@ export function MessageBubble(props: {
               className="w-7 h-7 flex items-center justify-center text-textm hover:bg-hover rounded transition text-xs font-bold">
               •••
             </button>
-            {menuOpen && (
+            {menuOpen && createPortal(
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
                 <div className="fixed z-50 w-52 bg-white rounded-xl shadow-lg border border-border p-1 fade-slide-up"
@@ -126,7 +127,8 @@ export function MessageBubble(props: {
                   )}
                   <ActionItem label="Hapus" icon="🗑️" onClick={() => { setMenuOpen(false); props.onDelete(message); }} danger />
                 </div>
-              </>
+              </>,
+              document.body
             )}
           </div>
         )}
