@@ -144,7 +144,9 @@ export default function App() {
     return (
       <div className="h-full flex items-center justify-center bg-appbg">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center text-white text-xl font-bold">Pi</div>
+          <div className="w-14 h-14 rounded-2xl overflow-hidden">
+            <img src="/logo.png" alt="Ping!" className="w-full h-full object-cover" />
+          </div>
           <div className="skeleton h-3 w-28 rounded-full" />
         </div>
       </div>

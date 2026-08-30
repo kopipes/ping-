@@ -63,8 +63,8 @@ export function Login() {
       <div className="w-full max-w-sm mx-auto px-6 fade-slide-up">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex w-16 h-16 rounded-2xl bg-white/10 items-center justify-center text-white text-2xl font-black mb-4">
-            Pi
+          <div className="inline-flex w-16 h-16 rounded-2xl overflow-hidden items-center justify-center mb-4">
+            <img src="/logo.png" alt="Ping!" className="w-full h-full object-cover" />
           </div>
           <h1 className="text-white text-2xl font-bold">{t("login.welcome")}</h1>
           <p className="text-sb-text mt-1 text-sm">Ping! — Internal Company Chat</p>
