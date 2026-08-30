@@ -120,6 +120,8 @@ export function setupSocket(io: Server) {
             // pastikan pengirim ada di room conversation utk menerima broadcast message:new
             void socket.join(roomOf(data.conversationId));
             io.to(roomOf(data.conversationId)).emit("message:new", { message });
+            const room = io.sockets.adapter.rooms.get(roomOf(data.conversationId));
+            console.log(`[socket] message:new broadcast to room convo:${data.conversationId}, sockets in room: ${room?.size ?? 0}`);
 
             // Push notification ke member offline (fire-and-forget)
             void (async () => {
