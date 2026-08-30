@@ -119,6 +119,8 @@ export function setupSocket(io: Server) {
           if (message) {
             // pastikan pengirim ada di room conversation utk menerima broadcast message:new
             void socket.join(roomOf(data.conversationId));
+            // io.to (bukan socket.to) supaya pengirim sendiri juga terima — penting untuk
+            // multi-device (laptop + mobile akun sama) dan reconcile optimistic message
             io.to(roomOf(data.conversationId)).emit("message:new", { message });
             const room = io.sockets.adapter.rooms.get(roomOf(data.conversationId));
             console.log(`[socket] message:new broadcast to room convo:${data.conversationId}, sockets in room: ${room?.size ?? 0}`);
