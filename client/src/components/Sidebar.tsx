@@ -332,6 +332,42 @@ export function Sidebar() {
                 )}
               </div>
             ) : null}
+
+            {/* DMs section — also shown in home view */}
+            {(sidebar?.dms || []).length > 0 && (
+              <>
+                <SectionHeader
+                  label="Direct Messages"
+                  collapsed={collapsed["home-dms"]}
+                  onToggle={() => toggleCollapse("home-dms")}
+                  onAdd={() => setShowNewDM(true)}
+                />
+                {!collapsed["home-dms"] && (
+                  <div className="px-1">
+                    {(sidebar?.dms || []).filter(matchItem).map((dm) => (
+                      <button
+                        key={dm.id}
+                        onClick={() => onOpen(dm.id)}
+                        className={`
+                          w-full flex items-center gap-2.5 px-3 py-2.5 mx-1 rounded-md text-left transition
+                          ${activeId === dm.id
+                            ? "bg-[var(--color-brand,#2E46E0)] text-white font-semibold"
+                            : dm.unread > 0
+                              ? "text-white font-semibold hover:bg-white/8"
+                              : "text-white/60 hover:bg-white/5 hover:text-white/80"
+                          }
+                        `}
+                        style={{ width: "calc(100% - 8px)" }}
+                      >
+                        <Avatar name={dm.name || "?"} avatarUrl={null} size={20} />
+                        <span className="flex-1 truncate text-sm">{dm.name || "Direct Message"}</span>
+                        {dm.unread > 0 && activeId !== dm.id && <UnreadBadge count={dm.unread} />}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
           </>
         )}
 
