@@ -319,8 +319,15 @@ function EditUserModal({ user, onClose, onSaved }: {
   const [name, setName] = useState(user.name);
   const [email, setEmail] = useState(user.email);
   const [division, setDivision] = useState(user.division || "");
+  const [divisionOptions, setDivisionOptions] = useState<string[]>([]);
   const [err, setErr] = useState("");
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    api<{ divisions: string[] }>("/api/admin/divisions")
+      .then((d) => setDivisionOptions(d.divisions || []))
+      .catch(() => {});
+  }, []);
 
   // Password reset section
   const [showPwReset, setShowPwReset] = useState(false);
@@ -373,7 +380,14 @@ function EditUserModal({ user, onClose, onSaved }: {
           </label>
           <label className="flex flex-col gap-1.5">
             <span className="text-sm font-semibold">Divisi</span>
-            <input className="input-base" value={division} onChange={(e) => setDivision(e.target.value)} placeholder="Marketing, IT…" />
+            {divisionOptions.length > 0 ? (
+              <select className="input-base" value={division} onChange={(e) => setDivision(e.target.value)}>
+                <option value="">— Tanpa divisi —</option>
+                {divisionOptions.map((d) => <option key={d} value={d}>{d}</option>)}
+              </select>
+            ) : (
+              <input className="input-base" value={division} onChange={(e) => setDivision(e.target.value)} placeholder="Marketing, IT…" />
+            )}
           </label>
           {err && <p className="text-sm text-danger">{err}</p>}
           <button onClick={submit} disabled={saving}
@@ -413,10 +427,17 @@ function InviteModal({ onClose }: { onClose: () => void }) {
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("STAFF");
   const [division, setDivision] = useState("");
+  const [divisionOptions, setDivisionOptions] = useState<string[]>([]);
   const [password, setPassword] = useState("");
   const [result, setResult] = useState<{ name: string; email: string; tempPassword: string } | null>(null);
   const [err, setErr] = useState("");
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    api<{ divisions: string[] }>("/api/admin/divisions")
+      .then((d) => setDivisionOptions(d.divisions || []))
+      .catch(() => {});
+  }, []);
 
   const submit = async () => {
     if (!name || !email) { setErr("Nama dan email wajib diisi"); return; }
@@ -474,7 +495,14 @@ function InviteModal({ onClose }: { onClose: () => void }) {
               </label>
               <label className="flex flex-col gap-1.5">
                 <span className="text-sm font-semibold">Divisi</span>
-                <input className="input-base" value={division} onChange={(e) => setDivision(e.target.value)} placeholder="Marketing, IT…" />
+                {divisionOptions.length > 0 ? (
+                  <select className="input-base" value={division} onChange={(e) => setDivision(e.target.value)}>
+                    <option value="">— Tanpa divisi —</option>
+                    {divisionOptions.map((d) => <option key={d} value={d}>{d}</option>)}
+                  </select>
+                ) : (
+                  <input className="input-base" value={division} onChange={(e) => setDivision(e.target.value)} placeholder="Marketing, IT…" />
+                )}
               </label>
             </div>
             {err && <p className="text-sm text-danger">{err}</p>}
