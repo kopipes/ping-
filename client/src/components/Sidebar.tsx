@@ -253,14 +253,15 @@ export function Sidebar() {
               />
             </div>
 
-            {/* Pinned top / Unggulan section */}
+            {/* Pinned section */}
             {(sidebar?.pinnedTop || []).filter(matchItem).length > 0 && (
               <>
-                <SectionHeader label="Unggulan" />
+                <SectionHeader label="Pinned" />
                 <div className="px-1">
                   {(sidebar?.pinnedTop || []).filter(matchItem).map((item) => (
                     <SbItem
                       key={item.id}
+                      icon={item.icon || "#"}
                       label={item.name || "Group"}
                       active={activeId === item.id}
                       unread={item.unread > 0}
