@@ -92,8 +92,9 @@ export function Layout() {
 function EmptyState() {
   return (
     <div className="h-full flex flex-col items-center justify-center" style={{ color: "var(--text-tertiary)" }}>
-      <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-black text-white mb-4"
-        style={{ background: "var(--color-rail-active-pill)", boxShadow: "var(--shadow-md)" }}>Pi</div>
+      <div className="w-16 h-16 rounded-2xl overflow-hidden mb-4" style={{ boxShadow: "var(--shadow-md)" }}>
+        <img src="/logo.png" alt="Ping!" className="w-full h-full object-cover" />
+      </div>
       <p className="text-lg font-semibold" style={{ color: "var(--text-primary)" }}>Selamat datang di Ping!</p>
       <p className="text-sm mt-1">Pilih channel atau DM untuk mulai</p>
     </div>
