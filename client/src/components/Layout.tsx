@@ -35,12 +35,11 @@ export function Layout() {
 
   if (!isDesktop) {
     const showChat = chatOpen && !!activeId && !adminOpen;
+    const showBottomNav = !showChat && !adminOpen;
     return (
-      <div className="h-full flex bg-appbg relative overflow-x-hidden">
-        {/* Same icon rail as desktop — left side on mobile too */}
-        {!showChat && !adminOpen && <IconRail />}
-
-        <div className="flex-1 min-w-0 flex flex-col min-h-0 overflow-hidden">
+      <div className="h-full flex flex-col bg-appbg relative overflow-x-hidden">
+        {/* Main content — fills space above bottom nav */}
+        <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
           {adminOpen ? (
             <AdminPanel />
           ) : showChat ? (
@@ -53,6 +52,10 @@ export function Layout() {
             <Sidebar />
           )}
         </div>
+
+        {/* Bottom nav — shown on all mobile screens except chat/admin */}
+        {showBottomNav && <IconRail variant="bottom" />}
+
         {forwardTarget && <ForwardModal />}
       </div>
     );

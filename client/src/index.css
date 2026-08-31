@@ -284,6 +284,64 @@
     margin-bottom: 14px;
   }
   .icon-rail-avatar:hover { border-color: rgba(255,255,255,0.4); }
+
+  /* ── Bottom Nav (mobile only) ── */
+  .bottom-nav {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+    height: 60px;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    flex-shrink: 0;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .bottom-nav-item {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    color: var(--color-rail-icon);
+    position: relative;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    transition: color 120ms ease;
+    min-width: 0;
+  }
+  .bottom-nav-item:hover { color: var(--color-rail-icon-hover); }
+  .bottom-nav-item.is-active { color: var(--color-rail-icon-active); }
+  .bottom-nav-item.is-active::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 25%; right: 25%;
+    height: 2px;
+    border-radius: 9999px;
+    background: #FFFFFF;
+  }
+  .bottom-nav-label {
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1;
+    opacity: 0.85;
+  }
+  .bottom-nav-item.is-active .bottom-nav-label { opacity: 1; }
+  .bottom-nav-avatar {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    border-radius: 0;
+  }
+
   /* Badge unread */
   .badge-unread {
     display: inline-flex;

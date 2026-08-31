@@ -36,23 +36,28 @@ function RailBtn({
   active,
   badge,
   onClick,
+  bottom,
 }: {
   icon: React.ReactNode;
   label: string;
   active: boolean;
   badge?: number;
   onClick: () => void;
+  bottom?: boolean;
 }) {
   return (
     <button
       onClick={onClick}
       title={label}
       aria-label={label}
-      className={`icon-rail-item${active ? " is-active" : ""}`}
+      className={bottom
+        ? `bottom-nav-item${active ? " is-active" : ""}`
+        : `icon-rail-item${active ? " is-active" : ""}`}
     >
       {icon}
+      {bottom && <span className="bottom-nav-label">{label}</span>}
       {badge != null && badge > 0 && (
-        <span className="badge-unread" style={{ position: "absolute", top: 2, right: 2 }}>
+        <span className="badge-unread" style={{ position: "absolute", top: 2, right: bottom ? 8 : 2 }}>
           {badge > 99 ? "99+" : badge}
         </span>
       )}
@@ -60,7 +65,7 @@ function RailBtn({
   );
 }
 
-export function IconRail() {
+export function IconRail({ variant = "side" }: { variant?: "side" | "bottom" }) {
   const user = useAuthStore((s) => s.user);
   const sidebar = useChatStore((s) => s.sidebar);
   const railView = useUIStore((s) => s.railView);
@@ -83,6 +88,60 @@ export function IconRail() {
     }
   };
 
+  const avatarBtn = (
+    <button
+      onClick={() => {
+        setProfileOpen(!profileOpen);
+        if (!profileOpen) setChatOpen(false);
+      }}
+      title={user?.name || "Profil"}
+      aria-label="Profil"
+      className={variant === "bottom" ? "bottom-nav-avatar" : "icon-rail-avatar"}
+      style={{
+        border: profileOpen ? "2px solid rgba(255,255,255,0.6)" : "2px solid transparent",
+        overflow: "hidden",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      {user?.avatarUrl ? (
+        <img
+          src={apiUrl(user.avatarUrl)}
+          alt={user.name}
+          style={{ width: variant === "bottom" ? 26 : 24, height: variant === "bottom" ? 26 : 24, objectFit: "cover" }}
+        />
+      ) : (
+        <span style={{
+          width: variant === "bottom" ? 28 : 27,
+          height: variant === "bottom" ? 28 : 27,
+          background: "var(--color-rail-bg-active)",
+          color: "#fff",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontWeight: 700,
+          fontSize: 11,
+          borderRadius: "50%",
+        }}>
+          {user?.name?.charAt(0).toUpperCase()}
+        </span>
+      )}
+    </button>
+  );
+
+  if (variant === "bottom") {
+    return (
+      <nav className="bottom-nav" style={{ background: "var(--color-rail-bg)" }}>
+        <RailBtn icon={<HomeIcon />} label="Home" active={railView === "home" && !profileOpen} onClick={() => navigate("home")} bottom />
+        <RailBtn icon={<DMIcon />} label="DM" active={railView === "dms" && !profileOpen} badge={dmUnread} onClick={() => navigate("dms")} bottom />
+        <RailBtn icon={<ActivityIcon />} label="Activity" active={railView === "activity" && !profileOpen} onClick={() => navigate("activity")} bottom />
+        <RailBtn icon={<SearchIcon />} label="Search" active={railView === "search" && !profileOpen} onClick={() => navigate("search")} bottom />
+        {avatarBtn}
+      </nav>
+    );
+  }
+
   return (
     <aside className="icon-rail" style={{ background: "var(--color-rail-bg)" }}>
       {/* Logo mark */}
@@ -91,74 +150,16 @@ export function IconRail() {
       </div>
 
       {/* Nav items */}
-      <RailBtn
-        icon={<HomeIcon />}
-        label="Home"
-        active={railView === "home" && !profileOpen}
-        onClick={() => navigate("home")}
-      />
-      <RailBtn
-        icon={<DMIcon />}
-        label="Direct Messages"
-        active={railView === "dms" && !profileOpen}
-        badge={dmUnread}
-        onClick={() => navigate("dms")}
-      />
-      <RailBtn
-        icon={<ActivityIcon />}
-        label="Activity"
-        active={railView === "activity" && !profileOpen}
-        onClick={() => navigate("activity")}
-      />
-      <RailBtn
-        icon={<SearchIcon />}
-        label="Search"
-        active={railView === "search" && !profileOpen}
-        onClick={() => navigate("search")}
-      />
+      <RailBtn icon={<HomeIcon />} label="Home" active={railView === "home" && !profileOpen} onClick={() => navigate("home")} />
+      <RailBtn icon={<DMIcon />} label="Direct Messages" active={railView === "dms" && !profileOpen} badge={dmUnread} onClick={() => navigate("dms")} />
+      <RailBtn icon={<ActivityIcon />} label="Activity" active={railView === "activity" && !profileOpen} onClick={() => navigate("activity")} />
+      <RailBtn icon={<SearchIcon />} label="Search" active={railView === "search" && !profileOpen} onClick={() => navigate("search")} />
 
       {/* Spacer */}
       <div className="icon-rail-spacer" />
 
       {/* Profile avatar */}
-      <button
-        onClick={() => {
-          setProfileOpen(!profileOpen);
-          if (!profileOpen) setChatOpen(false);
-        }}
-        title={user?.name || "Profil"}
-        aria-label="Profil"
-        className="icon-rail-avatar"
-        style={{
-          border: profileOpen ? "2px solid rgba(255,255,255,0.6)" : "2px solid transparent",
-          overflow: "hidden",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        {user?.avatarUrl ? (
-          <img
-            src={apiUrl(user.avatarUrl)}
-            alt={user.name}
-            style={{ width: 24, height: 24, objectFit: "cover" }}
-          />
-        ) : (
-          <span style={{
-            width: 27, height: 27,
-            background: "var(--color-rail-bg-active)",
-            color: "#fff",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontWeight: 700,
-            fontSize: 11,
-            borderRadius: "50%",
-          }}>
-            {user?.name?.charAt(0).toUpperCase()}
-          </span>
-        )}
-      </button>
+      {avatarBtn}
     </aside>
   );
 }
