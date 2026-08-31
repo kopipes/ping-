@@ -55,7 +55,7 @@ function Avatar({
     <span
       className="inline-flex items-center justify-center font-bold shrink-0 uppercase"
       style={{
-        border: "1.5px solid #9CA3AF",
+        border: "1px solid rgba(128,128,128,0.35)",
         background: "transparent",
         color: "var(--color-sidebar-text-active, rgba(255,255,255,0.9))",
         width: size, height: size, fontSize: size * 0.44,
@@ -141,7 +141,7 @@ function WaItem({
             style={{
               width: 40, height: 40,
               background: "transparent",
-              border: "1.5px solid #9CA3AF",
+              border: "1px solid rgba(128,128,128,0.35)",
               color: "var(--color-sidebar-text-active, rgba(255,255,255,0.9))",
               borderRadius: "var(--avatar-radius, 8px)",
             }}
