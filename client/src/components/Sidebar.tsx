@@ -315,11 +315,15 @@ export function Sidebar() {
                             onClick={() => toggleCollapse(`grp-${lv.id}`)}
                             className="flex items-center gap-1.5 flex-1 min-w-0 px-3 py-1 text-left"
                           >
-                            <span className="text-[10px] text-white/40 shrink-0">
+                            <span className="text-[10px] shrink-0 opacity-40" style={{ color: "var(--color-sidebar-text-active, white)" }}>
                               {collapsed[`grp-${lv.id}`] ? "▶" : "▼"}
                             </span>
                             <span className="text-sm shrink-0">{lv.icon || "#"}</span>
-                            <span className={`flex-1 truncate text-base font-medium ${lv.unread > 0 ? "text-white font-semibold" : "text-white/70"} ${activeId === lv.id ? "text-white" : ""}`}>
+                            <span className="flex-1 truncate text-base font-medium" style={{
+                              color: "var(--color-sidebar-text-active, white)",
+                              opacity: lv.unread > 0 || activeId === lv.id ? 1 : 0.7,
+                              fontWeight: lv.unread > 0 ? 600 : 500,
+                            }}>
                               {lv.name || "channel"}
                             </span>
                             {lv.unread > 0 && activeId !== lv.id && <UnreadBadge count={lv.unread} />}
@@ -327,10 +331,13 @@ export function Sidebar() {
                           {/* Click icon to open the group itself */}
                           <button
                             onClick={() => onOpen(lv.id)}
-                            className={`w-7 h-7 mr-1 rounded flex items-center justify-center transition shrink-0 ${activeId === lv.id ? "bg-[var(--color-brand,#2E46E0)]" : "hover:bg-white/10"}`}
+                            className={`w-7 h-7 mr-1 rounded flex items-center justify-center transition shrink-0 ${activeId === lv.id ? "bg-[var(--color-brand-600,#2E46E0)]" : ""}`}
                             title={`Buka ${lv.name}`}
                           >
-                            <svg className="w-3.5 h-3.5 text-white/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}
+                              style={{ color: "var(--color-sidebar-text, rgba(255,255,255,0.5))" }}>
+                              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                            </svg>
                           </button>
                         </div>
                         {/* Sub-topics */}
@@ -353,11 +360,12 @@ export function Sidebar() {
               </>
             ) : !sidebarLoading ? (
               <div className="px-4 py-6 text-center">
-                <p className="text-sm text-white/40">Belum ada group.</p>
+                <p className="text-sm" style={{ color: "var(--color-sidebar-text, rgba(255,255,255,0.4))" }}>Belum ada group.</p>
                 {isAdminish && (
                   <button
                     onClick={() => setShowNewTopic(true)}
-                    className="mt-2 text-sm text-white/60 underline hover:text-white transition"
+                    className="mt-2 text-sm underline transition"
+                    style={{ color: "var(--color-sidebar-text, rgba(255,255,255,0.6))" }}
                   >
                     Buat group pertama
                   </button>

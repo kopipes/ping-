@@ -386,7 +386,7 @@
     display: flex; align-items: center; justify-content: center;
     margin-bottom: 14px;
   }
-  .icon-rail-avatar:hover { border-color: rgba(255,255,255,0.4); }
+  .icon-rail-avatar:hover { border-color: var(--color-rail-icon-hover, rgba(255,255,255,0.4)); }
 
   /* ── Bottom Nav (mobile only) ── */
   .bottom-nav {
@@ -398,7 +398,7 @@
     height: 60px;
     padding-bottom: env(safe-area-inset-bottom, 0px);
     flex-shrink: 0;
-    border-top: 1px solid rgba(255,255,255,0.08);
+    border-top: 1px solid var(--sidebar-header-border, rgba(255,255,255,0.08));
   }
   .bottom-nav-item {
     flex: 1;
@@ -424,7 +424,7 @@
     top: 0; left: 25%; right: 25%;
     height: 2px;
     border-radius: 9999px;
-    background: #FFFFFF;
+    background: var(--color-rail-icon-active, #FFFFFF);
   }
   .bottom-nav-label {
     font-size: 10px;
