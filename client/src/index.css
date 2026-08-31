@@ -250,6 +250,27 @@
   --shadow-focus:           0 0 0 3px #DCFCE7;
 }
 
+/* Theme 11: Light — White / Admin only */
+[data-theme="light"] {
+  --color-rail-bg:          #E8EDF5;
+  --color-sidebar-bg:       #F0F4FA;
+  --color-rail-active-pill: #2E46E0;
+  --color-rail-icon:        rgba(20,21,31,0.45);
+  --color-rail-icon-hover:  rgba(20,21,31,0.80);
+  --color-rail-icon-active: #2E46E0;
+  --color-sidebar-text:        rgba(20,21,31,0.60);
+  --color-sidebar-text-active: #14151F;
+  --color-sidebar-hover:       rgba(20,21,31,0.06);
+  --color-sidebar-active:      rgba(46,70,224,0.10);
+  --color-brand-50:         #EEF1FE;
+  --color-brand-100:        #DDE4FD;
+  --color-brand-500:        #3B5BFA;
+  --color-brand-600:        #2E46E0;
+  --color-brand-700:        #2436B8;
+  --surface-active:         #EEF1FE;
+  --shadow-focus:           0 0 0 3px #DDE4FD;
+}
+
 @layer base {
   html {
     overflow-x: hidden;

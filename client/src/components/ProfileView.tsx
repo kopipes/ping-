@@ -26,6 +26,7 @@ const THEMES = [
   { key: "lavender", label: "Lavender",  rail: "#2D1B4E", sidebar: "#3D2566", brand: "#8B5CF6", description: "Soft Purple" },
   { key: "peach",    label: "Peach",     rail: "#3D1A0A", sidebar: "#5C2D12", brand: "#F97316", description: "Soft Orange" },
   { key: "mint",     label: "Mint",      rail: "#0A2E1E", sidebar: "#14402A", brand: "#22C55E", description: "Soft Green" },
+  { key: "light",    label: "Light",     rail: "#E8EDF5", sidebar: "#F0F4FA", brand: "#2E46E0", description: "Light Mode", adminOnly: true },
 ] as const;
 
 type ThemeKey = typeof THEMES[number]["key"];
@@ -320,8 +321,9 @@ export function ProfileView({ onClose }: { onClose?: () => void }) {
         <section>
           <h4 className="text-sm font-semibold text-textp mb-3">Tema Warna</h4>
           <div className="grid grid-cols-5 gap-2">
-            {THEMES.map((t) => {
+            {THEMES.filter((t) => !("adminOnly" in t && t.adminOnly) || user?.role === "ADMIN" || user?.role === "SUPER_ADMIN").map((t) => {
               const isActive = theme === t.key;
+              const isAdminOnly = "adminOnly" in t && t.adminOnly;
               return (
                 <button
                   key={t.key}
@@ -330,12 +332,16 @@ export function ProfileView({ onClose }: { onClose?: () => void }) {
                     applyTheme(t.key);
                   }}
                   title={`${t.label} — ${t.description}`}
-                  className={`flex flex-col items-center gap-1.5 p-2 rounded-xl border-2 transition ${
+                  className={`flex flex-col items-center gap-1.5 p-2 rounded-xl border-2 transition relative ${
                     isActive ? "border-primary bg-primary/5" : "border-border hover:border-gray-300 bg-white"
                   }`}
                 >
+                  {/* Admin-only badge */}
+                  {isAdminOnly && (
+                    <span className="absolute top-1 right-1 text-[8px] bg-amber-100 text-amber-700 font-bold px-1 rounded leading-tight">ADM</span>
+                  )}
                   {/* Mini preview: rail + sidebar + brand swatch */}
-                  <div className="flex rounded-lg overflow-hidden w-full h-8 shrink-0">
+                  <div className="flex rounded-lg overflow-hidden w-full h-8 shrink-0" style={{ border: "1px solid #E5E7EF" }}>
                     <div className="w-2 shrink-0" style={{ background: t.rail }} />
                     <div className="w-4 shrink-0" style={{ background: t.sidebar }} />
                     <div className="flex-1 flex items-center justify-center" style={{ background: "#F8F9FC" }}>
