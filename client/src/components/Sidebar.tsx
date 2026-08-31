@@ -54,7 +54,11 @@ function Avatar({
   ) : (
     <span
       className="inline-flex items-center justify-center text-white font-bold shrink-0 uppercase rounded"
-      style={{ backgroundColor: color, width: size, height: size, fontSize: size * 0.44 }}
+      style={{
+        border: "1.5px solid rgba(255,255,255,0.35)",
+        background: "transparent",
+        width: size, height: size, fontSize: size * 0.44
+      }}
     >
       {name.charAt(0)}
     </span>
@@ -134,10 +138,8 @@ function WaItem({
             className="inline-flex items-center justify-center rounded-md text-xl shrink-0"
             style={{
               width: 40, height: 40,
-              background: [
-                "#E01E5A","#ECB22E","#2BAC76","#1264A3",
-                "#611f69","#36C5F0","#4A154B","#FF612B","#008080","#7B2D8B",
-              ][(label.charCodeAt(0) || 0) % 10],
+              background: "transparent",
+              border: "1.5px solid rgba(255,255,255,0.35)",
             }}
           >
             {avatarIcon || "#"}
