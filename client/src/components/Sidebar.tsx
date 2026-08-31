@@ -116,7 +116,7 @@ function WaItem({
       onClick={onClick}
       className="w-full flex items-center gap-2.5 px-2 py-2 text-left transition rounded-md"
       style={{
-        paddingLeft: indent ? "calc(0.5rem + 24px)" : "0.5rem",
+        paddingLeft: indent ? "calc(0.5rem + 44px)" : "0.5rem",
         background: active ? "var(--color-brand-600, #2E46E0)" : undefined,
       }}
     >
