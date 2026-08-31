@@ -139,8 +139,12 @@ function SbItem({
     >
       {icon && <span className="shrink-0 text-base leading-none">{icon}</span>}
       <span className="flex-1 truncate text-base">{label}</span>
-      {unread && !active && unreadCount != null && unreadCount > 0 && (
-        <UnreadBadge count={unreadCount} />
+      {unread && unreadCount != null && unreadCount > 0 && (
+        <span className={`ml-auto shrink-0 text-[11px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none ${
+          active ? "bg-white text-primary" : "bg-red-500 text-white"
+        }`}>
+          {unreadCount > 99 ? "99+" : unreadCount}
+        </span>
       )}
     </button>
   );
