@@ -392,14 +392,15 @@ export function Sidebar() {
                         </button>
                         {/* Sub-topics */}
                         {!collapsed[`grp-${lv.id}`] && (lv.subTopics || []).filter((s) => matchItem(s)).map((sub) => (
-                          <div key={sub.id} className="pl-5">
-                            <button
-                              onClick={() => onOpen(sub.id)}
-                              className="w-full flex items-start gap-1.5 px-3 py-1.5 rounded-md text-left transition"
-                              style={{
-                                background: activeId === sub.id ? "var(--color-brand-600, #2E46E0)" : undefined,
-                              }}
-                            >
+                          <button
+                            key={sub.id}
+                            onClick={() => onOpen(sub.id)}
+                            className="w-full flex items-start gap-1.5 pl-8 pr-3 py-1.5 mx-1 rounded-md text-left transition"
+                            style={{
+                              width: "calc(100% - 8px)",
+                              background: activeId === sub.id ? "var(--color-brand-600, #2E46E0)" : undefined,
+                            }}
+                          >
                               <span className="text-sm shrink-0 mt-0.5">{sub.icon || "#"}</span>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center justify-between gap-1">
@@ -422,11 +423,10 @@ export function Sidebar() {
                                 </div>
                               </div>
                             </button>
-                          </div>
-                        ))}
-                      </div>
-                    ))}
-                  </div>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
                 )}
               </>
             ) : !sidebarLoading ? (
