@@ -82,7 +82,8 @@ function SectionHeader({
     <div className="flex items-center justify-between px-3 pt-4 pb-1 group">
       <button
         onClick={onToggle}
-        className="flex items-center gap-1 flex-1 text-left text-xs font-semibold uppercase tracking-wide text-white/50 hover:text-white/70 transition"
+        className="flex items-center gap-1 flex-1 text-left text-xs font-semibold uppercase tracking-wide transition"
+        style={{ color: "var(--sidebar-section-label, rgba(255,255,255,0.5))" }}
       >
         {onToggle && (
           <span className="text-[9px] mr-0.5 opacity-60">{collapsed ? "▶" : "▼"}</span>
@@ -92,7 +93,8 @@ function SectionHeader({
       {onAdd && (
         <button
           onClick={onAdd}
-          className="opacity-0 group-hover:opacity-100 w-5 h-5 rounded flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition text-lg leading-none font-light"
+          className="opacity-0 group-hover:opacity-100 w-5 h-5 rounded flex items-center justify-center transition text-lg leading-none font-light"
+          style={{ color: "var(--color-sidebar-text, rgba(255,255,255,0.5))" }}
           title={`Tambah ${label}`}
         >
           +
@@ -441,10 +443,11 @@ export function Sidebar() {
             <div className="px-1">
               {(sidebar?.dms || []).filter(matchItem).length === 0 && !sidebarLoading ? (
                 <div className="px-3 py-5 text-center">
-                  <p className="text-sm text-white/40">Belum ada DM.</p>
+                  <p className="text-sm" style={{ color: "var(--color-sidebar-text, rgba(255,255,255,0.4))" }}>Belum ada DM.</p>
                   <button
                     onClick={() => setShowNewDM(true)}
-                    className="mt-2 text-sm text-white/60 underline hover:text-white transition"
+                    className="mt-2 text-sm underline transition"
+                    style={{ color: "var(--color-sidebar-text, rgba(255,255,255,0.6))" }}
                   >
                     Mulai percakapan baru
                   </button>
@@ -454,16 +457,17 @@ export function Sidebar() {
                   <button
                     key={dm.id}
                     onClick={() => onOpen(dm.id)}
-                    className={`
-                      w-full flex items-center gap-2.5 px-3 py-2.5 mx-1 rounded-md text-left transition
-                      ${activeId === dm.id
-                        ? "bg-[var(--color-brand,#2E46E0)] text-white font-semibold"
+                    className="w-full flex items-center gap-2.5 px-3 py-2.5 mx-1 rounded-md text-left transition font-semibold"
+                    style={{
+                      width: "calc(100% - 8px)",
+                      background: activeId === dm.id ? "var(--color-brand-600, #2E46E0)" : undefined,
+                      color: activeId === dm.id
+                        ? "#FFFFFF"
                         : dm.unread > 0
-                          ? "text-white font-semibold hover:bg-white/8"
-                          : "text-white/60 hover:bg-white/5 hover:text-white/80"
-                      }
-                    `}
-                    style={{ width: "calc(100% - 8px)" }}
+                        ? "var(--color-sidebar-text-active, #FFFFFF)"
+                        : "var(--color-sidebar-text, rgba(255,255,255,0.6))",
+                      fontWeight: dm.unread > 0 || activeId === dm.id ? 600 : 400,
+                    }}
                   >
                     <Avatar
                       name={dm.name || "?"}
@@ -472,7 +476,11 @@ export function Sidebar() {
                       online={dm.partnerId ? undefined : undefined}
                     />
                     <span className="flex-1 truncate text-base">{dm.name || "Direct Message"}</span>
-                    {dm.unread > 0 && activeId !== dm.id && <UnreadBadge count={dm.unread} />}
+                    {dm.unread > 0 && (
+                      <span className={`ml-auto shrink-0 text-[11px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none ${
+                        activeId === dm.id ? "bg-white text-primary" : "bg-red-500 text-white"
+                      }`}>{dm.unread > 99 ? "99+" : dm.unread}</span>
+                    )}
                   </button>
                 ))
               )}
@@ -484,7 +492,7 @@ export function Sidebar() {
         {sidebarLoading && (
           <div className="px-4 py-3 space-y-2">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-8 rounded-md bg-white/5 animate-pulse" />
+              <div key={i} className="h-8 rounded-md animate-pulse" style={{ background: "var(--color-sidebar-hover, rgba(255,255,255,0.05))" }} />
             ))}
           </div>
         )}
@@ -494,11 +502,11 @@ export function Sidebar() {
       {user && (
         <div
           className="shrink-0 md:hidden flex items-center gap-3 px-3 py-3 border-t"
-          style={{ borderColor: "rgba(255,255,255,0.1)" }}
+          style={{ borderColor: "var(--sidebar-header-border, rgba(255,255,255,0.1))" }}
         >
           <button
             onClick={() => { setProfileOpen(true); setChatOpen(false); }}
-            className="flex items-center gap-2.5 flex-1 min-w-0 rounded-lg hover:bg-white/8 px-2 py-1.5 transition text-left"
+            className="flex items-center gap-2.5 flex-1 min-w-0 rounded-lg px-2 py-1.5 transition text-left"
             title="Profil saya"
           >
             <Avatar
@@ -508,8 +516,8 @@ export function Sidebar() {
               online={user.status === "online"}
             />
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-white truncate">{user.name}</div>
-              <div className="text-xs text-white/50 truncate">
+              <div className="text-sm font-medium truncate" style={{ color: "var(--color-sidebar-text-active, #FFFFFF)" }}>{user.name}</div>
+              <div className="text-xs truncate" style={{ color: "var(--color-sidebar-text, rgba(255,255,255,0.5))" }}>
                 {user.status === "online" ? "Online" : "Offline"}
               </div>
             </div>
@@ -518,9 +526,8 @@ export function Sidebar() {
             <button
               onClick={() => setAdminOpen(!adminOpen)}
               title="Admin Dashboard"
-              className={`w-8 h-8 rounded-lg flex items-center justify-center transition shrink-0 text-white/50 hover:text-white hover:bg-white/10 ${
-                adminOpen ? "bg-white/15 text-white" : ""
-              }`}
+              className={`w-8 h-8 rounded-lg flex items-center justify-center transition shrink-0 ${adminOpen ? "opacity-100" : "opacity-50"}`}
+              style={{ color: "var(--color-sidebar-text-active, #FFFFFF)" }}
             >
               ⚙️
             </button>
@@ -532,16 +539,17 @@ export function Sidebar() {
       {user && isAdminish && (
         <div
           className="shrink-0 hidden md:flex px-3 py-2.5 border-t"
-          style={{ borderColor: "rgba(255,255,255,0.1)" }}
+          style={{ borderColor: "var(--sidebar-header-border, rgba(255,255,255,0.1))" }}
         >
           <button
             onClick={() => setAdminOpen(!adminOpen)}
             title="Admin Dashboard"
-            className={`w-full flex items-center gap-2 px-3 h-8 rounded-md text-sm transition ${
-              adminOpen
-                ? "bg-white/10 text-white font-semibold"
-                : "text-white/50 hover:bg-white/8 hover:text-white"
-            }`}
+            className="w-full flex items-center gap-2 px-3 h-8 rounded-md text-sm transition"
+            style={{
+              background: adminOpen ? "var(--color-sidebar-active, rgba(255,255,255,0.10))" : undefined,
+              color: adminOpen ? "var(--color-sidebar-text-active, #FFFFFF)" : "var(--color-sidebar-text, rgba(255,255,255,0.5))",
+              fontWeight: adminOpen ? 600 : 400,
+            }}
           >
             <span>⚙️</span>
             <span>Admin</span>
