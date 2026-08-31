@@ -176,6 +176,80 @@
   --shadow-focus:           0 0 0 3px #FFE4E6;
 }
 
+/* ── Pastel Themes ─────────────────────────────────────────────────────────────
+   Light rail & sidebar with soft brand accents.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/* Theme 6: Sakura — Soft Pink */
+[data-theme="sakura"] {
+  --color-rail-bg:          #4A1A2A;
+  --color-sidebar-bg:       #6B2D3E;
+  --color-rail-active-pill: #F472B6;
+  --color-brand-50:         #FDF2F8;
+  --color-brand-100:        #FCE7F3;
+  --color-brand-500:        #EC4899;
+  --color-brand-600:        #DB2777;
+  --color-brand-700:        #BE185D;
+  --surface-active:         #FDF2F8;
+  --shadow-focus:           0 0 0 3px #FCE7F3;
+}
+
+/* Theme 7: Ocean — Soft Teal */
+[data-theme="ocean"] {
+  --color-rail-bg:          #0A2A35;
+  --color-sidebar-bg:       #0F3D4A;
+  --color-rail-active-pill: #22D3EE;
+  --color-brand-50:         #ECFEFF;
+  --color-brand-100:        #CFFAFE;
+  --color-brand-500:        #06B6D4;
+  --color-brand-600:        #0891B2;
+  --color-brand-700:        #0E7490;
+  --surface-active:         #ECFEFF;
+  --shadow-focus:           0 0 0 3px #CFFAFE;
+}
+
+/* Theme 8: Lavender — Soft Purple */
+[data-theme="lavender"] {
+  --color-rail-bg:          #2D1B4E;
+  --color-sidebar-bg:       #3D2566;
+  --color-rail-active-pill: #A78BFA;
+  --color-brand-50:         #F5F3FF;
+  --color-brand-100:        #EDE9FE;
+  --color-brand-500:        #8B5CF6;
+  --color-brand-600:        #7C3AED;
+  --color-brand-700:        #6D28D9;
+  --surface-active:         #F5F3FF;
+  --shadow-focus:           0 0 0 3px #EDE9FE;
+}
+
+/* Theme 9: Peach — Soft Orange */
+[data-theme="peach"] {
+  --color-rail-bg:          #3D1A0A;
+  --color-sidebar-bg:       #5C2D12;
+  --color-rail-active-pill: #FB923C;
+  --color-brand-50:         #FFF7ED;
+  --color-brand-100:        #FFEDD5;
+  --color-brand-500:        #F97316;
+  --color-brand-600:        #EA6C0A;
+  --color-brand-700:        #C2570B;
+  --surface-active:         #FFF7ED;
+  --shadow-focus:           0 0 0 3px #FFEDD5;
+}
+
+/* Theme 10: Mint — Soft Green */
+[data-theme="mint"] {
+  --color-rail-bg:          #0A2E1E;
+  --color-sidebar-bg:       #14402A;
+  --color-rail-active-pill: #34D399;
+  --color-brand-50:         #F0FDF4;
+  --color-brand-100:        #DCFCE7;
+  --color-brand-500:        #22C55E;
+  --color-brand-600:        #16A34A;
+  --color-brand-700:        #15803D;
+  --surface-active:         #F0FDF4;
+  --shadow-focus:           0 0 0 3px #DCFCE7;
+}
+
 @layer base {
   html {
     overflow-x: hidden;

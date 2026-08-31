@@ -21,6 +21,11 @@ const THEMES = [
   { key: "forest",   label: "Forest",    rail: "#0D1F1A", sidebar: "#14302A", brand: "#059669", description: "Emerald Green" },
   { key: "charcoal", label: "Charcoal",  rail: "#18181B", sidebar: "#27272A", brand: "#52525B", description: "Warm Gray" },
   { key: "bordeaux", label: "Bordeaux",  rail: "#1A0E14", sidebar: "#2D1520", brand: "#E11D48", description: "Deep Rose" },
+  { key: "sakura",   label: "Sakura",    rail: "#4A1A2A", sidebar: "#6B2D3E", brand: "#EC4899", description: "Soft Pink" },
+  { key: "ocean",    label: "Ocean",     rail: "#0A2A35", sidebar: "#0F3D4A", brand: "#06B6D4", description: "Soft Teal" },
+  { key: "lavender", label: "Lavender",  rail: "#2D1B4E", sidebar: "#3D2566", brand: "#8B5CF6", description: "Soft Purple" },
+  { key: "peach",    label: "Peach",     rail: "#3D1A0A", sidebar: "#5C2D12", brand: "#F97316", description: "Soft Orange" },
+  { key: "mint",     label: "Mint",      rail: "#0A2E1E", sidebar: "#14402A", brand: "#22C55E", description: "Soft Green" },
 ] as const;
 
 type ThemeKey = typeof THEMES[number]["key"];
