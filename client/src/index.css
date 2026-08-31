@@ -258,6 +258,8 @@
   --color-rail-icon:        rgba(20,21,31,0.45);
   --color-rail-icon-hover:  rgba(20,21,31,0.80);
   --color-rail-icon-active: #2E46E0;
+  --color-rail-bg-hover:    rgba(20,21,31,0.07);
+  --color-rail-bg-active:   rgba(46,70,224,0.12);
   --color-sidebar-text:        rgba(20,21,31,0.60);
   --color-sidebar-text-active: #14151F;
   --color-sidebar-hover:       rgba(20,21,31,0.06);
@@ -362,7 +364,7 @@
     background: transparent;
     transition: background 120ms ease, color 120ms ease;
   }
-  .icon-rail-item:hover { background: rgba(255,255,255,0.08); color: var(--color-rail-icon-hover); }
+  .icon-rail-item:hover { background: var(--color-rail-bg-hover, rgba(255,255,255,0.08)); color: var(--color-rail-icon-hover); }
   .icon-rail-item.is-active { background: var(--color-rail-bg-active); color: var(--color-rail-icon-active); }
   .icon-rail-item.is-active::before {
     content: '';
@@ -370,7 +372,7 @@
     left: -3px; top: 7px; bottom: 7px;
     width: 3px;
     border-radius: 9999px;
-    background: #FFFFFF;
+    background: var(--color-rail-icon-active, #FFFFFF);
   }
   .icon-rail-spacer { flex: 1; }
   .icon-rail-avatar {
