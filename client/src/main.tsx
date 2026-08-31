@@ -20,7 +20,7 @@ if ("serviceWorker" in navigator) {
 registerSW({ immediate: true });
 
 // Apply saved font sizes on boot
-const zoomMap: Record<string, string> = { small: "0.867", normal: "1", large: "1.2" };
+const zoomMap: Record<string, string> = { xs: "0.733", small: "0.867", normal: "1", medium: "1.133", large: "1.267", xl: "1.4", xxl: "1.6" };
 const savedSidebarSize = localStorage.getItem("pvc-font-sidebar") || "normal";
 const savedChatSize = localStorage.getItem("pvc-font-chat") || "normal";
 document.documentElement.style.setProperty("--sidebar-zoom", zoomMap[savedSidebarSize] || "1");

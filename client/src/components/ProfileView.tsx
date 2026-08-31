@@ -37,12 +37,16 @@ function applyTheme(key: ThemeKey) {
 }
 
 const FONT_SIZES = [
-  { key: "small",  label: "Kecil",  px: "13px", zoom: "0.867" },
-  { key: "normal", label: "Normal", px: "15px", zoom: "1"     },
-  { key: "large",  label: "Besar",  px: "18px", zoom: "1.2"   },
+  { key: "xs",     label: "XS",     px: "11px", zoom: "0.733" },
+  { key: "small",  label: "S",      px: "13px", zoom: "0.867" },
+  { key: "normal", label: "M",      px: "15px", zoom: "1"     },
+  { key: "medium", label: "L",      px: "17px", zoom: "1.133" },
+  { key: "large",  label: "XL",     px: "19px", zoom: "1.267" },
+  { key: "xl",     label: "XXL",    px: "21px", zoom: "1.4"   },
+  { key: "xxl",    label: "XXXL",   px: "24px", zoom: "1.6"   },
 ] as const;
 
-type FontSizeKey = "small" | "normal" | "large";
+type FontSizeKey = "xs" | "small" | "normal" | "medium" | "large" | "xl" | "xxl";
 
 function applySidebarFontSize(key: FontSizeKey) {
   const size = FONT_SIZES.find((f) => f.key === key);
