@@ -388,20 +388,25 @@ export function Sidebar() {
                       <button
                         key={dm.id}
                         onClick={() => onOpen(dm.id)}
-                        className={`
-                          w-full flex items-center gap-2.5 px-3 py-2.5 mx-1 rounded-md text-left transition
-                          ${activeId === dm.id
-                            ? "bg-[var(--color-brand,#2E46E0)] text-white font-semibold"
+                        className="w-full flex items-center gap-2.5 px-3 py-2.5 mx-1 rounded-md text-left transition"
+                        style={{
+                          width: "calc(100% - 8px)",
+                          background: activeId === dm.id ? "var(--color-brand-600, #2E46E0)" : undefined,
+                          color: activeId === dm.id
+                            ? "#FFFFFF"
                             : dm.unread > 0
-                              ? "text-white font-semibold hover:bg-white/8"
-                              : "text-white/60 hover:bg-white/5 hover:text-white/80"
-                          }
-                        `}
-                        style={{ width: "calc(100% - 8px)" }}
+                            ? "var(--color-sidebar-text-active, #FFFFFF)"
+                            : "var(--color-sidebar-text, rgba(255,255,255,0.6))",
+                          fontWeight: dm.unread > 0 || activeId === dm.id ? 600 : 400,
+                        }}
                       >
                         <Avatar name={dm.name || "?"} avatarUrl={null} size={20} />
                         <span className="flex-1 truncate text-base">{dm.name || "Direct Message"}</span>
-                        {dm.unread > 0 && activeId !== dm.id && <UnreadBadge count={dm.unread} />}
+                        {dm.unread > 0 && (
+                          <span className={`ml-auto shrink-0 text-[11px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none ${
+                            activeId === dm.id ? "bg-white text-primary" : "bg-red-500 text-white"
+                          }`}>{dm.unread > 99 ? "99+" : dm.unread}</span>
+                        )}
                       </button>
                     ))}
                   </div>
@@ -417,8 +422,8 @@ export function Sidebar() {
             {unreadItems.length === 0 ? (
               <div className="px-4 py-8 text-center">
                 <div className="text-2xl mb-2 opacity-60">✓</div>
-                <p className="text-sm font-medium text-white/80">Semua sudah dibaca</p>
-                <p className="text-xs mt-1 text-white/40">Tidak ada notifikasi baru.</p>
+                <p className="text-sm font-medium" style={{ color: "var(--color-sidebar-text-active, rgba(255,255,255,0.8))" }}>Semua sudah dibaca</p>
+                <p className="text-xs mt-1" style={{ color: "var(--color-sidebar-text, rgba(255,255,255,0.4))" }}>Tidak ada notifikasi baru.</p>
               </div>
             ) : (
               <>

@@ -116,7 +116,7 @@ export function IconRail({ variant = "side" }: { variant?: "side" | "bottom" }) 
           width: variant === "bottom" ? 28 : 27,
           height: variant === "bottom" ? 28 : 27,
           background: "var(--color-rail-bg-active)",
-          color: "#fff",
+          color: "var(--color-rail-icon-active, #fff)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
