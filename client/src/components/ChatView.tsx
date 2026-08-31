@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useAuthStore } from "../store/auth";
 import { useChatStore } from "../store/chat";
 import { useUIStore } from "../store/ui";
-import { api } from "../lib/api";
+import { api, apiUrl } from "../lib/api";
 import { markRead, joinConversation } from "../lib/socket";
 import { MessageBubble, Avatar } from "./MessageBubble";
 import { Composer } from "./Composer";
@@ -144,8 +144,12 @@ export function ChatView() {
           <Avatar name={convo.members.find((m) => m.user.id !== myId)?.user?.name || name} size={28} />
         )}
         {!isDM && (
-          <div className="w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center shrink-0">
-            <span className="text-white/90 font-bold text-sm">{convo?.icon || "#"}</span>
+          <div className="w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center shrink-0 overflow-hidden">
+            {convo?.icon && (convo.icon.startsWith("/") || convo.icon.startsWith("http")) ? (
+              <img src={apiUrl(convo.icon)} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-white/90 font-bold text-sm">{convo?.icon || "#"}</span>
+            )}
           </div>
         )}
 

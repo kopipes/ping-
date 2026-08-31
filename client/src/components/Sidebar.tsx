@@ -127,6 +127,8 @@ function WaItem({
       <div className="shrink-0">
         {avatarName ? (
           <Avatar name={avatarName} avatarUrl={avatarUrl} size={40} />
+        ) : avatarIcon && (avatarIcon.startsWith("/") || avatarIcon.startsWith("http")) ? (
+          <img src={apiUrl(avatarIcon)} alt="" className="rounded-md object-cover shrink-0" style={{ width: 40, height: 40 }} />
         ) : (
           <span
             className="inline-flex items-center justify-center rounded-md text-lg shrink-0"

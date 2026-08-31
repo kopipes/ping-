@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuthStore } from "../store/auth";
 import { useChatStore } from "../store/chat";
 import { api, apiUrl } from "../lib/api";
@@ -34,6 +34,8 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
   const [editDesc, setEditDesc] = useState("");
   const [editIcon, setEditIcon] = useState("");
   const [saving, setSaving] = useState(false);
+  const [iconUploading, setIconUploading] = useState(false);
+  const iconInputRef = useRef<HTMLInputElement>(null);
   // Local isPublic state — initialized from convo, updates instantly on toggle
   const [isPublic, setIsPublic] = useState<boolean>(false);
 
@@ -90,6 +92,17 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
                     toast("Group berhasil diperbarui");
     } catch (e: any) { toast(e?.message || "Gagal simpan"); }
     finally { setSaving(false); }
+  };
+
+  const uploadIcon = async (file: File) => {
+    setIconUploading(true);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const res = await api<{ fileUrl: string; thumbnailUrl: string | null }>("/api/upload", { method: "POST", formData: form });
+      setEditIcon(res.thumbnailUrl || res.fileUrl);
+    } catch (e: any) { toast("Upload gagal: " + (e?.message || "")); }
+    finally { setIconUploading(false); }
   };
 
   const removeMember = async (userId: string, name: string) => {
@@ -244,7 +257,35 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
                 <div className="space-y-3">
                   <div>
                     <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Ikon</label>
-                    <div className="flex flex-wrap gap-1.5 mt-2">
+                    {/* Image upload + preview */}
+                    <div className="flex items-center gap-3 mt-2 mb-2">
+                      <div className="w-14 h-14 rounded-xl border-2 border-gray-200 flex items-center justify-center text-2xl overflow-hidden shrink-0"
+                        style={{ background: "#F8F9FC" }}>
+                        {editIcon && (editIcon.startsWith("/") || editIcon.startsWith("http")) ? (
+                          <img src={apiUrl(editIcon)} alt="icon" className="w-full h-full object-cover" />
+                        ) : (
+                          <span>{editIcon || "📁"}</span>
+                        )}
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <button
+                          onClick={() => iconInputRef.current?.click()}
+                          disabled={iconUploading}
+                          className="h-8 px-3 rounded-lg border border-gray-300 text-sm text-gray-600 hover:bg-gray-50 transition disabled:opacity-50"
+                        >
+                          {iconUploading ? "Mengupload…" : "Upload Gambar"}
+                        </button>
+                        {(editIcon.startsWith("/") || editIcon.startsWith("http")) && (
+                          <button onClick={() => setEditIcon("📁")}
+                            className="text-xs text-red-500 hover:underline text-left">
+                            Hapus gambar
+                          </button>
+                        )}
+                      </div>
+                      <input ref={iconInputRef} type="file" accept="image/*" className="hidden"
+                        onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadIcon(f); e.target.value = ""; }} />
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
                       {EMOJIS.map((e) => (
                         <button key={e} onClick={() => setEditIcon(e)}
                           className={`w-9 h-9 rounded-lg border text-base transition ${editIcon === e ? "border-primary bg-primary/10" : "border-gray-200 hover:bg-gray-50"}`}>

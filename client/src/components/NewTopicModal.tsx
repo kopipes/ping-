@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuthStore } from "../store/auth";
 import { useChatStore } from "../store/chat";
-import { api } from "../lib/api";
+import { api, apiUrl } from "../lib/api";
 
 export function NewTopicModal({ onClose }: { onClose: () => void }) {
   const user = useAuthStore((s) => s.user);
@@ -20,6 +20,8 @@ export function NewTopicModal({ onClose }: { onClose: () => void }) {
   const [description, setDescription] = useState("");
   const [err, setErr] = useState("");
   const [saving, setSaving] = useState(false);
+  const [iconUploading, setIconUploading] = useState(false);
+  const iconInputRef = useRef<HTMLInputElement>(null);
 
   // Member selection
   const [allUsers, setAllUsers] = useState<{ id: string; name: string; email: string; division: string | null }[]>([]);
@@ -43,6 +45,17 @@ export function NewTopicModal({ onClose }: { onClose: () => void }) {
     u.name.toLowerCase().includes(userSearch.toLowerCase()) ||
     u.email.toLowerCase().includes(userSearch.toLowerCase())
   );
+
+  const uploadIcon = async (file: File) => {
+    setIconUploading(true);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const res = await api<{ fileUrl: string; thumbnailUrl: string | null }>("/api/upload", { method: "POST", formData: form });
+      setIcon(res.thumbnailUrl || res.fileUrl);
+    } catch (e: any) { setErr("Upload gagal: " + (e?.message || "")); }
+    finally { setIconUploading(false); }
+  };
 
   const submit = async () => {
     if (!name.trim()) { setErr("Nama group wajib diisi"); return; }
@@ -134,9 +147,38 @@ export function NewTopicModal({ onClose }: { onClose: () => void }) {
           {/* Icon */}
           <div className="flex flex-col gap-1.5">
             <span className="text-sm font-semibold text-gray-800">Ikon</span>
+            {/* Preview + upload */}
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-14 h-14 rounded-xl border-2 border-gray-200 flex items-center justify-center text-2xl overflow-hidden shrink-0"
+                style={{ background: "#F8F9FC" }}>
+                {icon && (icon.startsWith("/") || icon.startsWith("http")) ? (
+                  <img src={apiUrl(icon)} alt="icon" className="w-full h-full object-cover" />
+                ) : (
+                  <span>{icon || "📁"}</span>
+                )}
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => iconInputRef.current?.click()}
+                  disabled={iconUploading}
+                  className="h-8 px-3 rounded-lg border border-gray-300 text-sm text-gray-600 hover:bg-gray-50 transition disabled:opacity-50"
+                >
+                  {iconUploading ? "Mengupload…" : "Upload Gambar"}
+                </button>
+                {(icon.startsWith("/") || icon.startsWith("http")) && (
+                  <button type="button" onClick={() => setIcon("📁")}
+                    className="text-xs text-red-500 hover:underline text-left">
+                    Hapus gambar
+                  </button>
+                )}
+              </div>
+              <input ref={iconInputRef} type="file" accept="image/*" className="hidden"
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadIcon(f); e.target.value = ""; }} />
+            </div>
             <div className="flex flex-wrap gap-2">
               {emojis.map((e) => (
-                <button key={e} onClick={() => setIcon(e)}
+                <button key={e} type="button" onClick={() => setIcon(e)}
                   className={`h-9 w-9 rounded-lg border text-base transition ${icon === e ? "border-primary bg-primary/10" : "border-gray-300 hover:bg-gray-50"}`}>
                   {e}
                 </button>
