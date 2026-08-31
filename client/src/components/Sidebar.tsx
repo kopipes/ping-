@@ -221,10 +221,15 @@ export function Sidebar() {
       style={{ background: "var(--color-sidebar-bg, #1A2540)", color: "var(--color-sidebar-text, rgba(255,255,255,0.7))" }}
     >
       {/* ── Search bar ── */}
-      <div className="shrink-0 flex items-center gap-2 px-3 pt-4 pb-3"
+      <div className="shrink-0 flex items-center gap-2.5 px-3 pt-5 pb-4"
         style={{ background: "rgba(0,0,0,0.18)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-        {/* Search input — same left edge as Pi icon in rail */}
-        <div className="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: "rgba(255,255,255,0.08)" }}>
+        {/* App logo — only on mobile (desktop rail already has it) */}
+        <div className="md:hidden shrink-0 w-8 h-8 rounded-lg overflow-hidden"
+          style={{ background: "var(--color-rail-active-pill)", boxShadow: "0 1px 4px rgba(0,0,0,0.25)" }}>
+          <img src="/logo.png" alt="Ping!" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        </div>
+        {/* Search input */}
+        <div className="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl" style={{ background: "rgba(255,255,255,0.08)" }}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" style={{ color: "rgba(255,255,255,0.35)", flexShrink: 0 }}>
             <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
           </svg>
