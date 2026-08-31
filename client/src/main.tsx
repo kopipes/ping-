@@ -26,6 +26,11 @@ const savedChatSize = localStorage.getItem("pvc-font-chat") || "normal";
 document.documentElement.style.setProperty("--sidebar-zoom", zoomMap[savedSidebarSize] || "1");
 document.documentElement.style.setProperty("--chat-zoom", zoomMap[savedChatSize] || "1");
 
+// Apply saved avatar shape on boot
+const shapeMap: Record<string, string> = { circle: "50%", rounded: "8px", square: "0px" };
+const savedShape = localStorage.getItem("pvc-avatar-shape") || "rounded";
+document.documentElement.style.setProperty("--avatar-radius", shapeMap[savedShape] || "8px");
+
 // Apply saved chat background color on boot
 const savedChatBg = localStorage.getItem("pvc-chat-bg") || "#FFFFFF";
 document.documentElement.style.setProperty("--chat-bg", savedChatBg);

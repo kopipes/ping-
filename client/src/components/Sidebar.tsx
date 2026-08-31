@@ -53,12 +53,13 @@ function Avatar({
     />
   ) : (
     <span
-      className="inline-flex items-center justify-center font-bold shrink-0 uppercase rounded-md"
+      className="inline-flex items-center justify-center font-bold shrink-0 uppercase"
       style={{
         border: "1.5px solid #9CA3AF",
         background: "transparent",
         color: "var(--color-sidebar-text-active, rgba(255,255,255,0.9))",
-        width: size, height: size, fontSize: size * 0.44
+        width: size, height: size, fontSize: size * 0.44,
+        borderRadius: "var(--avatar-radius, 8px)",
       }}
     >
       {name.charAt(0)}
@@ -136,12 +137,13 @@ function WaItem({
           <img src={apiUrl(avatarIcon)} alt="" className="rounded-md object-cover shrink-0" style={{ width: 40, height: 40 }} />
         ) : (
           <span
-            className="inline-flex items-center justify-center rounded-md text-xl shrink-0"
+            className="inline-flex items-center justify-center text-xl shrink-0"
             style={{
               width: 40, height: 40,
               background: "transparent",
               border: "1.5px solid #9CA3AF",
               color: "var(--color-sidebar-text-active, rgba(255,255,255,0.9))",
+              borderRadius: "var(--avatar-radius, 8px)",
             }}
           >
             {avatarIcon || "#"}

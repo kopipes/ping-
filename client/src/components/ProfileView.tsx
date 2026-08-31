@@ -36,6 +36,22 @@ function applyTheme(key: ThemeKey) {
   localStorage.setItem("pvc-theme", key);
 }
 
+const AVATAR_SHAPES = [
+  { key: "circle",  label: "Lingkaran", radius: "50%",  preview: "rounded-full" },
+  { key: "rounded", label: "Bulat",     radius: "8px",  preview: "rounded-lg"   },
+  { key: "square",  label: "Kotak",     radius: "0px",  preview: "rounded-none" },
+] as const;
+
+type AvatarShapeKey = "circle" | "rounded" | "square";
+
+function applyAvatarShape(key: AvatarShapeKey) {
+  const shape = AVATAR_SHAPES.find((s) => s.key === key);
+  if (shape) {
+    document.documentElement.style.setProperty("--avatar-radius", shape.radius);
+    localStorage.setItem("pvc-avatar-shape", key);
+  }
+}
+
 const FONT_SIZES = [
   { key: "xs",     label: "XS",     px: "11px", zoom: "0.733" },
   { key: "small",  label: "S",      px: "13px", zoom: "0.867" },
@@ -115,6 +131,11 @@ export function ProfileView({ onClose }: { onClose?: () => void }) {
   );
   const [chatFontSize, setChatFontSize] = useState<FontSizeKey>(
     (localStorage.getItem("pvc-font-chat") as FontSizeKey) || "normal"
+  );
+
+  // Avatar shape
+  const [avatarShape, setAvatarShape] = useState<AvatarShapeKey>(
+    (localStorage.getItem("pvc-avatar-shape") as AvatarShapeKey) || "rounded"
   );
 
   // Color theme
@@ -207,6 +228,7 @@ export function ProfileView({ onClose }: { onClose?: () => void }) {
 
   const onSidebarFontSize = (key: FontSizeKey) => { setSidebarFontSize(key); applySidebarFontSize(key); };
   const onChatFontSize = (key: FontSizeKey) => { setChatFontSize(key); applyChatFontSize(key); };
+  const onAvatarShape = (key: AvatarShapeKey) => { setAvatarShape(key); applyAvatarShape(key); };
   const statusText = user.status === "online" ? t("profile.online") : user.status === "away" ? t("profile.away") : t("profile.offline");
 
   return (
@@ -412,6 +434,22 @@ export function ProfileView({ onClose }: { onClose?: () => void }) {
           <p className="text-xs text-textm mt-1.5">
             Pratinjau: <span style={{ fontSize: FONT_SIZES.find((f) => f.key === chatFontSize)?.px }}>Teks pesan terlihat seperti ini</span>
           </p>
+        </section>
+
+        {/* Avatar / icon shape */}
+        <section>
+          <h4 className="text-sm font-semibold text-textp mb-2">Bentuk Icon</h4>
+          <div className="flex gap-2">
+            {AVATAR_SHAPES.map((s) => (
+              <button key={s.key} onClick={() => onAvatarShape(s.key)}
+                className={`flex-1 h-14 rounded-xl border font-medium transition flex flex-col items-center justify-center gap-1 ${
+                  avatarShape === s.key ? "bg-primary text-white border-primary" : "bg-white border-border text-texts hover:bg-hover"
+                }`}>
+                <span className={`w-7 h-7 border-2 ${avatarShape === s.key ? "border-white" : "border-texts"} ${s.preview}`} />
+                <span className="text-xs">{s.label}</span>
+              </button>
+            ))}
+          </div>
         </section>
 
         {/* Chat background color */}
