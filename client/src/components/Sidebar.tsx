@@ -328,48 +328,82 @@ export function Sidebar() {
                     {(sidebar?.level1 || []).filter(matchItem).map((lv) => (
                       <div key={lv.id}>
                         {/* Group header — collapsible, with icon */}
-                        <div className="flex items-center group/grp">
+                        <div className="flex items-center group/grp pr-1">
+                          {/* Collapse toggle */}
                           <button
                             onClick={() => toggleCollapse(`grp-${lv.id}`)}
-                            className="flex items-center gap-1.5 flex-1 min-w-0 px-3 py-1 text-left"
+                            className="shrink-0 w-5 h-8 flex items-center justify-center opacity-40"
+                            style={{ color: "var(--color-sidebar-text-active, white)" }}
                           >
-                            <span className="text-[10px] shrink-0 opacity-40" style={{ color: "var(--color-sidebar-text-active, white)" }}>
-                              {collapsed[`grp-${lv.id}`] ? "▶" : "▼"}
-                            </span>
-                            <span className="text-sm shrink-0">{lv.icon || "#"}</span>
-                            <span className="flex-1 truncate text-base font-medium" style={{
-                              color: "var(--color-sidebar-text-active, white)",
-                              opacity: lv.unread > 0 || activeId === lv.id ? 1 : 0.7,
-                              fontWeight: lv.unread > 0 ? 600 : 500,
-                            }}>
-                              {lv.name || "channel"}
-                            </span>
-                            {lv.unread > 0 && activeId !== lv.id && <UnreadBadge count={lv.unread} />}
+                            <span className="text-[9px]">{collapsed[`grp-${lv.id}`] ? "▶" : "▼"}</span>
                           </button>
-                          {/* Click icon to open the group itself */}
+
+                          {/* Main clickable area — opens group */}
                           <button
                             onClick={() => onOpen(lv.id)}
-                            className={`w-7 h-7 mr-1 rounded flex items-center justify-center transition shrink-0 ${activeId === lv.id ? "bg-[var(--color-brand-600,#2E46E0)]" : ""}`}
-                            title={`Buka ${lv.name}`}
+                            className="flex-1 min-w-0 flex items-start gap-1.5 px-1 py-1.5 rounded-md text-left transition"
+                            style={{
+                              background: activeId === lv.id ? "var(--color-brand-600, #2E46E0)" : undefined,
+                            }}
                           >
-                            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}
-                              style={{ color: "var(--color-sidebar-text, rgba(255,255,255,0.5))" }}>
-                              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                            </svg>
+                            <span className="text-sm shrink-0 mt-0.5">{lv.icon || "#"}</span>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-1">
+                                <span className="truncate text-sm font-medium" style={{
+                                  color: activeId === lv.id ? "#FFFFFF" : "var(--color-sidebar-text-active, white)",
+                                  fontWeight: lv.unread > 0 ? 600 : 500,
+                                }}>
+                                  {lv.name || "channel"}
+                                </span>
+                                {lv.lastMessageAt && (
+                                  <span className="text-[10px] shrink-0" style={{
+                                    color: activeId === lv.id ? "rgba(255,255,255,0.7)" : "var(--color-sidebar-text, rgba(255,255,255,0.45))",
+                                  }}>{formatLastTime(lv.lastMessageAt)}</span>
+                                )}
+                              </div>
+                              {lv.unread > 0 && (
+                                <div className="flex justify-end mt-0.5">
+                                  <span className="text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none bg-red-500 text-white">
+                                    {lv.unread > 99 ? "99+" : lv.unread}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
                           </button>
                         </div>
                         {/* Sub-topics */}
                         {!collapsed[`grp-${lv.id}`] && (lv.subTopics || []).filter((s) => matchItem(s)).map((sub) => (
-                          <SbItem
-                            key={sub.id}
-                            icon={sub.icon || "#"}
-                            label={sub.name || "sub-channel"}
-                            active={activeId === sub.id}
-                            unread={sub.unread > 0}
-                            unreadCount={sub.unread}
-                            onClick={() => onOpen(sub.id)}
-                            indent
-                          />
+                          <div key={sub.id} className="pl-5">
+                            <button
+                              onClick={() => onOpen(sub.id)}
+                              className="w-full flex items-start gap-1.5 px-3 py-1.5 rounded-md text-left transition"
+                              style={{
+                                background: activeId === sub.id ? "var(--color-brand-600, #2E46E0)" : undefined,
+                              }}
+                            >
+                              <span className="text-sm shrink-0 mt-0.5">{sub.icon || "#"}</span>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between gap-1">
+                                  <span className="truncate text-sm" style={{
+                                    color: activeId === sub.id ? "#FFFFFF" : sub.unread > 0 ? "var(--color-sidebar-text-active, white)" : "var(--color-sidebar-text, rgba(255,255,255,0.6))",
+                                    fontWeight: sub.unread > 0 ? 600 : 400,
+                                  }}>{sub.name || "sub-channel"}</span>
+                                  {sub.lastMessageAt && (
+                                    <span className="text-[10px] shrink-0" style={{
+                                      color: activeId === sub.id ? "rgba(255,255,255,0.7)" : "var(--color-sidebar-text, rgba(255,255,255,0.45))",
+                                    }}>{formatLastTime(sub.lastMessageAt)}</span>
+                                  )}
+                                </div>
+                                {sub.unread > 0 && (
+                                  <div className="flex justify-end mt-0.5">
+                                    <span className="text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none bg-red-500 text-white">
+                                      {sub.unread > 99 ? "99+" : sub.unread}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            </button>
+                          </div>
                         ))}
                       </div>
                     ))}
