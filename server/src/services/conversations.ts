@@ -67,6 +67,8 @@ interface SidebarItem {
   isOrphanSub?: boolean;
   partnerId?: string | null;
   lastMessageAt?: string | null;
+  lastMessageText?: string | null;
+  lastMessageSender?: string | null;
 }
 
 // Struktur navigasi Sidebar (Section 3, FR-2.x)
@@ -212,16 +214,29 @@ export async function getSidebar(userId: string) {
       where: { conversationId: { in: topicIds }, isDeleted: false },
       orderBy: { createdAt: "desc" },
       distinct: ["conversationId"],
-      select: { conversationId: true, createdAt: true },
+      select: {
+        conversationId: true,
+        createdAt: true,
+        content: true,
+        user: { select: { name: true } },
+      },
     });
-    const lastMsgMap: Record<string, string> = {};
+    const lastMsgMap: Record<string, { at: string; text: string | null; sender: string | null }> = {};
     for (const m of lastMsgs) {
-      lastMsgMap[m.conversationId] = m.createdAt.toISOString();
+      lastMsgMap[m.conversationId] = {
+        at: m.createdAt.toISOString(),
+        text: m.content,
+        sender: m.user?.name ?? null,
+      };
     }
     for (const item of [...pinnedTop, ...level1]) {
-      item.lastMessageAt = lastMsgMap[item.id] ?? null;
+      item.lastMessageAt = lastMsgMap[item.id]?.at ?? null;
+      item.lastMessageText = lastMsgMap[item.id]?.text ?? null;
+      item.lastMessageSender = lastMsgMap[item.id]?.sender ?? null;
       for (const sub of item.subTopics || []) {
-        sub.lastMessageAt = lastMsgMap[sub.id] ?? null;
+        sub.lastMessageAt = lastMsgMap[sub.id]?.at ?? null;
+        sub.lastMessageText = lastMsgMap[sub.id]?.text ?? null;
+        sub.lastMessageSender = lastMsgMap[sub.id]?.sender ?? null;
       }
     }
   }
@@ -237,7 +252,11 @@ export async function getSidebar(userId: string) {
           where: { isDeleted: false },
           orderBy: { createdAt: "desc" },
           take: 1,
-          select: { createdAt: true },
+          select: {
+            createdAt: true,
+            content: true,
+            user: { select: { name: true } },
+          },
         },
       },
     });
@@ -248,6 +267,8 @@ export async function getSidebar(userId: string) {
       d.icon = null;
       d.partnerId = partner?.id ?? null;
       d.lastMessageAt = conv?.messages[0]?.createdAt?.toISOString() ?? null;
+      d.lastMessageText = conv?.messages[0]?.content ?? null;
+      d.lastMessageSender = conv?.messages[0]?.user?.name ?? null;
     }
     dms.sort((a, b) =>
       (b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0) -

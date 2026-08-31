@@ -75,12 +75,104 @@ function Avatar({
   );
 }
 
-// Unread badge — red pill matching Slack style
-function UnreadBadge({ count }: { count: number }) {
+// WhatsApp-style row: avatar | name+preview | timestamp+badge
+function WaItem({
+  avatarName,
+  avatarUrl,
+  avatarIcon,
+  label,
+  preview,
+  previewSender,
+  timestamp,
+  active,
+  unread,
+  unreadCount,
+  indent,
+  collapseBtn,
+  onClick,
+}: {
+  avatarName?: string;
+  avatarUrl?: string | null;
+  avatarIcon?: string;
+  label: string;
+  preview?: string | null;
+  previewSender?: string | null;
+  timestamp?: string | null;
+  active: boolean;
+  unread: boolean;
+  unreadCount?: number;
+  indent?: boolean;
+  collapseBtn?: React.ReactNode;
+  onClick: () => void;
+}) {
+  const textActive = active ? "#FFFFFF" : "var(--color-sidebar-text-active, #FFFFFF)";
+  const textMuted = active ? "rgba(255,255,255,0.65)" : "var(--color-sidebar-text, rgba(255,255,255,0.5))";
+  const previewText = preview
+    ? (previewSender ? `${previewSender}: ${preview}` : preview)
+    : null;
+
   return (
-    <span className="ml-auto shrink-0 bg-red-500 text-white text-[11px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none">
-      {count > 99 ? "99+" : count}
-    </span>
+    <button
+      onClick={onClick}
+      className="w-full flex items-center gap-2.5 px-2 py-2 text-left transition rounded-md"
+      style={{
+        paddingLeft: indent ? "calc(0.5rem + 24px)" : "0.5rem",
+        background: active ? "var(--color-brand-600, #2E46E0)" : undefined,
+      }}
+    >
+      {/* Collapse toggle for groups */}
+      {collapseBtn}
+
+      {/* Avatar / icon */}
+      <div className="shrink-0">
+        {avatarName ? (
+          <Avatar name={avatarName} avatarUrl={avatarUrl} size={40} />
+        ) : (
+          <span
+            className="inline-flex items-center justify-center rounded-md text-lg shrink-0"
+            style={{ width: 40, height: 40, background: "rgba(255,255,255,0.08)" }}
+          >
+            {avatarIcon || "#"}
+          </span>
+        )}
+      </div>
+
+      {/* Center: name + preview */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between gap-1">
+          <span
+            className="truncate text-sm"
+            style={{ color: textActive, fontWeight: unread || active ? 600 : 500 }}
+          >
+            {label}
+          </span>
+          {timestamp && (
+            <span className="text-[10px] shrink-0 tabular-nums" style={{ color: unread ? (active ? "rgba(255,255,255,0.85)" : "var(--color-brand-400, #7B93FF)") : textMuted }}>
+              {timestamp}
+            </span>
+          )}
+        </div>
+        <div className="flex items-center justify-between gap-1 mt-0.5">
+          <span
+            className="truncate text-[12px] leading-snug"
+            style={{ color: textMuted, fontWeight: unread && !active ? 500 : 400 }}
+          >
+            {previewText || "\u00A0"}
+          </span>
+          {(unreadCount ?? 0) > 0 && (
+            <span
+              className="shrink-0 text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none"
+              style={{
+                background: active ? "rgba(255,255,255,0.9)" : "var(--color-brand-500, #3B5BFA)",
+                color: active ? "var(--color-brand-600, #2E46E0)" : "#FFFFFF",
+              }}
+            >
+              {(unreadCount ?? 0) > 99 ? "99+" : unreadCount}
+            </span>
+          )}
+        </div>
+      </div>
+    </button>
   );
 }
 
@@ -122,53 +214,6 @@ function SectionHeader({
   );
 }
 
-// Single sidebar list item
-function SbItem({
-  icon,
-  label,
-  active,
-  unread,
-  unreadCount,
-  onClick,
-  indent,
-}: {
-  icon?: React.ReactNode;
-  label: string;
-  active: boolean;
-  unread: boolean;
-  unreadCount?: number;
-  onClick: () => void;
-  indent?: boolean;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`w-full flex items-center gap-2 px-3 py-2.5 mx-1 rounded-md text-left transition ${
-        active ? "font-semibold" : unread ? "font-semibold" : ""
-      }`}
-      style={{
-        paddingLeft: indent ? "calc(0.75rem + 16px)" : undefined,
-        width: "calc(100% - 8px)",
-        background: active ? "var(--color-brand-600, #2E46E0)" : undefined,
-        color: active
-          ? "#FFFFFF"
-          : unread
-          ? "var(--color-sidebar-text-active, #FFFFFF)"
-          : "var(--color-sidebar-text, rgba(255,255,255,0.6))",
-      }}
-    >
-      {icon && <span className="shrink-0 text-base leading-none">{icon}</span>}
-      <span className="flex-1 truncate text-base">{label}</span>
-      {unread && unreadCount != null && unreadCount > 0 && (
-        <span className={`ml-auto shrink-0 text-[11px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none ${
-          active ? "bg-white text-primary" : "bg-red-500 text-white"
-        }`}>
-          {unreadCount > 99 ? "99+" : unreadCount}
-        </span>
-      )}
-    </button>
-  );
-}
 
 // ── Main Sidebar ───────────────────────────────────────────────────────────────
 
@@ -223,19 +268,20 @@ export function Sidebar() {
   // Unread items for activity view
   const unreadItems: Array<{
     id: string; name: string | null; icon: string | null; unread: number; type: "TOPIC" | "DM";
+    lastMessageAt?: string | null; lastMessageText?: string | null; lastMessageSender?: string | null;
   }> = [];
   if (railView === "activity") {
     (sidebar?.pinnedTop || []).forEach((c) => {
-      if (c.unread > 0) unreadItems.push({ id: c.id, name: c.name, icon: c.icon, unread: c.unread, type: c.type as "TOPIC" | "DM" });
+      if (c.unread > 0) unreadItems.push({ id: c.id, name: c.name, icon: c.icon, unread: c.unread, type: c.type as "TOPIC" | "DM", lastMessageAt: c.lastMessageAt, lastMessageText: c.lastMessageText, lastMessageSender: c.lastMessageSender });
     });
     (sidebar?.level1 || []).forEach((c) => {
-      if (c.unread > 0) unreadItems.push({ id: c.id, name: c.name, icon: c.icon, unread: c.unread, type: "TOPIC" });
+      if (c.unread > 0) unreadItems.push({ id: c.id, name: c.name, icon: c.icon, unread: c.unread, type: "TOPIC", lastMessageAt: c.lastMessageAt, lastMessageText: c.lastMessageText, lastMessageSender: c.lastMessageSender });
       (c.subTopics || []).forEach((s) => {
-        if (s.unread > 0) unreadItems.push({ id: s.id, name: s.name, icon: s.icon, unread: s.unread, type: "TOPIC" });
+        if (s.unread > 0) unreadItems.push({ id: s.id, name: s.name, icon: s.icon, unread: s.unread, type: "TOPIC", lastMessageAt: s.lastMessageAt, lastMessageText: s.lastMessageText, lastMessageSender: s.lastMessageSender });
       });
     });
     (sidebar?.dms || []).forEach((d) => {
-      if (d.unread > 0) unreadItems.push({ id: d.id, name: d.name, icon: null, unread: d.unread, type: "DM" });
+      if (d.unread > 0) unreadItems.push({ id: d.id, name: d.name, icon: null, unread: d.unread, type: "DM", lastMessageAt: d.lastMessageAt, lastMessageText: d.lastMessageText });
     });
   }
 
@@ -284,14 +330,17 @@ export function Sidebar() {
         {showTopics && railView !== "activity" && (
           <>
             {/* "Semua Pesan" quick link */}
-            <div className="px-1 pt-1">
-              <SbItem
-                icon={<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>}
-                label="Semua Pesan"
-                active={false}
-                unread={false}
+            <div className="px-2 pt-1">
+              <button
                 onClick={() => setSearchActive(true)}
-              />
+                className="w-full flex items-center gap-3 px-2 py-2 rounded-md text-left transition"
+                style={{ color: "var(--color-sidebar-text, rgba(255,255,255,0.6))" }}
+              >
+                <span className="shrink-0 flex items-center justify-center rounded-md" style={{ width: 40, height: 40, background: "rgba(255,255,255,0.08)" }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                </span>
+                <span className="text-sm font-medium" style={{ color: "var(--color-sidebar-text-active, rgba(255,255,255,0.8))" }}>Semua Pesan</span>
+              </button>
             </div>
 
             {/* Pinned section */}
@@ -300,37 +349,18 @@ export function Sidebar() {
                 <SectionHeader label="Pinned" />
                 <div className="px-1">
                   {(sidebar?.pinnedTop || []).filter(matchItem).map((item) => (
-                    <button
+                    <WaItem
                       key={item.id}
+                      avatarIcon={item.icon || "#"}
+                      label={item.name || "Group"}
+                      preview={item.lastMessageText}
+                      previewSender={item.lastMessageSender}
+                      timestamp={formatLastTime(item.lastMessageAt)}
+                      active={activeId === item.id}
+                      unread={item.unread > 0}
+                      unreadCount={item.unread}
                       onClick={() => onOpen(item.id)}
-                      className="w-full flex items-start gap-1.5 px-3 py-1.5 mx-1 rounded-md text-left transition"
-                      style={{
-                        width: "calc(100% - 8px)",
-                        background: activeId === item.id ? "var(--color-brand-600, #2E46E0)" : undefined,
-                      }}
-                    >
-                      <span className="text-sm shrink-0 mt-0.5">{item.icon || "#"}</span>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-1">
-                          <span className="truncate text-sm font-medium" style={{
-                            color: activeId === item.id ? "#FFFFFF" : "var(--color-sidebar-text-active, white)",
-                            fontWeight: item.unread > 0 ? 600 : 500,
-                          }}>{item.name || "Group"}</span>
-                          {item.lastMessageAt && (
-                            <span className="text-[10px] shrink-0" style={{
-                              color: activeId === item.id ? "rgba(255,255,255,0.7)" : "var(--color-sidebar-text, rgba(255,255,255,0.45))",
-                            }}>{formatLastTime(item.lastMessageAt)}</span>
-                          )}
-                        </div>
-                        <div className="flex justify-end mt-0.5 h-4">
-                          {item.unread > 0 && (
-                            <span className="text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none bg-red-500 text-white">
-                              {item.unread > 99 ? "99+" : item.unread}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </button>
+                    />
                   ))}
                 </div>
               </>
@@ -349,84 +379,47 @@ export function Sidebar() {
                   <div className="px-1">
                     {(sidebar?.level1 || []).filter(matchItem).map((lv) => (
                       <div key={lv.id}>
-                        {/* Group header — click to open, arrow to collapse */}
-                        <button
+                        <WaItem
+                          avatarIcon={lv.icon || "#"}
+                          label={lv.name || "channel"}
+                          preview={lv.lastMessageText}
+                          previewSender={lv.lastMessageSender}
+                          timestamp={formatLastTime(lv.lastMessageAt)}
+                          active={activeId === lv.id}
+                          unread={lv.unread > 0}
+                          unreadCount={lv.unread}
+                          collapseBtn={
+                            (lv.subTopics?.length ?? 0) > 0 ? (
+                              <button
+                                onClick={(e) => { e.stopPropagation(); toggleCollapse(`grp-${lv.id}`); }}
+                                className="shrink-0 text-[9px] opacity-40 hover:opacity-70 w-3 text-left"
+                                style={{ color: activeId === lv.id ? "#FFF" : "var(--color-sidebar-text-active, white)" }}
+                              >
+                                {collapsed[`grp-${lv.id}`] ? "▶" : "▼"}
+                              </button>
+                            ) : undefined
+                          }
                           onClick={() => onOpen(lv.id)}
-                          className="w-full flex items-start gap-1.5 px-3 py-1.5 mx-1 rounded-md text-left transition"
-                          style={{
-                            width: "calc(100% - 8px)",
-                            background: activeId === lv.id ? "var(--color-brand-600, #2E46E0)" : undefined,
-                          }}
-                        >
-                          {/* Collapse toggle embedded in icon area */}
-                          <button
-                            onClick={(e) => { e.stopPropagation(); toggleCollapse(`grp-${lv.id}`); }}
-                            className="shrink-0 mt-0.5 text-[9px] opacity-40 w-4 text-left"
-                            style={{ color: "var(--color-sidebar-text-active, white)" }}
-                          >
-                            {collapsed[`grp-${lv.id}`] ? "▶" : "▼"}
-                          </button>
-                          <span className="text-sm shrink-0 mt-0.5 -ml-1">{lv.icon || "#"}</span>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between gap-1">
-                              <span className="truncate text-sm font-medium" style={{
-                                color: activeId === lv.id ? "#FFFFFF" : "var(--color-sidebar-text-active, white)",
-                                fontWeight: lv.unread > 0 ? 600 : 500,
-                              }}>
-                                {lv.name || "channel"}
-                              </span>
-                              {lv.lastMessageAt && (
-                                <span className="text-[10px] shrink-0" style={{
-                                  color: activeId === lv.id ? "rgba(255,255,255,0.7)" : "var(--color-sidebar-text, rgba(255,255,255,0.45))",
-                                }}>{formatLastTime(lv.lastMessageAt)}</span>
-                              )}
-                            </div>
-                            <div className="flex justify-end mt-0.5 h-4">
-                              {lv.unread > 0 && (
-                                <span className="text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none bg-red-500 text-white">
-                                  {lv.unread > 99 ? "99+" : lv.unread}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </button>
+                        />
                         {/* Sub-topics */}
                         {!collapsed[`grp-${lv.id}`] && (lv.subTopics || []).filter((s) => matchItem(s)).map((sub) => (
-                          <button
+                          <WaItem
                             key={sub.id}
+                            avatarIcon={sub.icon || "#"}
+                            label={sub.name || "sub-channel"}
+                            preview={sub.lastMessageText}
+                            previewSender={sub.lastMessageSender}
+                            timestamp={formatLastTime(sub.lastMessageAt)}
+                            active={activeId === sub.id}
+                            unread={sub.unread > 0}
+                            unreadCount={sub.unread}
+                            indent
                             onClick={() => onOpen(sub.id)}
-                            className="w-full flex items-start gap-1.5 pl-8 pr-3 py-1.5 mx-1 rounded-md text-left transition"
-                            style={{
-                              width: "calc(100% - 8px)",
-                              background: activeId === sub.id ? "var(--color-brand-600, #2E46E0)" : undefined,
-                            }}
-                          >
-                              <span className="text-sm shrink-0 mt-0.5">{sub.icon || "#"}</span>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between gap-1">
-                                  <span className="truncate text-sm" style={{
-                                    color: activeId === sub.id ? "#FFFFFF" : sub.unread > 0 ? "var(--color-sidebar-text-active, white)" : "var(--color-sidebar-text, rgba(255,255,255,0.6))",
-                                    fontWeight: sub.unread > 0 ? 600 : 400,
-                                  }}>{sub.name || "sub-channel"}</span>
-                                  {sub.lastMessageAt && (
-                                    <span className="text-[10px] shrink-0" style={{
-                                      color: activeId === sub.id ? "rgba(255,255,255,0.7)" : "var(--color-sidebar-text, rgba(255,255,255,0.45))",
-                                    }}>{formatLastTime(sub.lastMessageAt)}</span>
-                                  )}
-                                </div>
-                                <div className="flex justify-end mt-0.5 h-4">
-                                  {sub.unread > 0 && (
-                                    <span className="text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none bg-red-500 text-white">
-                                      {sub.unread > 99 ? "99+" : sub.unread}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            </button>
-                          ))}
-                        </div>
-                      ))}
-                    </div>
+                          />
+                        ))}
+                      </div>
+                    ))}
+                  </div>
                 )}
               </>
             ) : !sidebarLoading ? (
@@ -456,36 +449,17 @@ export function Sidebar() {
                 {!collapsed["home-dms"] && (
                   <div className="px-1">
                     {(sidebar?.dms || []).filter(matchItem).map((dm) => (
-                      <button
+                      <WaItem
                         key={dm.id}
+                        avatarName={dm.name || "?"}
+                        label={dm.name || "Direct Message"}
+                        preview={dm.lastMessageText}
+                        timestamp={formatLastTime(dm.lastMessageAt)}
+                        active={activeId === dm.id}
+                        unread={dm.unread > 0}
+                        unreadCount={dm.unread}
                         onClick={() => onOpen(dm.id)}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 mx-1 rounded-md text-left transition"
-                        style={{
-                          width: "calc(100% - 8px)",
-                          background: activeId === dm.id ? "var(--color-brand-600, #2E46E0)" : undefined,
-                        }}
-                      >
-                        <Avatar name={dm.name || "?"} avatarUrl={null} size={20} />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between gap-1">
-                            <span className="truncate text-sm font-medium" style={{
-                              color: activeId === dm.id ? "#FFFFFF" : "var(--color-sidebar-text-active, #FFFFFF)",
-                            }}>{dm.name || "Direct Message"}</span>
-                            {dm.lastMessageAt && (
-                              <span className="text-[10px] shrink-0" style={{
-                                color: activeId === dm.id ? "rgba(255,255,255,0.7)" : "var(--color-sidebar-text, rgba(255,255,255,0.45))",
-                              }}>{formatLastTime(dm.lastMessageAt)}</span>
-                            )}
-                          </div>
-                          <div className="flex justify-end mt-0.5 h-4">
-                            {dm.unread > 0 && (
-                              <span className="text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none bg-red-500 text-white">
-                                {dm.unread > 99 ? "99+" : dm.unread}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </button>
+                      />
                     ))}
                   </div>
                 )}
@@ -508,10 +482,14 @@ export function Sidebar() {
                 <SectionHeader label="Belum Dibaca" />
                 <div className="px-1">
                   {unreadItems.map((item) => (
-                    <SbItem
+                    <WaItem
                       key={item.id}
-                      icon={item.type === "DM" ? "💬" : (item.icon || "#")}
+                      avatarName={item.type === "DM" ? (item.name || "?") : undefined}
+                      avatarIcon={item.type !== "DM" ? (item.icon || "#") : undefined}
                       label={item.name || "Direct Message"}
+                      preview={item.lastMessageText}
+                      previewSender={item.lastMessageSender}
+                      timestamp={formatLastTime(item.lastMessageAt)}
                       active={activeId === item.id}
                       unread={true}
                       unreadCount={item.unread}
@@ -545,47 +523,17 @@ export function Sidebar() {
                 </div>
               ) : (
                 (sidebar?.dms || []).filter(matchItem).map((dm) => (
-                  <button
+                  <WaItem
                     key={dm.id}
+                    avatarName={dm.name || "?"}
+                    label={dm.name || "Direct Message"}
+                    preview={dm.lastMessageText}
+                    timestamp={formatLastTime(dm.lastMessageAt)}
+                    active={activeId === dm.id}
+                    unread={dm.unread > 0}
+                    unreadCount={dm.unread}
                     onClick={() => onOpen(dm.id)}
-                    className="w-full flex items-center gap-2.5 px-3 py-2.5 mx-1 rounded-md text-left transition font-semibold"
-                    style={{
-                      width: "calc(100% - 8px)",
-                      background: activeId === dm.id ? "var(--color-brand-600, #2E46E0)" : undefined,
-                      color: activeId === dm.id
-                        ? "#FFFFFF"
-                        : dm.unread > 0
-                        ? "var(--color-sidebar-text-active, #FFFFFF)"
-                        : "var(--color-sidebar-text, rgba(255,255,255,0.6))",
-                      fontWeight: dm.unread > 0 || activeId === dm.id ? 600 : 400,
-                    }}
-                  >
-                    <Avatar
-                      name={dm.name || "?"}
-                      avatarUrl={null}
-                      size={32}
-                      online={dm.partnerId ? undefined : undefined}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-1">
-                        <span className="truncate text-sm font-medium" style={{
-                          color: activeId === dm.id ? "#FFFFFF" : "var(--color-sidebar-text-active, #FFFFFF)",
-                        }}>{dm.name || "Direct Message"}</span>
-                        {dm.lastMessageAt && (
-                          <span className="text-[10px] shrink-0" style={{
-                            color: activeId === dm.id ? "rgba(255,255,255,0.7)" : "var(--color-sidebar-text, rgba(255,255,255,0.45))",
-                          }}>{formatLastTime(dm.lastMessageAt)}</span>
-                        )}
-                      </div>
-                      <div className="flex justify-end mt-0.5 h-4">
-                        {dm.unread > 0 && (
-                          <span className="text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none bg-red-500 text-white">
-                            {dm.unread > 99 ? "99+" : dm.unread}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </button>
+                  />
                 ))
               )}
             </div>

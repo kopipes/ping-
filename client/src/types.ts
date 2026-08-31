@@ -25,6 +25,8 @@ export interface SidebarItem {
   isOrphanSub?: boolean;
   partnerId?: string | null;
   lastMessageAt?: string | null;
+  lastMessageText?: string | null;
+  lastMessageSender?: string | null;
 }
 
 export interface SidebarData {
