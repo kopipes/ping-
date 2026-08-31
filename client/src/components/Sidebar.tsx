@@ -221,14 +221,18 @@ export function Sidebar() {
       style={{ background: "var(--color-sidebar-bg, #1A2540)", color: "var(--color-sidebar-text, rgba(255,255,255,0.7))" }}
     >
       {/* ── Search bar ── */}
-      <div className="shrink-0 flex items-center gap-2 px-3 pt-6 pb-2">
+      <div className="shrink-0 flex items-center gap-2 px-3 pt-4 pb-3"
+        style={{ background: "rgba(0,0,0,0.18)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
         {/* Search input — same left edge as Pi icon in rail */}
-        <div className="flex-1 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10">
+        <div className="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: "rgba(255,255,255,0.08)" }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" style={{ color: "rgba(255,255,255,0.35)", flexShrink: 0 }}>
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+          </svg>
           <input
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             placeholder={showDMs ? "Cari DM…" : "Cari group…"}
-            className="flex-1 bg-transparent text-sm text-white/70 placeholder:text-white/40 outline-none"
+            className="flex-1 bg-transparent text-sm text-white/70 placeholder:text-white/35 outline-none"
           />
           {filter && (
             <button onClick={() => setFilter("")} className="text-white/40 hover:text-white/70 transition text-xs">✕</button>
