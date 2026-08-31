@@ -131,8 +131,14 @@ function WaItem({
           <img src={apiUrl(avatarIcon)} alt="" className="rounded-md object-cover shrink-0" style={{ width: 40, height: 40 }} />
         ) : (
           <span
-            className="inline-flex items-center justify-center rounded-md text-lg shrink-0"
-            style={{ width: 40, height: 40, background: "rgba(255,255,255,0.08)" }}
+            className="inline-flex items-center justify-center rounded-md text-xl shrink-0"
+            style={{
+              width: 40, height: 40,
+              background: [
+                "#E01E5A","#ECB22E","#2BAC76","#1264A3",
+                "#611f69","#36C5F0","#4A154B","#FF612B","#008080","#7B2D8B",
+              ][(label.charCodeAt(0) || 0) % 10],
+            }}
           >
             {avatarIcon || "#"}
           </span>
