@@ -43,13 +43,13 @@ export function Layout() {
           {adminOpen ? (
             <AdminPanel />
           ) : showChat ? (
-            <ChatView />
+            <div className="h-full flex flex-col" data-area="chat"><ChatView /></div>
           ) : profileOpen ? (
             <ProfileView onClose={() => setProfileOpen(false)} />
           ) : railView === "search" || searchActive ? (
             <SearchView />
           ) : (
-            <Sidebar />
+            <div className="h-full flex flex-col" data-area="sidebar"><Sidebar /></div>
           )}
         </div>
 
@@ -69,12 +69,13 @@ export function Layout() {
 
       {/* Sidebar — topics or DMs depending on rail selection */}
       <div className="flex flex-col min-h-0 shrink-0 border-r border-border"
+        data-area="sidebar"
         style={{ width: "var(--sidebar-width, 240px)", background: "var(--color-sidebar-bg, #1A2540)" }}>
         <Sidebar />
       </div>
 
       {/* Main content area */}
-      <div className="flex-1 min-w-0 flex flex-col">
+      <div className="flex-1 min-w-0 flex flex-col" data-area="chat">
         {adminOpen ? (
           <AdminPanel />
         ) : profileOpen ? (

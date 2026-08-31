@@ -44,6 +44,22 @@ const FONT_SIZES = [
 
 type FontSizeKey = "small" | "normal" | "large";
 
+function applySidebarFontSize(key: FontSizeKey) {
+  const size = FONT_SIZES.find((f) => f.key === key);
+  if (size) {
+    document.documentElement.style.setProperty("--sidebar-font-size", size.px);
+    localStorage.setItem("pvc-font-sidebar", key);
+  }
+}
+
+function applyChatFontSize(key: FontSizeKey) {
+  const size = FONT_SIZES.find((f) => f.key === key);
+  if (size) {
+    document.documentElement.style.setProperty("--chat-font-size", size.px);
+    localStorage.setItem("pvc-font-chat", key);
+  }
+}
+
 const CHAT_BG_PRESETS = [
   { label: "Putih",        value: "#FFFFFF" },
   { label: "Abu Muda",     value: "#F0F4F9" },
@@ -53,14 +69,6 @@ const CHAT_BG_PRESETS = [
   { label: "Biru Muda",    value: "#EDF2FC" },
   { label: "Gelap",        value: "#1E2D3D" },
 ];
-
-function applyFontSize(key: FontSizeKey) {
-  const size = FONT_SIZES.find((f) => f.key === key);
-  if (size) {
-    document.documentElement.style.setProperty("--app-font-size", size.px);
-    localStorage.setItem("pvc-font-size", key);
-  }
-}
 
 function applyChatBg(color: string) {
   document.documentElement.style.setProperty("--chat-bg", color);
@@ -97,9 +105,12 @@ export function ProfileView({ onClose }: { onClose?: () => void }) {
   const [pwSuccess, setPwSuccess] = useState(false);
   const [pwSaving, setPwSaving] = useState(false);
 
-  // Font size
-  const [fontSize, setFontSize] = useState<FontSizeKey>(
-    (localStorage.getItem("pvc-font-size") as FontSizeKey) || "normal"
+  // Font sizes
+  const [sidebarFontSize, setSidebarFontSize] = useState<FontSizeKey>(
+    (localStorage.getItem("pvc-font-sidebar") as FontSizeKey) || "normal"
+  );
+  const [chatFontSize, setChatFontSize] = useState<FontSizeKey>(
+    (localStorage.getItem("pvc-font-chat") as FontSizeKey) || "normal"
   );
 
   // Color theme
@@ -190,7 +201,8 @@ export function ProfileView({ onClose }: { onClose?: () => void }) {
     finally { setAvatarUploading(false); }
   };
 
-  const onFontSize = (key: FontSizeKey) => { setFontSize(key); applyFontSize(key); };
+  const onSidebarFontSize = (key: FontSizeKey) => { setSidebarFontSize(key); applySidebarFontSize(key); };
+  const onChatFontSize = (key: FontSizeKey) => { setChatFontSize(key); applyChatFontSize(key); };
   const statusText = user.status === "online" ? t("profile.online") : user.status === "away" ? t("profile.away") : t("profile.offline");
 
   return (
@@ -360,14 +372,14 @@ export function ProfileView({ onClose }: { onClose?: () => void }) {
           </div>
         </section>
 
-        {/* Font size */}
+        {/* Font size — Sidebar */}
         <section>
-          <h4 className="text-sm font-semibold text-textp mb-2">Ukuran Font</h4>
+          <h4 className="text-sm font-semibold text-textp mb-2">Ukuran Font Sidebar</h4>
           <div className="flex gap-2">
             {FONT_SIZES.map((f) => (
-              <button key={f.key} onClick={() => onFontSize(f.key)}
+              <button key={f.key} onClick={() => onSidebarFontSize(f.key)}
                 className={`flex-1 h-10 rounded-xl border font-medium transition ${
-                  fontSize === f.key ? "bg-primary text-white border-primary" : "bg-white border-border text-texts hover:bg-hover"
+                  sidebarFontSize === f.key ? "bg-primary text-white border-primary" : "bg-white border-border text-texts hover:bg-hover"
                 }`}
                 style={{ fontSize: f.px }}>
                 {f.label}
@@ -375,7 +387,26 @@ export function ProfileView({ onClose }: { onClose?: () => void }) {
             ))}
           </div>
           <p className="text-xs text-textm mt-1.5">
-            Pratinjau: <span style={{ fontSize: FONT_SIZES.find((f) => f.key === fontSize)?.px }}>Teks pesan terlihat seperti ini</span>
+            Pratinjau: <span style={{ fontSize: FONT_SIZES.find((f) => f.key === sidebarFontSize)?.px }}>Nama group &amp; preview pesan</span>
+          </p>
+        </section>
+
+        {/* Font size — Chat */}
+        <section>
+          <h4 className="text-sm font-semibold text-textp mb-2">Ukuran Font Chat</h4>
+          <div className="flex gap-2">
+            {FONT_SIZES.map((f) => (
+              <button key={f.key} onClick={() => onChatFontSize(f.key)}
+                className={`flex-1 h-10 rounded-xl border font-medium transition ${
+                  chatFontSize === f.key ? "bg-primary text-white border-primary" : "bg-white border-border text-texts hover:bg-hover"
+                }`}
+                style={{ fontSize: f.px }}>
+                {f.label}
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-textm mt-1.5">
+            Pratinjau: <span style={{ fontSize: FONT_SIZES.find((f) => f.key === chatFontSize)?.px }}>Teks pesan terlihat seperti ini</span>
           </p>
         </section>
 
