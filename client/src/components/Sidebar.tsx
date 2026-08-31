@@ -10,6 +10,24 @@ import { apiUrl } from "../lib/api";
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
+function formatLastTime(iso: string | null | undefined): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterday = new Date(today.getTime() - 86400000);
+  const msgDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  if (msgDay.getTime() === today.getTime()) {
+    return d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+  }
+  if (msgDay.getTime() === yesterday.getTime()) return "Kemarin";
+  // Within current week: show day name
+  if (now.getTime() - d.getTime() < 7 * 86400000) {
+    return d.toLocaleDateString("id-ID", { weekday: "short" });
+  }
+  return d.toLocaleDateString("id-ID", { day: "numeric", month: "short" });
+}
+
 function Avatar({
   name,
   avatarUrl,
@@ -388,25 +406,32 @@ export function Sidebar() {
                       <button
                         key={dm.id}
                         onClick={() => onOpen(dm.id)}
-                        className="w-full flex items-center gap-2.5 px-3 py-2.5 mx-1 rounded-md text-left transition"
+                        className="w-full flex items-center gap-2.5 px-3 py-2 mx-1 rounded-md text-left transition"
                         style={{
                           width: "calc(100% - 8px)",
                           background: activeId === dm.id ? "var(--color-brand-600, #2E46E0)" : undefined,
-                          color: activeId === dm.id
-                            ? "#FFFFFF"
-                            : dm.unread > 0
-                            ? "var(--color-sidebar-text-active, #FFFFFF)"
-                            : "var(--color-sidebar-text, rgba(255,255,255,0.6))",
-                          fontWeight: dm.unread > 0 || activeId === dm.id ? 600 : 400,
                         }}
                       >
                         <Avatar name={dm.name || "?"} avatarUrl={null} size={20} />
-                        <span className="flex-1 truncate text-base">{dm.name || "Direct Message"}</span>
-                        {dm.unread > 0 && (
-                          <span className={`ml-auto shrink-0 text-[11px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none ${
-                            activeId === dm.id ? "bg-white text-primary" : "bg-red-500 text-white"
-                          }`}>{dm.unread > 99 ? "99+" : dm.unread}</span>
-                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-1">
+                            <span className="truncate text-sm font-medium" style={{
+                              color: activeId === dm.id ? "#FFFFFF" : "var(--color-sidebar-text-active, #FFFFFF)",
+                            }}>{dm.name || "Direct Message"}</span>
+                            {dm.lastMessageAt && (
+                              <span className="text-[10px] shrink-0" style={{
+                                color: activeId === dm.id ? "rgba(255,255,255,0.7)" : "var(--color-sidebar-text, rgba(255,255,255,0.45))",
+                              }}>{formatLastTime(dm.lastMessageAt)}</span>
+                            )}
+                          </div>
+                          {dm.unread > 0 && (
+                            <div className="flex justify-end mt-0.5">
+                              <span className="text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none bg-red-500 text-white">
+                                {dm.unread > 99 ? "99+" : dm.unread}
+                              </span>
+                            </div>
+                          )}
+                        </div>
                       </button>
                     ))}
                   </div>
@@ -485,15 +510,28 @@ export function Sidebar() {
                     <Avatar
                       name={dm.name || "?"}
                       avatarUrl={null}
-                      size={24}
+                      size={32}
                       online={dm.partnerId ? undefined : undefined}
                     />
-                    <span className="flex-1 truncate text-base">{dm.name || "Direct Message"}</span>
-                    {dm.unread > 0 && (
-                      <span className={`ml-auto shrink-0 text-[11px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none ${
-                        activeId === dm.id ? "bg-white text-primary" : "bg-red-500 text-white"
-                      }`}>{dm.unread > 99 ? "99+" : dm.unread}</span>
-                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="truncate text-sm font-medium" style={{
+                          color: activeId === dm.id ? "#FFFFFF" : "var(--color-sidebar-text-active, #FFFFFF)",
+                        }}>{dm.name || "Direct Message"}</span>
+                        {dm.lastMessageAt && (
+                          <span className="text-[10px] shrink-0" style={{
+                            color: activeId === dm.id ? "rgba(255,255,255,0.7)" : "var(--color-sidebar-text, rgba(255,255,255,0.45))",
+                          }}>{formatLastTime(dm.lastMessageAt)}</span>
+                        )}
+                      </div>
+                      {dm.unread > 0 && (
+                        <div className="flex justify-end mt-0.5">
+                          <span className="text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none bg-red-500 text-white">
+                            {dm.unread > 99 ? "99+" : dm.unread}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </button>
                 ))
               )}

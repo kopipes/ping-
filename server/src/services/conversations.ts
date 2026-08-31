@@ -201,6 +201,31 @@ export async function getSidebar(userId: string) {
     }
   }
 
+  // Fetch lastMessageAt for all non-DM conversations in one query
+  const topicIds = [
+    ...pinnedTop.map((i) => i.id),
+    ...level1.map((i) => i.id),
+    ...level1.flatMap((i) => (i.subTopics || []).map((s) => s.id)),
+  ];
+  if (topicIds.length > 0) {
+    const lastMsgs = await prisma.message.findMany({
+      where: { conversationId: { in: topicIds }, isDeleted: false },
+      orderBy: { createdAt: "desc" },
+      distinct: ["conversationId"],
+      select: { conversationId: true, createdAt: true },
+    });
+    const lastMsgMap: Record<string, string> = {};
+    for (const m of lastMsgs) {
+      lastMsgMap[m.conversationId] = m.createdAt.toISOString();
+    }
+    for (const item of [...pinnedTop, ...level1]) {
+      item.lastMessageAt = lastMsgMap[item.id] ?? null;
+      for (const sub of item.subTopics || []) {
+        sub.lastMessageAt = lastMsgMap[sub.id] ?? null;
+      }
+    }
+  }
+
   // Lengkapi DM: partner info + timestamp pesan terakhir, lalu urutkan (FR-4.2)
   if (dms.length > 0) {
     const dmIds = dms.map((d) => d.id);
