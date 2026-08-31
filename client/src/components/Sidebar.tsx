@@ -343,20 +343,6 @@ export function Sidebar() {
         {/* ─ Home / Topics view ─ */}
         {showTopics && railView !== "activity" && (
           <>
-            {/* "Semua Pesan" quick link */}
-            <div className="px-2 pt-1">
-              <button
-                onClick={() => setSearchActive(true)}
-                className="w-full flex items-center gap-3 px-2 py-2 rounded-md text-left transition"
-                style={{ color: "var(--color-sidebar-text, rgba(255,255,255,0.6))" }}
-              >
-                <span className="shrink-0 flex items-center justify-center rounded-md" style={{ width: 40, height: 40, background: "rgba(255,255,255,0.08)" }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                </span>
-                <span className="text-sm font-medium" style={{ color: "var(--color-sidebar-text-active, rgba(255,255,255,0.8))" }}>Semua Pesan</span>
-              </button>
-            </div>
-
             {/* Pinned section */}
             {(sidebar?.pinnedTop || []).filter(matchItem).length > 0 && (
               <>
