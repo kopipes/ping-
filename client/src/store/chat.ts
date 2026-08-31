@@ -29,6 +29,9 @@ interface ChatStore {
   activeId: string | null;
   messages: Record<string, Message[]>;
   messagesLoading: Record<string, boolean>;
+  // prevCursor per conversation — null means no more older messages
+  prevCursor: Record<string, string | null>;
+  loadingMore: Record<string, boolean>;
   conversation: Record<string, Conversation>;
   permissions: Record<string, Permissions>;
   pinned: Record<string, PinnedItem[]>;
@@ -43,6 +46,7 @@ interface ChatStore {
 
   loadSidebar: () => Promise<void>;
   openConversation: (id: string) => Promise<void>;
+  loadMoreMessages: (conversationId: string) => Promise<void>;
   sendMessage: (conversationId: string, content: string | undefined, attachments?: any[], parentId?: string | null) => void;
   editMessage: (conversationId: string, messageId: string, content: string) => Promise<void>;
   deleteMessage: (conversationId: string, messageId: string) => Promise<void>;
@@ -66,6 +70,8 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   activeId: null,
   messages: {},
   messagesLoading: {},
+  prevCursor: {},
+  loadingMore: {},
   conversation: {},
   permissions: {},
   pinned: {},
@@ -122,21 +128,19 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     joinConversation(id);
     markRead(id);
 
-    // 1) muat pesan dulu — tampilkan secepat mungkin, jangan tunggu metadata
-    const showMessages = (msgRes: { messages: Message[] }) => {
-      set((s) => ({
-        messages: { ...s.messages, [id]: msgRes.messages },
-        messagesLoading: { ...s.messagesLoading, [id]: false },
-      }));
-    };
-
     // cache: kalau sudah pernah dibuka, langsung tampilkan tanpa menunggu network
     if (get().messages[id]) {
       set((s) => ({ messagesLoading: { ...s.messagesLoading, [id]: false } }));
     } else {
       set((s) => ({ messagesLoading: { ...s.messagesLoading, [id]: true } }));
-      api<{ messages: Message[] }>(`/api/conversations/${id}/messages?limit=50`)
-        .then(showMessages)
+      api<{ messages: Message[]; prevCursor: string | null }>(`/api/conversations/${id}/messages?limit=50`)
+        .then((res) => {
+          set((s) => ({
+            messages: { ...s.messages, [id]: res.messages },
+            messagesLoading: { ...s.messagesLoading, [id]: false },
+            prevCursor: { ...s.prevCursor, [id]: res.prevCursor },
+          }));
+        })
         .catch(() => {
           set((s) => ({ messagesLoading: { ...s.messagesLoading, [id]: false } }));
         });
@@ -152,6 +156,27 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     api<Permissions>(`/api/conversations/${id}/permissions`)
       .then((perms) => set((s) => ({ permissions: { ...s.permissions, [id]: perms } })))
       .catch(() => {});
+  },
+
+  loadMoreMessages: async (conversationId) => {
+    const cursor = get().prevCursor[conversationId];
+    if (!cursor || get().loadingMore[conversationId]) return;
+    set((s) => ({ loadingMore: { ...s.loadingMore, [conversationId]: true } }));
+    try {
+      const res = await api<{ messages: Message[]; prevCursor: string | null }>(
+        `/api/conversations/${conversationId}/messages?limit=30&cursor=${cursor}`
+      );
+      set((s) => ({
+        messages: {
+          ...s.messages,
+          [conversationId]: [...res.messages, ...(s.messages[conversationId] || [])],
+        },
+        prevCursor: { ...s.prevCursor, [conversationId]: res.prevCursor },
+        loadingMore: { ...s.loadingMore, [conversationId]: false },
+      }));
+    } catch {
+      set((s) => ({ loadingMore: { ...s.loadingMore, [conversationId]: false } }));
+    }
   },
 
   sendMessage: (conversationId, content, attachments = [], parentId = null) => {

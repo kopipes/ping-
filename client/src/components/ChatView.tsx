@@ -21,6 +21,9 @@ export function ChatView() {
   const id = useChatStore((s) => s.activeId)!;
   const messages = useChatStore((s) => s.messages[id] || []);
   const loading = useChatStore((s) => s.messagesLoading[id]);
+  const prevCursor = useChatStore((s) => s.prevCursor[id]);
+  const loadingMore = useChatStore((s) => s.loadingMore[id]);
+  const loadMoreMessages = useChatStore((s) => s.loadMoreMessages);
   const convo = useChatStore((s) => s.conversation[id]);
   const perms = useChatStore((s) => s.permissions[id]);
   const typing = useChatStore((s) => s.typing[id] || []);
@@ -38,6 +41,24 @@ export function ChatView() {
   const [replyTo, setReplyTo] = useState<Message | null>(null);
   const [infoOpen, setInfoOpen] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const topRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Infinite scroll — load older messages when top sentinel is visible
+  useEffect(() => {
+    const el = topRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && prevCursor && !loadingMore) {
+          loadMoreMessages(id);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [id, prevCursor, loadingMore, loadMoreMessages]);
 
   useEffect(() => {
     openConversation(id);
@@ -174,7 +195,29 @@ export function ChatView() {
        tab === "library" ? <LibraryTab conversationId={id} /> : (
         <>
           {/* Message list */}
-          <div className="flex-1 overflow-y-auto overflow-x-clip slim-scroll pt-10 pb-2">
+          <div ref={scrollRef} className="flex-1 overflow-y-auto overflow-x-clip slim-scroll pt-4 pb-2">
+            {/* Top sentinel for infinite scroll */}
+            <div ref={topRef} className="h-1" />
+
+            {/* Load more indicator */}
+            {loadingMore && (
+              <div className="flex justify-center py-3">
+                <div className="flex items-center gap-2 text-xs text-textm">
+                  <div className="w-3 h-3 border-2 border-brand border-t-transparent rounded-full animate-spin" />
+                  Memuat pesan lama…
+                </div>
+              </div>
+            )}
+
+            {/* No more messages indicator */}
+            {!prevCursor && messages.length > 0 && !loading && (
+              <div className="flex items-center gap-3 px-5 py-4">
+                <div className="flex-1 h-px bg-border" />
+                <span className="text-xs text-textm shrink-0">Awal percakapan</span>
+                <div className="flex-1 h-px bg-border" />
+              </div>
+            )}
+
             {loading && messages.length === 0 ? (
               <div className="px-5 space-y-4 pt-4">
                 {[...Array(6)].map((_, i) => (
@@ -196,23 +239,46 @@ export function ChatView() {
                 <p className="text-sm text-center">{isDM ? "Kirim pesan langsung, file, atau reaksi." : "Ini adalah awal dari channel ini."}</p>
               </div>
             ) : (
-              messages.map((m, i) => (
-                <MessageBubble
-                  key={m.id}
-                  message={m}
-                  isOwn={isOwn(m)}
-                  showSender={!isPrevSameSender(i)}
-                  canStaffPin={perms?.canStaffPin ?? true}
-                  isAdminish={perms?.isAdmin || perms?.isManagerOrAbove || false}
-                  parentMessage={m.parentId ? messages.find((x) => x.id === m.parentId) ?? null : null}
-                  onForward={handleForward}
-                  onReply={setReplyTo}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  onPin={handlePin}
-                  onRetry={handleRetry}
-                />
-              ))
+              messages.map((m, i) => {
+                // Date separator
+                const msgDate = new Date(m.createdAt).toDateString();
+                const prevDate = i > 0 ? new Date(messages[i - 1].createdAt).toDateString() : null;
+                const showDateSep = msgDate !== prevDate;
+                const dateLabel = (() => {
+                  const d = new Date(m.createdAt);
+                  const today = new Date();
+                  const yesterday = new Date(today);
+                  yesterday.setDate(today.getDate() - 1);
+                  if (d.toDateString() === today.toDateString()) return "Hari ini";
+                  if (d.toDateString() === yesterday.toDateString()) return "Kemarin";
+                  return d.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+                })();
+                return (
+                  <div key={m.id}>
+                    {showDateSep && (
+                      <div className="flex items-center gap-3 px-5 py-3">
+                        <div className="flex-1 h-px bg-border" />
+                        <span className="text-xs font-medium text-textm bg-appbg px-2 shrink-0">{dateLabel}</span>
+                        <div className="flex-1 h-px bg-border" />
+                      </div>
+                    )}
+                    <MessageBubble
+                      message={m}
+                      isOwn={isOwn(m)}
+                      showSender={!isPrevSameSender(i)}
+                      canStaffPin={perms?.canStaffPin ?? true}
+                      isAdminish={perms?.isAdmin || perms?.isManagerOrAbove || false}
+                      parentMessage={m.parentId ? messages.find((x) => x.id === m.parentId) ?? null : null}
+                      onForward={handleForward}
+                      onReply={setReplyTo}
+                      onEdit={handleEdit}
+                      onDelete={handleDelete}
+                      onPin={handlePin}
+                      onRetry={handleRetry}
+                    />
+                  </div>
+                );
+              })
             )}
             <div ref={bottomRef} />
           </div>
