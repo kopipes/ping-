@@ -300,15 +300,37 @@ export function Sidebar() {
                 <SectionHeader label="Pinned" />
                 <div className="px-1">
                   {(sidebar?.pinnedTop || []).filter(matchItem).map((item) => (
-                    <SbItem
+                    <button
                       key={item.id}
-                      icon={item.icon || "#"}
-                      label={item.name || "Group"}
-                      active={activeId === item.id}
-                      unread={item.unread > 0}
-                      unreadCount={item.unread}
                       onClick={() => onOpen(item.id)}
-                    />
+                      className="w-full flex items-start gap-1.5 px-3 py-1.5 mx-1 rounded-md text-left transition"
+                      style={{
+                        width: "calc(100% - 8px)",
+                        background: activeId === item.id ? "var(--color-brand-600, #2E46E0)" : undefined,
+                      }}
+                    >
+                      <span className="text-sm shrink-0 mt-0.5">{item.icon || "#"}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="truncate text-sm font-medium" style={{
+                            color: activeId === item.id ? "#FFFFFF" : "var(--color-sidebar-text-active, white)",
+                            fontWeight: item.unread > 0 ? 600 : 500,
+                          }}>{item.name || "Group"}</span>
+                          {item.lastMessageAt && (
+                            <span className="text-[10px] shrink-0" style={{
+                              color: activeId === item.id ? "rgba(255,255,255,0.7)" : "var(--color-sidebar-text, rgba(255,255,255,0.45))",
+                            }}>{formatLastTime(item.lastMessageAt)}</span>
+                          )}
+                        </div>
+                        {item.unread > 0 && (
+                          <div className="flex justify-end mt-0.5">
+                            <span className="text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none bg-red-500 text-white">
+                              {item.unread > 99 ? "99+" : item.unread}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </button>
                   ))}
                 </div>
               </>
