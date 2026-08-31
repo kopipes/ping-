@@ -321,6 +321,20 @@ export function Sidebar() {
               style={{ color: "var(--color-sidebar-text-active, white)" }}>✕</button>
           )}
         </div>
+        {/* Admin icon — mobile only, right of search */}
+        {isAdminish && (
+          <button
+            onClick={() => setAdminOpen(!adminOpen)}
+            title="Admin Dashboard"
+            className={`md:hidden shrink-0 w-9 h-9 rounded-lg flex items-center justify-center transition text-lg ${adminOpen ? "opacity-100" : "opacity-50"}`}
+            style={{
+              background: adminOpen ? "var(--color-sidebar-active, rgba(255,255,255,0.12))" : undefined,
+              color: "var(--color-sidebar-text-active, #FFFFFF)",
+            }}
+          >
+            ⚙️
+          </button>
+        )}
       </div>
 
       {/* ── Scrollable nav list ── */}
@@ -549,43 +563,6 @@ export function Sidebar() {
           </div>
         )}
       </div>
-
-      {/* ── User footer — mobile only ── */}
-      {user && (
-        <div
-          className="shrink-0 md:hidden flex items-center gap-3 px-3 py-3 border-t"
-          style={{ borderColor: "var(--sidebar-header-border, rgba(255,255,255,0.1))" }}
-        >
-          <button
-            onClick={() => { setProfileOpen(true); setChatOpen(false); }}
-            className="flex items-center gap-2.5 flex-1 min-w-0 rounded-lg px-2 py-1.5 transition text-left"
-            title="Profil saya"
-          >
-            <Avatar
-              name={user.name}
-              avatarUrl={user.avatarUrl}
-              size={30}
-              online={user.status === "online"}
-            />
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium truncate" style={{ color: "var(--color-sidebar-text-active, #FFFFFF)" }}>{user.name}</div>
-              <div className="text-xs truncate" style={{ color: "var(--color-sidebar-text, rgba(255,255,255,0.5))" }}>
-                {user.status === "online" ? "Online" : "Offline"}
-              </div>
-            </div>
-          </button>
-          {isAdminish && (
-            <button
-              onClick={() => setAdminOpen(!adminOpen)}
-              title="Admin Dashboard"
-              className={`w-8 h-8 rounded-lg flex items-center justify-center transition shrink-0 ${adminOpen ? "opacity-100" : "opacity-50"}`}
-              style={{ color: "var(--color-sidebar-text-active, #FFFFFF)" }}
-            >
-              ⚙️
-            </button>
-          )}
-        </div>
-      )}
 
       {/* ── Admin button — desktop only ── */}
       {user && isAdminish && (
