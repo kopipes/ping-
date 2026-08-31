@@ -349,50 +349,47 @@ export function Sidebar() {
                   <div className="px-1">
                     {(sidebar?.level1 || []).filter(matchItem).map((lv) => (
                       <div key={lv.id}>
-                        {/* Group header — collapsible, with icon */}
-                        <div className="flex items-center group/grp pr-1">
-                          {/* Collapse toggle */}
+                        {/* Group header — click to open, arrow to collapse */}
+                        <button
+                          onClick={() => onOpen(lv.id)}
+                          className="w-full flex items-start gap-1.5 px-3 py-1.5 mx-1 rounded-md text-left transition"
+                          style={{
+                            width: "calc(100% - 8px)",
+                            background: activeId === lv.id ? "var(--color-brand-600, #2E46E0)" : undefined,
+                          }}
+                        >
+                          {/* Collapse toggle embedded in icon area */}
                           <button
-                            onClick={() => toggleCollapse(`grp-${lv.id}`)}
-                            className="shrink-0 w-5 h-8 flex items-center justify-center opacity-40"
+                            onClick={(e) => { e.stopPropagation(); toggleCollapse(`grp-${lv.id}`); }}
+                            className="shrink-0 mt-0.5 text-[9px] opacity-40 w-4 text-left"
                             style={{ color: "var(--color-sidebar-text-active, white)" }}
                           >
-                            <span className="text-[9px]">{collapsed[`grp-${lv.id}`] ? "▶" : "▼"}</span>
+                            {collapsed[`grp-${lv.id}`] ? "▶" : "▼"}
                           </button>
-
-                          {/* Main clickable area — opens group */}
-                          <button
-                            onClick={() => onOpen(lv.id)}
-                            className="flex-1 min-w-0 flex items-start gap-1.5 px-1 py-1.5 rounded-md text-left transition"
-                            style={{
-                              background: activeId === lv.id ? "var(--color-brand-600, #2E46E0)" : undefined,
-                            }}
-                          >
-                            <span className="text-sm shrink-0 mt-0.5">{lv.icon || "#"}</span>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between gap-1">
-                                <span className="truncate text-sm font-medium" style={{
-                                  color: activeId === lv.id ? "#FFFFFF" : "var(--color-sidebar-text-active, white)",
-                                  fontWeight: lv.unread > 0 ? 600 : 500,
-                                }}>
-                                  {lv.name || "channel"}
-                                </span>
-                                {lv.lastMessageAt && (
-                                  <span className="text-[10px] shrink-0" style={{
-                                    color: activeId === lv.id ? "rgba(255,255,255,0.7)" : "var(--color-sidebar-text, rgba(255,255,255,0.45))",
-                                  }}>{formatLastTime(lv.lastMessageAt)}</span>
-                                )}
-                              </div>
-                              <div className="flex justify-end mt-0.5 h-4">
-                                {lv.unread > 0 && (
-                                  <span className="text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none bg-red-500 text-white">
-                                    {lv.unread > 99 ? "99+" : lv.unread}
-                                  </span>
-                                )}
-                              </div>
+                          <span className="text-sm shrink-0 mt-0.5 -ml-1">{lv.icon || "#"}</span>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-1">
+                              <span className="truncate text-sm font-medium" style={{
+                                color: activeId === lv.id ? "#FFFFFF" : "var(--color-sidebar-text-active, white)",
+                                fontWeight: lv.unread > 0 ? 600 : 500,
+                              }}>
+                                {lv.name || "channel"}
+                              </span>
+                              {lv.lastMessageAt && (
+                                <span className="text-[10px] shrink-0" style={{
+                                  color: activeId === lv.id ? "rgba(255,255,255,0.7)" : "var(--color-sidebar-text, rgba(255,255,255,0.45))",
+                                }}>{formatLastTime(lv.lastMessageAt)}</span>
+                              )}
                             </div>
-                          </button>
-                        </div>
+                            <div className="flex justify-end mt-0.5 h-4">
+                              {lv.unread > 0 && (
+                                <span className="text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none bg-red-500 text-white">
+                                  {lv.unread > 99 ? "99+" : lv.unread}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </button>
                         {/* Sub-topics */}
                         {!collapsed[`grp-${lv.id}`] && (lv.subTopics || []).filter((s) => matchItem(s)).map((sub) => (
                           <div key={sub.id} className="pl-5">
