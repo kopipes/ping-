@@ -322,13 +322,13 @@ export function Sidebar() {
                             }}>{formatLastTime(item.lastMessageAt)}</span>
                           )}
                         </div>
-                        {item.unread > 0 && (
-                          <div className="flex justify-end mt-0.5">
+                        <div className="flex justify-end mt-0.5 h-4">
+                          {item.unread > 0 && (
                             <span className="text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none bg-red-500 text-white">
                               {item.unread > 99 ? "99+" : item.unread}
                             </span>
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </div>
                     </button>
                   ))}
@@ -383,13 +383,13 @@ export function Sidebar() {
                                   }}>{formatLastTime(lv.lastMessageAt)}</span>
                                 )}
                               </div>
-                              {lv.unread > 0 && (
-                                <div className="flex justify-end mt-0.5">
+                              <div className="flex justify-end mt-0.5 h-4">
+                                {lv.unread > 0 && (
                                   <span className="text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none bg-red-500 text-white">
                                     {lv.unread > 99 ? "99+" : lv.unread}
                                   </span>
-                                </div>
-                              )}
+                                )}
+                              </div>
                             </div>
                           </button>
                         </div>
@@ -416,13 +416,13 @@ export function Sidebar() {
                                     }}>{formatLastTime(sub.lastMessageAt)}</span>
                                   )}
                                 </div>
-                                {sub.unread > 0 && (
-                                  <div className="flex justify-end mt-0.5">
+                                <div className="flex justify-end mt-0.5 h-4">
+                                  {sub.unread > 0 && (
                                     <span className="text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none bg-red-500 text-white">
                                       {sub.unread > 99 ? "99+" : sub.unread}
                                     </span>
-                                  </div>
-                                )}
+                                  )}
+                                </div>
                               </div>
                             </button>
                           </div>
@@ -480,13 +480,13 @@ export function Sidebar() {
                               }}>{formatLastTime(dm.lastMessageAt)}</span>
                             )}
                           </div>
-                          {dm.unread > 0 && (
-                            <div className="flex justify-end mt-0.5">
+                          <div className="flex justify-end mt-0.5 h-4">
+                            {dm.unread > 0 && (
                               <span className="text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none bg-red-500 text-white">
                                 {dm.unread > 99 ? "99+" : dm.unread}
                               </span>
-                            </div>
-                          )}
+                            )}
+                          </div>
                         </div>
                       </button>
                     ))}
@@ -580,13 +580,13 @@ export function Sidebar() {
                           }}>{formatLastTime(dm.lastMessageAt)}</span>
                         )}
                       </div>
-                      {dm.unread > 0 && (
-                        <div className="flex justify-end mt-0.5">
+                      <div className="flex justify-end mt-0.5 h-4">
+                        {dm.unread > 0 && (
                           <span className="text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none bg-red-500 text-white">
                             {dm.unread > 99 ? "99+" : dm.unread}
                           </span>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
                   </button>
                 ))
