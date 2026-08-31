@@ -20,11 +20,11 @@ if ("serviceWorker" in navigator) {
 registerSW({ immediate: true });
 
 // Apply saved font sizes on boot
-const sizeMap: Record<string, string> = { small: "13px", normal: "15px", large: "18px" };
+const zoomMap: Record<string, string> = { small: "0.867", normal: "1", large: "1.2" };
 const savedSidebarSize = localStorage.getItem("pvc-font-sidebar") || "normal";
 const savedChatSize = localStorage.getItem("pvc-font-chat") || "normal";
-document.documentElement.style.setProperty("--sidebar-font-size", sizeMap[savedSidebarSize] || "15px");
-document.documentElement.style.setProperty("--chat-font-size", sizeMap[savedChatSize] || "15px");
+document.documentElement.style.setProperty("--sidebar-zoom", zoomMap[savedSidebarSize] || "1");
+document.documentElement.style.setProperty("--chat-zoom", zoomMap[savedChatSize] || "1");
 
 // Apply saved chat background color on boot
 const savedChatBg = localStorage.getItem("pvc-chat-bg") || "#FFFFFF";

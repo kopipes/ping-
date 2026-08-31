@@ -37,9 +37,9 @@ function applyTheme(key: ThemeKey) {
 }
 
 const FONT_SIZES = [
-  { key: "small",  label: "Kecil",  px: "13px" },
-  { key: "normal", label: "Normal", px: "15px" },
-  { key: "large",  label: "Besar",  px: "18px" },
+  { key: "small",  label: "Kecil",  px: "13px", zoom: "0.867" },
+  { key: "normal", label: "Normal", px: "15px", zoom: "1"     },
+  { key: "large",  label: "Besar",  px: "18px", zoom: "1.2"   },
 ] as const;
 
 type FontSizeKey = "small" | "normal" | "large";
@@ -47,7 +47,7 @@ type FontSizeKey = "small" | "normal" | "large";
 function applySidebarFontSize(key: FontSizeKey) {
   const size = FONT_SIZES.find((f) => f.key === key);
   if (size) {
-    document.documentElement.style.setProperty("--sidebar-font-size", size.px);
+    document.documentElement.style.setProperty("--sidebar-zoom", size.zoom);
     localStorage.setItem("pvc-font-sidebar", key);
   }
 }
@@ -55,7 +55,7 @@ function applySidebarFontSize(key: FontSizeKey) {
 function applyChatFontSize(key: FontSizeKey) {
   const size = FONT_SIZES.find((f) => f.key === key);
   if (size) {
-    document.documentElement.style.setProperty("--chat-font-size", size.px);
+    document.documentElement.style.setProperty("--chat-zoom", size.zoom);
     localStorage.setItem("pvc-font-chat", key);
   }
 }
