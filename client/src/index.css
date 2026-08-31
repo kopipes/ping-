@@ -269,6 +269,12 @@
   --color-brand-700:        #2436B8;
   --surface-active:         #EEF1FE;
   --shadow-focus:           0 0 0 3px #DDE4FD;
+  /* Sidebar search header overrides */
+  --sidebar-header-bg:      rgba(0,0,0,0.04);
+  --sidebar-header-border:  rgba(0,0,0,0.08);
+  --sidebar-input-bg:       rgba(0,0,0,0.06);
+  --sidebar-input-icon:     rgba(20,21,31,0.35);
+  --sidebar-section-label:  rgba(20,21,31,0.45);
 }
 
 @layer base {

@@ -123,18 +123,18 @@ function SbItem({
   return (
     <button
       onClick={onClick}
-      className={`
-        w-full flex items-center gap-2 px-3 py-2.5 mx-1 rounded-md text-left transition
-        ${active
-          ? "bg-[var(--color-brand,#2E46E0)] text-white font-semibold"
-          : unread
-            ? "text-white font-semibold hover:bg-white/8"
-            : "text-white/60 hover:bg-white/5 hover:text-white/80"
-        }
-      `}
+      className={`w-full flex items-center gap-2 px-3 py-2.5 mx-1 rounded-md text-left transition ${
+        active ? "font-semibold" : unread ? "font-semibold" : ""
+      }`}
       style={{
         paddingLeft: indent ? "calc(0.75rem + 16px)" : undefined,
         width: "calc(100% - 8px)",
+        background: active ? "var(--color-brand-600, #2E46E0)" : undefined,
+        color: active
+          ? "#FFFFFF"
+          : unread
+          ? "var(--color-sidebar-text-active, #FFFFFF)"
+          : "var(--color-sidebar-text, rgba(255,255,255,0.6))",
       }}
     >
       {icon && <span className="shrink-0 text-base leading-none">{icon}</span>}
@@ -226,25 +226,33 @@ export function Sidebar() {
     >
       {/* ── Search bar ── */}
       <div className="shrink-0 flex items-center gap-2.5 px-3 pt-5 pb-4"
-        style={{ background: "rgba(0,0,0,0.18)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+        style={{
+          background: "var(--sidebar-header-bg, rgba(0,0,0,0.18))",
+          borderBottom: "1px solid var(--sidebar-header-border, rgba(255,255,255,0.07))"
+        }}>
         {/* App logo — only on mobile (desktop rail already has it) */}
         <div className="md:hidden shrink-0 w-8 h-8 rounded-lg overflow-hidden"
           style={{ background: "var(--color-rail-active-pill)", boxShadow: "0 1px 4px rgba(0,0,0,0.25)" }}>
           <img src="/logo.png" alt="Ping!" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
         </div>
         {/* Search input */}
-        <div className="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl" style={{ background: "rgba(255,255,255,0.08)" }}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" style={{ color: "rgba(255,255,255,0.35)", flexShrink: 0 }}>
+        <div className="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl"
+          style={{ background: "var(--sidebar-input-bg, rgba(255,255,255,0.08))" }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"
+            style={{ color: "var(--sidebar-input-icon, rgba(255,255,255,0.35))", flexShrink: 0 }}>
             <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
           </svg>
           <input
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             placeholder={showDMs ? "Cari DM…" : "Cari group…"}
-            className="flex-1 bg-transparent text-sm text-white/70 placeholder:text-white/35 outline-none"
+            className="flex-1 bg-transparent text-sm placeholder:opacity-40 outline-none"
+            style={{ color: "var(--color-sidebar-text-active, rgba(255,255,255,0.7))" }}
           />
           {filter && (
-            <button onClick={() => setFilter("")} className="text-white/40 hover:text-white/70 transition text-xs">✕</button>
+            <button onClick={() => setFilter("")}
+              className="transition text-xs opacity-40 hover:opacity-70"
+              style={{ color: "var(--color-sidebar-text-active, white)" }}>✕</button>
           )}
         </div>
       </div>
