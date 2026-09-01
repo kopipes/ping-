@@ -24,26 +24,25 @@ function ImageLightbox({ src, alt, onClose }: { src: string; alt: string; onClos
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center"
+      style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.92)", display: "flex", alignItems: "center", justifyContent: "center" }}
       onClick={onClose}
     >
       <button
         onClick={onClose}
-        className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white text-xl transition"
+        style={{ position: "absolute", top: 16, right: 16, width: 40, height: 40, borderRadius: "50%", background: "rgba(255,255,255,0.15)", border: "none", color: "white", fontSize: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
       >✕</button>
       <img
         src={src}
         alt={alt}
-        style={{ maxWidth: "92vw", maxHeight: "90vh", display: "block", objectFit: "contain" }}
-        className="rounded-lg shadow-2xl"
+        style={{ maxWidth: "92vw", maxHeight: "88vh", display: "block", objectFit: "contain", borderRadius: 8, boxShadow: "0 8px 32px rgba(0,0,0,0.5)" }}
         onClick={(e) => e.stopPropagation()}
-        onError={(e) => { (e.target as HTMLImageElement).style.border = "2px solid red"; }}
       />
       <a
         href={src}
-        download
+        target="_blank"
+        rel="noreferrer"
         onClick={(e) => e.stopPropagation()}
-        className="absolute bottom-4 right-4 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm transition"
+        style={{ position: "absolute", bottom: 16, right: 16, padding: "8px 16px", borderRadius: 8, background: "rgba(255,255,255,0.15)", color: "white", textDecoration: "none", fontSize: 14 }}
       >
         ⬇ Download
       </a>
