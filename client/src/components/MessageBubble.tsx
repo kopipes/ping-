@@ -157,6 +157,7 @@ export function MessageBubble(props: {
   // ── Own messages: right-aligned blue bubble ──────────────────────────────
   if (isOwn) {
     return (
+      <>
       <div className={`msg-own flex items-end justify-end gap-2 px-4 py-0.5 relative ${isFailed ? "bg-red-50" : ""}`}>
         {/* Action bar floats to the left on hover (desktop only) */}
         {!isSending && !isFailed && (
@@ -295,8 +296,10 @@ export function MessageBubble(props: {
           )}
         </div>
       </div>
-    );
-  }
+      {lightboxSrc && <ImageLightbox src={lightboxSrc} alt="" onClose={() => setLightboxSrc(null)} />}
+    </>
+  );
+}
 
   // ── Others' messages: left-aligned bubble ────────────────────────────────
   return (
