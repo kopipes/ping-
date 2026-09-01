@@ -3,28 +3,28 @@ import { useChatStore } from "../store/chat";
 import { useUIStore, type RailView } from "../store/ui";
 import { apiUrl } from "../lib/api";
 
-const HomeIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+const HomeIcon = ({ size = 16 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
     <polyline points="9 22 9 12 15 12 15 22"/>
   </svg>
 );
 
-const DMIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+const DMIcon = ({ size = 16 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
   </svg>
 );
 
-const ActivityIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+const ActivityIcon = ({ size = 16 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
     <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
   </svg>
 );
 
-const SearchIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+const SearchIcon = ({ size = 16 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
     <circle cx="11" cy="11" r="8"/>
     <path d="m21 21-4.3-4.3"/>
   </svg>
@@ -133,10 +133,10 @@ export function IconRail({ variant = "side" }: { variant?: "side" | "bottom" }) 
   if (variant === "bottom") {
     return (
       <nav className="bottom-nav" style={{ background: "var(--color-rail-bg)" }}>
-        <RailBtn icon={<HomeIcon />} label="Home" active={railView === "home" && !profileOpen} onClick={() => navigate("home")} bottom />
-        <RailBtn icon={<DMIcon />} label="DM" active={railView === "dms" && !profileOpen} badge={dmUnread} onClick={() => navigate("dms")} bottom />
-        <RailBtn icon={<ActivityIcon />} label="Activity" active={railView === "activity" && !profileOpen} onClick={() => navigate("activity")} bottom />
-        <RailBtn icon={<SearchIcon />} label="Search" active={railView === "search" && !profileOpen} onClick={() => navigate("search")} bottom />
+        <RailBtn icon={<HomeIcon size={26} />} label="Home" active={railView === "home" && !profileOpen} onClick={() => navigate("home")} bottom />
+        <RailBtn icon={<DMIcon size={26} />} label="DM" active={railView === "dms" && !profileOpen} badge={dmUnread} onClick={() => navigate("dms")} bottom />
+        <RailBtn icon={<ActivityIcon size={26} />} label="Activity" active={railView === "activity" && !profileOpen} onClick={() => navigate("activity")} bottom />
+        <RailBtn icon={<SearchIcon size={26} />} label="Search" active={railView === "search" && !profileOpen} onClick={() => navigate("search")} bottom />
         {avatarBtn}
       </nav>
     );
