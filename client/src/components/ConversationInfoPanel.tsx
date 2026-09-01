@@ -492,6 +492,37 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
                 }`}>
                 {(convo as any)?.isPinnedTop ? "★ Hapus dari Pinned" : "☆ Tambahkan ke Pinned"}
               </button>
+              {/* Archive / Unarchive */}
+              <button
+                onClick={async () => {
+                  const isArchived = !!(convo as any)?.isArchived;
+                  const action = isArchived ? "Unarchive" : "Archive";
+                  const ok = await confirm({
+                    title: `${action} Group`,
+                    message: isArchived
+                      ? `Unarchive group "${convo?.name}"? Group akan muncul kembali di sidebar semua member.`
+                      : `Archive group "${convo?.name}"? Group akan disembunyikan dari sidebar semua member.`,
+                    confirmLabel: action,
+                    danger: !isArchived,
+                  });
+                  if (!ok) return;
+                  try {
+                    await api(`/api/conversations/${conversationId}/archive`, {
+                      method: "PATCH",
+                      body: { archived: !isArchived },
+                    });
+                    await loadSidebar();
+                    toast(isArchived ? "Group berhasil di-unarchive" : "Group berhasil di-archive");
+                    if (!isArchived) onClose();
+                  } catch (e: any) { toast(e?.message || "Gagal archive"); }
+                }}
+                className={`w-full h-9 rounded-lg text-sm font-semibold transition border ${
+                  (convo as any)?.isArchived
+                    ? "bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+                    : "bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100"
+                }`}>
+                {(convo as any)?.isArchived ? "📂 Unarchive Group" : "📦 Archive Group"}
+              </button>
               {/* Delete — not for system channels */}
               {!(convo as any)?.isPinnedTop && (
                 <button
