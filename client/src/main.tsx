@@ -20,11 +20,11 @@ if ("serviceWorker" in navigator) {
 registerSW({ immediate: true });
 
 // Apply saved font sizes on boot
-const zoomMap: Record<string, string> = { xs: "0.733", small: "0.867", normal: "1", medium: "1.133", large: "1.267", xl: "1.4", xxl: "1.6" };
-const savedSidebarSize = localStorage.getItem("pvc-font-sidebar") || "normal";
+const sizeMap: Record<string, string> = { xs: "11px", small: "13px", normal: "15px", medium: "17px", large: "19px", xl: "21px", xxl: "24px" };
 const savedChatSize = localStorage.getItem("pvc-font-chat") || "normal";
-document.documentElement.style.setProperty("--sidebar-zoom", zoomMap[savedSidebarSize] || "1");
-document.documentElement.style.setProperty("--chat-zoom", zoomMap[savedChatSize] || "1");
+const savedSidebarSize = localStorage.getItem("pvc-font-sidebar") || "normal";
+document.documentElement.style.fontSize = sizeMap[savedChatSize] || "15px";
+document.documentElement.style.setProperty("--sidebar-font-size", sizeMap[savedSidebarSize] || "15px");
 
 // Apply saved avatar shape on boot
 const shapeMap: Record<string, string> = { circle: "50%", rounded: "8px", square: "0px" };

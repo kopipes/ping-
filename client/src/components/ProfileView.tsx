@@ -53,13 +53,13 @@ function applyAvatarShape(key: AvatarShapeKey) {
 }
 
 const FONT_SIZES = [
-  { key: "xs",     label: "XS",     px: "11px", zoom: "0.733" },
-  { key: "small",  label: "S",      px: "13px", zoom: "0.867" },
-  { key: "normal", label: "M",      px: "15px", zoom: "1"     },
-  { key: "medium", label: "L",      px: "17px", zoom: "1.133" },
-  { key: "large",  label: "XL",     px: "19px", zoom: "1.267" },
-  { key: "xl",     label: "XXL",    px: "21px", zoom: "1.4"   },
-  { key: "xxl",    label: "XXXL",   px: "24px", zoom: "1.6"   },
+  { key: "xs",     label: "XS",   px: "11px" },
+  { key: "small",  label: "S",    px: "13px" },
+  { key: "normal", label: "M",    px: "15px" },
+  { key: "medium", label: "L",    px: "17px" },
+  { key: "large",  label: "XL",   px: "19px" },
+  { key: "xl",     label: "XXL",  px: "21px" },
+  { key: "xxl",    label: "XXXL", px: "24px" },
 ] as const;
 
 type FontSizeKey = "xs" | "small" | "normal" | "medium" | "large" | "xl" | "xxl";
@@ -67,7 +67,7 @@ type FontSizeKey = "xs" | "small" | "normal" | "medium" | "large" | "xl" | "xxl"
 function applySidebarFontSize(key: FontSizeKey) {
   const size = FONT_SIZES.find((f) => f.key === key);
   if (size) {
-    document.documentElement.style.setProperty("--sidebar-zoom", size.zoom);
+    document.documentElement.style.setProperty("--sidebar-font-size", size.px);
     localStorage.setItem("pvc-font-sidebar", key);
   }
 }
@@ -75,7 +75,7 @@ function applySidebarFontSize(key: FontSizeKey) {
 function applyChatFontSize(key: FontSizeKey) {
   const size = FONT_SIZES.find((f) => f.key === key);
   if (size) {
-    document.documentElement.style.setProperty("--chat-zoom", size.zoom);
+    document.documentElement.style.fontSize = size.px;
     localStorage.setItem("pvc-font-chat", key);
   }
 }
