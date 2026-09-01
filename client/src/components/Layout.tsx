@@ -27,11 +27,33 @@ export function Layout() {
   const activeId = useChatStore((s) => s.activeId);
   const searchActive = useChatStore((s) => s.searchActive);
   const chatOpen = useUIStore((s) => s.chatOpen);
+  const setChatOpen = useUIStore((s) => s.setChatOpen);
   const adminOpen = useUIStore((s) => s.adminOpen);
   const profileOpen = useUIStore((s) => s.profileOpen);
   const setProfileOpen = useUIStore((s) => s.setProfileOpen);
   const forwardTarget = useUIStore((s) => s.forwardTarget);
   const railView = useUIStore((s) => s.railView);
+
+  // Mobile: push history entry when chat opens so back button closes it
+  useEffect(() => {
+    if (isDesktop) return;
+    const showChat = chatOpen && !!activeId;
+    if (showChat) {
+      window.history.pushState({ chat: true }, "");
+    }
+  }, [chatOpen, activeId, isDesktop]);
+
+  useEffect(() => {
+    if (isDesktop) return;
+    const handler = (e: PopStateEvent) => {
+      if (chatOpen) {
+        setChatOpen(false);
+        e.preventDefault();
+      }
+    };
+    window.addEventListener("popstate", handler);
+    return () => window.removeEventListener("popstate", handler);
+  }, [chatOpen, setChatOpen, isDesktop]);
 
   if (!isDesktop) {
     const showChat = chatOpen && !!activeId && !adminOpen;
