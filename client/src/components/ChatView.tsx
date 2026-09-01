@@ -114,6 +114,7 @@ export function ChatView() {
     if (!m.content) return;
     try {
       await api(`/api/tasks/${id}`, { method: "POST", body: { content: m.content, messageId: m.id } });
+      // Socket event task:created will update the store for all members including sender
     } catch (e: any) { toast(e?.message || "Gagal buat task"); }
   };
 
