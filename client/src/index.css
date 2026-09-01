@@ -450,6 +450,15 @@
     border: none;
     background: transparent;
     border-radius: 0;
+    position: relative;
+  }
+  .bottom-nav-avatar.is-active::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 25%; right: 25%;
+    height: 2px;
+    border-radius: 9999px;
+    background: var(--color-rail-icon-active, #FFFFFF);
   }
 
   /* Badge unread */

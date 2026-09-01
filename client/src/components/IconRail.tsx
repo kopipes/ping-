@@ -96,9 +96,9 @@ export function IconRail({ variant = "side" }: { variant?: "side" | "bottom" }) 
       }}
       title={user?.name || "Profil"}
       aria-label="Profil"
-      className={variant === "bottom" ? "bottom-nav-avatar" : "icon-rail-avatar"}
+      className={`${variant === "bottom" ? "bottom-nav-avatar" : "icon-rail-avatar"}${profileOpen ? " is-active" : ""}`}
       style={{
-        border: profileOpen ? "2px solid var(--color-rail-icon-active, rgba(255,255,255,0.6))" : "2px solid transparent",
+        border: "2px solid transparent",
         overflow: "hidden",
         display: "flex",
         alignItems: "center",
