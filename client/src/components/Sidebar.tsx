@@ -95,6 +95,7 @@ function WaItem({
   unreadCount,
   indent,
   collapseBtn,
+  online,
   onClick,
 }: {
   avatarName?: string;
@@ -109,6 +110,7 @@ function WaItem({
   unreadCount?: number;
   indent?: boolean;
   collapseBtn?: React.ReactNode;
+  online?: boolean;
   onClick: () => void;
 }) {
   const textActive = active ? "#FFFFFF" : "var(--color-sidebar-text-active, #FFFFFF)";
@@ -130,7 +132,7 @@ function WaItem({
       {collapseBtn}
 
       {/* Avatar / icon */}
-      <div className="shrink-0">
+      <div className="shrink-0 relative">
         {avatarName ? (
           <Avatar name={avatarName} avatarUrl={avatarUrl} size={40} />
         ) : avatarIcon && (avatarIcon.startsWith("/") || avatarIcon.startsWith("http")) ? (
@@ -148,6 +150,13 @@ function WaItem({
           >
             {avatarIcon || "#"}
           </span>
+        )}
+        {/* Online dot — only for DMs */}
+        {online !== undefined && (
+          <span
+            className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 ${online ? "bg-green-500" : "bg-gray-400"}`}
+            style={{ borderColor: "var(--color-sidebar-bg, #1A2540)" }}
+          />
         )}
       </div>
 
@@ -246,6 +255,7 @@ export function Sidebar() {
   const setAdminOpen = useUIStore((s) => s.setAdminOpen);
   const adminOpen = useUIStore((s) => s.adminOpen);
   const setProfileOpen = useUIStore((s) => s.setProfileOpen);
+  const presence = useChatStore((s) => s.presence);
 
   const [filter, setFilter] = useState("");
   const [showNewTopic, setShowNewTopic] = useState(false);
@@ -473,6 +483,7 @@ export function Sidebar() {
                         active={activeId === dm.id}
                         unread={dm.unread > 0}
                         unreadCount={dm.unread}
+                        online={dm.partnerId ? presence[dm.partnerId] === "online" : undefined}
                         onClick={() => onOpen(dm.id)}
                       />
                     ))}
@@ -547,6 +558,7 @@ export function Sidebar() {
                     active={activeId === dm.id}
                     unread={dm.unread > 0}
                     unreadCount={dm.unread}
+                    online={dm.partnerId ? presence[dm.partnerId] === "online" : undefined}
                     onClick={() => onOpen(dm.id)}
                   />
                 ))

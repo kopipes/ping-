@@ -256,6 +256,7 @@ export async function getSidebar(userId: string) {
             createdAt: true,
             content: true,
             user: { select: { name: true } },
+            attachments: { select: { type: true }, take: 1 },
           },
         },
       },
@@ -267,7 +268,9 @@ export async function getSidebar(userId: string) {
       d.icon = null;
       d.partnerId = partner?.id ?? null;
       d.lastMessageAt = conv?.messages[0]?.createdAt?.toISOString() ?? null;
-      d.lastMessageText = conv?.messages[0]?.content ?? null;
+      const msgContent = conv?.messages[0]?.content;
+      const msgAttachment = (conv?.messages[0] as any)?.attachments?.[0];
+      d.lastMessageText = msgContent ?? (msgAttachment ? (msgAttachment.type === "IMAGE" ? "📷 Gambar" : "📎 Lampiran") : null);
       d.lastMessageSender = conv?.messages[0]?.user?.name ?? null;
     }
     dms.sort((a, b) =>

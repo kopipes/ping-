@@ -124,6 +124,11 @@ export default function App() {
         useChatStore.getState().markConversationRead(p.conversationId, p.userId, p.at);
       });
 
+      // Track online/offline presence
+      const offPresence = on("presence:update", (p: { userId: string; status: string }) => {
+        useChatStore.getState().setPresence(p.userId, p.status);
+      });
+
       return () => {
         offMessage();
         offEdited();
@@ -136,6 +141,7 @@ export default function App() {
         offConnected();
         offReconnected();
         offReadUpdated();
+        offPresence();
       };
     }
   }, [user, loadSidebar, receiveMessage, receiveEdited, receiveRemoved, toggleTyping, toggleReaction, loadPinned]);

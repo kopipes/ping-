@@ -61,6 +61,8 @@ interface ChatStore {
   markReadCurrent: () => void;
   markConversationRead: (conversationId: string, userId: string, at: string) => void;
   setSearchActive: (active: boolean) => void;
+  presence: Record<string, string>; // userId -> "online" | "offline"
+  setPresence: (userId: string, status: string) => void;
   reset: () => void;
 }
 
@@ -78,6 +80,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   library: {},
   typing: {},
   readAt: {},
+  presence: {},
   searchActive: false,
   searchQuery: "",
   searchResult: null,
@@ -445,6 +448,8 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   },
 
   setSearchActive: (active) => set({ searchActive: active }),
+
+  setPresence: (userId, status) => set((s) => ({ presence: { ...s.presence, [userId]: status } })),
 
   reset: () =>
     set({
