@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import imageCompression from "browser-image-compression";
 import { api, apiUrl } from "../lib/api";
 import { useChatStore } from "../store/chat";
+import { useAuthStore } from "../store/auth";
 import { useModal } from "./Modal";
 
 export function Composer({
@@ -21,11 +22,24 @@ export function Composer({
   const { t } = useTranslation();
   const { toast, prompt } = useModal();
   const sendMessage = useChatStore((s) => s.sendMessage);
+  const conversation = useChatStore((s) => s.conversation[conversationId]);
+  const myId = useAuthStore((s) => s.user?.id);
   const [text, setText] = useState("");
   const [pending, setPending] = useState<PendingUpload[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [mentionQuery, setMentionQuery] = useState<string | null>(null);
+  const [mentionIndex, setMentionIndex] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Members for @ autocomplete (exclude self)
+  const members = (conversation?.members || [])
+    .filter((m) => m.user.id !== myId)
+    .map((m) => m.user);
+
+  const mentionSuggestions = mentionQuery !== null
+    ? members.filter((m) => m.name.toLowerCase().startsWith(mentionQuery.toLowerCase()))
+    : [];
 
   interface PendingUpload {
     fileUrl: string;
@@ -81,13 +95,57 @@ export function Composer({
   };
 
   const autoResize = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setText(e.target.value);
+    const val = e.target.value;
+    setText(val);
     e.target.style.height = "auto";
     e.target.style.height = Math.min(e.target.scrollHeight, 200) + "px";
+    // Detect @mention trigger
+    const cursor = e.target.selectionStart;
+    const before = val.slice(0, cursor);
+    const match = before.match(/@([\w\s]*)$/);
+    if (match) {
+      setMentionQuery(match[1]);
+      setMentionIndex(0);
+    } else {
+      setMentionQuery(null);
+    }
+  };
+
+  const insertMention = (name: string) => {
+    const cursor = textareaRef.current?.selectionStart ?? text.length;
+    const before = text.slice(0, cursor);
+    const after = text.slice(cursor);
+    const replaced = before.replace(/@[\w\s]*$/, `@${name} `);
+    setText(replaced + after);
+    setMentionQuery(null);
+    setTimeout(() => {
+      textareaRef.current?.focus();
+      const pos = replaced.length;
+      textareaRef.current?.setSelectionRange(pos, pos);
+    }, 0);
   };
 
   return (
     <div className="shrink-0 px-4 pb-4 pt-1">
+      {/* @ mention autocomplete dropdown */}
+      {mentionSuggestions.length > 0 && (
+        <div className="mb-1 bg-white border border-border rounded-xl shadow-md overflow-hidden">
+          {mentionSuggestions.slice(0, 6).map((m, i) => (
+            <button
+              key={m.id}
+              onMouseDown={(e) => { e.preventDefault(); insertMention(m.name); }}
+              className={`w-full flex items-center gap-2.5 px-3 py-2 text-left text-sm transition ${
+                i === mentionIndex ? "bg-primary/10 text-primary" : "hover:bg-hover text-textp"
+              }`}
+            >
+              <span className="w-7 h-7 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold shrink-0">
+                {m.name.charAt(0).toUpperCase()}
+              </span>
+              <span className="font-medium truncate">{m.name}</span>
+            </button>
+          ))}
+        </div>
+      )}
       <div className="composer-box">
         {/* Reply banner */}
         {replyTo && (
@@ -125,6 +183,12 @@ export function Composer({
             value={text}
             onChange={autoResize}
             onKeyDown={(e) => {
+              if (mentionSuggestions.length > 0) {
+                if (e.key === "ArrowDown") { e.preventDefault(); setMentionIndex((i) => Math.min(i + 1, mentionSuggestions.length - 1)); return; }
+                if (e.key === "ArrowUp") { e.preventDefault(); setMentionIndex((i) => Math.max(i - 1, 0)); return; }
+                if (e.key === "Enter" || e.key === "Tab") { e.preventDefault(); insertMention(mentionSuggestions[mentionIndex].name); return; }
+                if (e.key === "Escape") { setMentionQuery(null); return; }
+              }
               if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
             }}
             onPaste={(e) => {

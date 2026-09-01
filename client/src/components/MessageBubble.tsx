@@ -519,10 +519,36 @@ function extractUrls(text: string | null): string[] {
 
 // Render message text with clickable links
 function renderContent(text: string, dark: boolean) {
+  const myId = useAuthStore.getState().user?.id;
+  const myName = useAuthStore.getState().user?.name?.toLowerCase() ?? "";
+  // Split by URLs first, then handle mentions within each text part
   const parts = text.split(URL_RE);
   const urls = text.match(URL_RE) ?? [];
   return parts.map((part, i) => {
     const url = urls[i - 1];
+    // Render text part with mention highlighting
+    const renderPart = (str: string) => {
+      const mentionRe = /@([\w][\w\s]*?)(?=\s|$|[^\w\s])/g;
+      const segments: React.ReactNode[] = [];
+      let last = 0;
+      let m: RegExpExecArray | null;
+      while ((m = mentionRe.exec(str)) !== null) {
+        if (m.index > last) segments.push(str.slice(last, m.index));
+        const isSelf = m[1].trim().toLowerCase() === myName;
+        segments.push(
+          <span key={m.index} className={`font-semibold rounded px-0.5 ${
+            isSelf
+              ? "bg-yellow-200 text-yellow-900"
+              : dark ? "text-sky-200" : "text-primary"
+          }`}>
+            @{m[1]}
+          </span>
+        );
+        last = m.index + m[0].length;
+      }
+      if (last < str.length) segments.push(str.slice(last));
+      return segments.length > 0 ? segments : str;
+    };
     return (
       <span key={i}>
         {i > 0 && url && (
@@ -536,7 +562,7 @@ function renderContent(text: string, dark: boolean) {
             {url}
           </a>
         )}
-        {part}
+        {renderPart(part)}
       </span>
     );
   });

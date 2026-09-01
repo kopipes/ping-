@@ -1,6 +1,7 @@
 import { prisma } from "../lib/prisma.js";
 import { json } from "../lib/json.js";
 import { getEditWindowMinutes } from "./admin.js";
+import { sendPushToUser } from "./push.js";
 
 export const EDIT_WINDOW_MINUTES = 15; // default, overridden by DB setting
 
@@ -110,6 +111,32 @@ export async function createMessage(params: {
     where: { conversationId, userId },
     data: { lastReadMessageAt: new Date() },
   });
+
+  // Detect @mentions and send push to mentioned users
+  if (content) {
+    const mentionPattern = /@([\w\s]+?)(?=\s|$|[^a-zA-Z\s])/g;
+    const mentionedNames = [...content.matchAll(mentionPattern)].map((m) => m[1].trim().toLowerCase());
+    if (mentionedNames.length > 0) {
+      const members = await prisma.conversationMember.findMany({
+        where: { conversationId, userId: { not: userId } },
+        include: { user: { select: { id: true, name: true } } },
+      });
+      const sender = await prisma.user.findUnique({ where: { id: userId }, select: { name: true } });
+      const conversation = await prisma.conversation.findUnique({ where: { id: conversationId }, select: { name: true } });
+      for (const member of members) {
+        if (mentionedNames.includes(member.user.name.toLowerCase())) {
+          await sendPushToUser(member.user.id, {
+            title: `${sender?.name ?? "Seseorang"} menyebut Anda`,
+            body: content.length > 100 ? content.slice(0, 97) + "…" : content,
+            conversationId,
+            conversationName: conversation?.name ?? undefined,
+            senderName: sender?.name ?? "",
+          });
+        }
+      }
+    }
+  }
+
   return serializeMessage(message.id, userId);
 }
 
