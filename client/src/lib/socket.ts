@@ -77,6 +77,9 @@ export function connectSocket() {
   wire("typing:stop");
   wire("pinned:added");
   wire("pinned:removed");
+  wire("task:created");
+  wire("task:done");
+  wire("task:deleted");
 }
 
 export function disconnectSocket() {
