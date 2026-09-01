@@ -17,61 +17,46 @@ const EMOJIS = ["👍", "❤️", "😂", "🎉", "😮", "✅"];
 // ── Image Lightbox ─────────────────────────────────────────────────────────────
 function ImageLightbox({ src, alt, onClose }: { src: string; alt: string; onClose: () => void }) {
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [onClose]);
+    // Build lightbox entirely in vanilla DOM — bypasses React zoom container
+    const overlay = document.createElement("div");
+    overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:99999;display:flex;align-items:center;justify-content:center;";
 
-  return createPortal(
-    <div
-      style={{
-        position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-        zIndex: 9999, background: "rgba(0,0,0,0.92)",
-        display: "flex", alignItems: "center", justifyContent: "center",
-      }}
-      onClick={onClose}
-    >
-      {/* Close button */}
-      <button
-        onClick={(e) => { e.stopPropagation(); onClose(); }}
-        style={{
-          position: "absolute", top: 16, right: 16,
-          width: 40, height: 40, borderRadius: "50%",
-          background: "rgba(255,255,255,0.2)", border: "none",
-          color: "white", fontSize: 18, cursor: "pointer",
-        }}
-      >✕</button>
+    const img = document.createElement("img");
+    img.src = src;
+    img.alt = alt;
+    img.style.cssText = "max-width:90vw;max-height:85vh;object-fit:contain;border-radius:8px;display:block;";
+    img.onclick = (e) => e.stopPropagation();
 
-      {/* Image — stopPropagation so clicking it doesn't close */}
-      <img
-        src={src}
-        alt={alt}
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          display: "block",
-          maxWidth: "90vw",
-          maxHeight: "85vh",
-          objectFit: "contain",
-          borderRadius: 8,
-        }}
-      />
+    const closeBtn = document.createElement("button");
+    closeBtn.textContent = "✕";
+    closeBtn.style.cssText = "position:absolute;top:16px;right:16px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.2);border:none;color:white;font-size:18px;cursor:pointer;";
+    closeBtn.onclick = (e) => { e.stopPropagation(); onClose(); };
 
-      {/* Open full size in new tab */}
-      <a
-        href={src}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          position: "absolute", bottom: 16, right: 16,
-          padding: "8px 14px", borderRadius: 8,
-          background: "rgba(255,255,255,0.2)",
-          color: "white", textDecoration: "none", fontSize: 13,
-        }}
-      >Buka ukuran penuh ↗</a>
-    </div>,
-    document.body
-  );
+    const openLink = document.createElement("a");
+    openLink.href = src;
+    openLink.target = "_blank";
+    openLink.rel = "noopener noreferrer";
+    openLink.textContent = "Buka ukuran penuh ↗";
+    openLink.style.cssText = "position:absolute;bottom:16px;right:16px;padding:8px 14px;border-radius:8px;background:rgba(255,255,255,0.2);color:white;text-decoration:none;font-size:13px;";
+    openLink.onclick = (e) => e.stopPropagation();
+
+    overlay.appendChild(img);
+    overlay.appendChild(closeBtn);
+    overlay.appendChild(openLink);
+    overlay.onclick = () => onClose();
+
+    document.body.appendChild(overlay);
+
+    const keyHandler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", keyHandler);
+
+    return () => {
+      document.body.removeChild(overlay);
+      window.removeEventListener("keydown", keyHandler);
+    };
+  }, [src, onClose]);
+
+  return null;
 }
 
 export function formatMessageTime(iso: string) {
