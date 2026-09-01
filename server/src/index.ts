@@ -18,6 +18,7 @@ import { adminRoutes } from "./routes/admin.js";
 import { linkPreviewRoutes } from "./routes/linkPreview.js";
 import { pushRoutes } from "./routes/push.js";
 import { webhookRoutes } from "./routes/webhook.js";
+import { taskRoutes } from "./routes/tasks.js";
 import { authenticate } from "./plugins/auth.js";
 import { prisma } from "./lib/prisma.js";
 import { UPLOAD_DIR } from "./services/upload.js";
@@ -70,6 +71,7 @@ await app.register(adminRoutes, { prefix: "/api/admin" });
 await app.register(linkPreviewRoutes, { prefix: "/api/link-preview" });
 await app.register(pushRoutes, { prefix: "/api/push" });
 await app.register(webhookRoutes, { prefix: "/api/webhook" });
+await app.register(taskRoutes, { prefix: "/api/tasks" });
 
 // Socket.IO
 const io = new Server(app.server, {

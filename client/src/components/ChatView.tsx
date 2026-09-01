@@ -9,6 +9,7 @@ import { MessageBubble, Avatar } from "./MessageBubble";
 import { Composer } from "./Composer";
 import { PinnedTab } from "./PinnedTab";
 import { LibraryTab } from "./LibraryTab";
+import { TaskBar } from "./TaskBar";
 import { ConversationInfoPanel } from "./ConversationInfoPanel";
 import { useModal } from "./Modal";
 import type { Message } from "../types";
@@ -109,6 +110,13 @@ export function ChatView() {
     catch (e: any) { toast(e?.message || "Gagal edit"); }
   };
 
+  const handleCreateTask = async (m: Message) => {
+    if (!m.content) return;
+    try {
+      await api(`/api/tasks/${id}`, { method: "POST", body: { content: m.content, messageId: m.id } });
+    } catch (e: any) { toast(e?.message || "Gagal buat task"); }
+  };
+
   const handleRetry = (m: Message) => {
     const attachments = (m.attachments || []).map((a) => ({
       type: a.type, fileUrl: a.fileUrl, thumbnailUrl: a.thumbnailUrl,
@@ -198,6 +206,9 @@ export function ChatView() {
       {tab === "pinned" ? <PinnedTab conversationId={id} /> :
        tab === "library" ? <LibraryTab conversationId={id} /> : (
         <>
+          {/* Task bar — pinned top */}
+          <TaskBar conversationId={id} />
+
           {/* Message list */}
           <div ref={scrollRef} className="flex-1 overflow-y-auto overflow-x-clip slim-scroll pt-4 pb-2">
             {/* Top sentinel for infinite scroll */}
@@ -278,6 +289,7 @@ export function ChatView() {
                       onEdit={handleEdit}
                       onDelete={handleDelete}
                       onPin={handlePin}
+                      onCreateTask={handleCreateTask}
                       onRetry={handleRetry}
                     />
                   </div>

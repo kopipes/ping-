@@ -63,7 +63,25 @@ interface ChatStore {
   setSearchActive: (active: boolean) => void;
   presence: Record<string, string>; // userId -> "online" | "offline"
   setPresence: (userId: string, status: string) => void;
+  tasks: Record<string, Task[]>; // conversationId -> tasks
+  loadTasks: (conversationId: string) => Promise<void>;
+  receiveTask: (task: Task) => void;
+  removeTask: (conversationId: string, taskId: string) => void;
   reset: () => void;
+}
+
+export interface Task {
+  id: string;
+  conversationId: string;
+  messageId?: string | null;
+  content: string;
+  createdById: string;
+  createdBy: { id: string; name: string; avatarUrl: string | null };
+  isDone: boolean;
+  doneById?: string | null;
+  doneBy?: { id: string; name: string } | null;
+  doneAt?: string | null;
+  createdAt: string;
 }
 
 export const useChatStore = create<ChatStore>((set, get) => ({
@@ -79,6 +97,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   pinned: {},
   library: {},
   typing: {},
+  tasks: {},
   readAt: {},
   presence: {},
   searchActive: false,
@@ -454,6 +473,28 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   setSearchActive: (active) => set({ searchActive: active }),
 
   setPresence: (userId, status) => set((s) => ({ presence: { ...s.presence, [userId]: status } })),
+
+  loadTasks: async (conversationId) => {
+    try {
+      const tasks = await api<Task[]>(`/api/tasks/${conversationId}`);
+      set((s) => ({ tasks: { ...s.tasks, [conversationId]: tasks } }));
+    } catch {}
+  },
+
+  receiveTask: (task) => set((s) => {
+    const existing = s.tasks[task.conversationId] || [];
+    // If task is done, remove it; otherwise add/update
+    if (task.isDone) {
+      return { tasks: { ...s.tasks, [task.conversationId]: existing.filter((t) => t.id !== task.id) } };
+    }
+    const idx = existing.findIndex((t) => t.id === task.id);
+    const updated = idx >= 0 ? existing.map((t) => t.id === task.id ? task : t) : [...existing, task];
+    return { tasks: { ...s.tasks, [task.conversationId]: updated } };
+  }),
+
+  removeTask: (conversationId, taskId) => set((s) => ({
+    tasks: { ...s.tasks, [conversationId]: (s.tasks[conversationId] || []).filter((t) => t.id !== taskId) },
+  })),
 
   reset: () =>
     set({

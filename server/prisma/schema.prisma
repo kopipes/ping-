@@ -29,6 +29,8 @@ model User {
   auditLogs   AuditLog[]
   ownedConversations Conversation[]
   pushSubscriptions  PushSubscription[]
+  tasksCreated       Task[]             @relation("TaskCreatedBy")
+  tasksDone          Task[]             @relation("TaskDoneBy")
 }
 
 // ConversationType sebagai String: TOPIC | DM
@@ -173,4 +175,22 @@ model PushSubscription {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+// Task — pesan yang dijadikan task/action item di suatu conversation
+model Task {
+  id             String    @id @default(cuid())
+  conversationId String
+  messageId      String?   // pesan asal yang dijadikan task (opsional)
+  content        String    // isi task
+  createdById    String    // userId yang membuat task
+  isDone         Boolean   @default(false)
+  doneById       String?   // userId yang menyelesaikan task
+  doneAt         DateTime? // waktu task diselesaikan
+  createdAt      DateTime  @default(now())
+
+  createdBy      User         @relation("TaskCreatedBy", fields: [createdById], references: [id])
+  doneBy         User?        @relation("TaskDoneBy", fields: [doneById], references: [id])
+
+  @@index([conversationId, isDone])
 }

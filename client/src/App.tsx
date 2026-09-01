@@ -129,6 +129,18 @@ export default function App() {
         useChatStore.getState().setPresence(p.userId, p.status);
       });
 
+      // Track task events
+      const offTaskCreated = on("task:created", (p: { task: any }) => {
+        useChatStore.getState().receiveTask(p.task);
+      });
+      const offTaskDone = on("task:done", (p: { task: any }) => {
+        useChatStore.getState().receiveTask(p.task);
+      });
+      const offTaskDeleted = on("task:deleted", (p: { taskId: string }) => {
+        const { activeId } = useChatStore.getState();
+        if (activeId) useChatStore.getState().removeTask(activeId, p.taskId);
+      });
+
       return () => {
         offMessage();
         offEdited();
@@ -142,6 +154,9 @@ export default function App() {
         offReconnected();
         offReadUpdated();
         offPresence();
+        offTaskCreated();
+        offTaskDone();
+        offTaskDeleted();
       };
     }
   }, [user, loadSidebar, receiveMessage, receiveEdited, receiveRemoved, toggleTyping, toggleReaction, loadPinned]);

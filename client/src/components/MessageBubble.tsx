@@ -107,6 +107,7 @@ export function MessageBubble(props: {
   onEdit: (m: Message) => void;
   onDelete: (m: Message) => void;
   onPin: (m: Message) => void;
+  onCreateTask: (m: Message) => void;
   onRetry?: (m: Message) => void;
 }) {
   const { t } = useTranslation();
@@ -208,6 +209,7 @@ export function MessageBubble(props: {
                   {(isAdminish || canStaffPin) && (
                     <ActionItem label="Pin pesan" icon="📌" onClick={() => { setMenuOpen(false); props.onPin(message); }} />
                   )}
+                  {message.content && <ActionItem label="Jadikan Task" icon="📋" onClick={() => { setMenuOpen(false); props.onCreateTask(message); }} />}
                   <ActionItem label="Hapus" icon="🗑️" onClick={() => { setMenuOpen(false); props.onDelete(message); }} danger />
                 </div>
               </>,
@@ -473,6 +475,7 @@ export function MessageBubble(props: {
                 {(isAdminish || canStaffPin) && (
                   <ActionItem label="Pin pesan" icon="📌" onClick={() => { setMenuOpen(false); props.onPin(message); }} />
                 )}
+                {message.content && <ActionItem label="Jadikan Task" icon="📋" onClick={() => { setMenuOpen(false); props.onCreateTask(message); }} />}
                 {(isOwn || isAdminish) && <ActionItem label="Hapus" icon="🗑️" onClick={() => { setMenuOpen(false); props.onDelete(message); }} danger />}
               </div>
             </>
