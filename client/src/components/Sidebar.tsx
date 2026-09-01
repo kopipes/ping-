@@ -14,15 +14,19 @@ function formatLastTime(iso: string | null | undefined): string {
   if (!iso) return "";
   const d = new Date(iso);
   const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const yesterday = new Date(today.getTime() - 86400000);
-  const msgDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  if (msgDay.getTime() === today.getTime()) {
+  // Use local date strings for day comparison to avoid UTC offset issues
+  const dDate = d.toDateString();
+  const todayDate = now.toDateString();
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayDate = yesterday.toDateString();
+  if (dDate === todayDate) {
     return d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
   }
-  if (msgDay.getTime() === yesterday.getTime()) return "Kemarin";
-  // Within current week: show day name
-  if (now.getTime() - d.getTime() < 7 * 86400000) {
+  if (dDate === yesterdayDate) return "Kemarin";
+  // Within last 6 days: show day name
+  const diffDays = Math.floor((now.getTime() - d.getTime()) / 86400000);
+  if (diffDays < 7) {
     return d.toLocaleDateString("id-ID", { weekday: "short" });
   }
   return d.toLocaleDateString("id-ID", { day: "numeric", month: "short" });

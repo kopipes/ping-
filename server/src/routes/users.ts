@@ -185,4 +185,28 @@ export async function userRoutes(app: FastifyInstance) {
       return memberships.map((m) => m.conversation);
     }
   );
+
+  // GET /presence — return online status for all DM partners
+  app.get("/presence", async (req) => {
+    const userId = req.user.id;
+    // Find all DM partners
+    const dmMemberships = await prisma.conversationMember.findMany({
+      where: { userId, conversation: { type: "DM" } },
+      include: { conversation: { include: { members: { select: { userId: true } } } } },
+    });
+    const partnerIds = new Set<string>();
+    for (const m of dmMemberships) {
+      for (const member of m.conversation.members) {
+        if (member.userId !== userId) partnerIds.add(member.userId);
+      }
+    }
+    if (partnerIds.size === 0) return {};
+    const users = await prisma.user.findMany({
+      where: { id: { in: [...partnerIds] } },
+      select: { id: true, status: true },
+    });
+    const result: Record<string, string> = {};
+    for (const u of users) result[u.id] = u.status || "offline";
+    return result;
+  });
 }

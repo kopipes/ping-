@@ -101,6 +101,10 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       });
       if (data.dms) data.dms.forEach((c) => c.id && allIds.push(c.id));
       allIds.forEach((id) => joinConversation(id));
+      // Fetch initial presence for DM partners
+      api<Record<string, string>>("/api/users/presence").then((presenceMap) => {
+        set({ presence: presenceMap });
+      }).catch(() => {});
     } catch {
       set({ sidebarLoading: false });
     }
