@@ -79,7 +79,9 @@ export function Layout() {
           ) : showChat ? (
             <div className="h-full flex flex-col" data-area="chat"><ChatView /></div>
           ) : profileOpen ? (
-            <ProfileView onClose={() => setProfileOpen(false)} />
+            <div className="h-full flex flex-col overflow-hidden">
+              <ProfileView onClose={() => setProfileOpen(false)} />
+            </div>
           ) : railView === "search" || searchActive ? (
             <SearchView />
           ) : (
