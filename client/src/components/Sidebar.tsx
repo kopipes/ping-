@@ -14,22 +14,21 @@ function formatLastTime(iso: string | null | undefined): string {
   if (!iso) return "";
   const d = new Date(iso);
   const now = new Date();
-  // Use local date strings for day comparison to avoid UTC offset issues
-  const dDate = d.toDateString();
-  const todayDate = now.toDateString();
-  const yesterday = new Date(now);
-  yesterday.setDate(yesterday.getDate() - 1);
-  const yesterdayDate = yesterday.toDateString();
+  // Use WIB (UTC+7) for date comparisons
+  const toWIBDate = (dt: Date) => {
+    const wib = new Date(dt.getTime() + 7 * 60 * 60 * 1000);
+    return `${wib.getUTCFullYear()}-${wib.getUTCMonth()}-${wib.getUTCDate()}`;
+  };
+  const dDate = toWIBDate(d);
+  const todayDate = toWIBDate(now);
+  const yesterday = new Date(now.getTime() - 86400000);
+  const yesterdayDate = toWIBDate(yesterday);
+
   if (dDate === todayDate) {
-    return d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+    return d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Jakarta" });
   }
   if (dDate === yesterdayDate) return "Kemarin";
-  // Within last 6 days: show day name
-  const diffDays = Math.floor((now.getTime() - d.getTime()) / 86400000);
-  if (diffDays < 7) {
-    return d.toLocaleDateString("id-ID", { weekday: "short" });
-  }
-  return d.toLocaleDateString("id-ID", { day: "numeric", month: "short" });
+  return d.toLocaleDateString("id-ID", { day: "numeric", month: "short", timeZone: "Asia/Jakarta" });
 }
 
 function Avatar({
