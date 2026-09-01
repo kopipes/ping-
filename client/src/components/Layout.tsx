@@ -71,7 +71,7 @@ export function Layout() {
     const showChat = chatOpen && !!activeId && !adminOpen;
     const showBottomNav = !showChat && !adminOpen;
     return (
-      <div className="h-full flex flex-col bg-appbg relative overflow-x-hidden">
+      <div className="h-full flex flex-col bg-appbg relative overflow-hidden">
         {/* Main content — fills space above bottom nav */}
         <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
           {adminOpen ? (
