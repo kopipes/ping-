@@ -269,6 +269,14 @@ export function setupSocket(io: Server) {
           userId,
           status: "offline",
         });
+        // Notify DM partners in their conversation rooms
+        const dmMemberships = await prisma.conversationMember.findMany({
+          where: { userId, conversation: { type: "DM" } },
+          select: { conversationId: true },
+        });
+        for (const m of dmMemberships) {
+          io.to(roomOf(m.conversationId)).emit("presence:update", { userId, status: "offline" });
+        }
       }
     });
 
@@ -277,6 +285,15 @@ export function setupSocket(io: Server) {
       try {
         await prisma.user.update({ where: { id: userId }, data: { status: "online" } });
         socket.to(userRoomOf(userId)).emit("presence:update", { userId, status: "online" });
+
+        // Notify DM partners in their conversation rooms
+        const dmMemberships = await prisma.conversationMember.findMany({
+          where: { userId, conversation: { type: "DM" } },
+          select: { conversationId: true },
+        });
+        for (const m of dmMemberships) {
+          socket.to(roomOf(m.conversationId)).emit("presence:update", { userId, status: "online" });
+        }
 
         const memberships = await prisma.conversationMember.findMany({
           where: { userId },
