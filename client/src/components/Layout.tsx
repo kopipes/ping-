@@ -49,7 +49,7 @@ export function Layout() {
           ) : railView === "search" || searchActive ? (
             <SearchView />
           ) : (
-            <div className="h-full flex flex-col" data-area="sidebar"><Sidebar /></div>
+            <div className="h-full flex flex-col" data-area="sidebar" style={{ fontSize: "var(--sidebar-font-size, 15px)" }}><Sidebar /></div>
           )}
         </div>
 
@@ -70,7 +70,7 @@ export function Layout() {
       {/* Sidebar — topics or DMs depending on rail selection */}
       <div className="flex flex-col min-h-0 shrink-0 border-r border-border"
         data-area="sidebar"
-        style={{ width: "var(--sidebar-width, 240px)", background: "var(--color-sidebar-bg, #1A2540)" }}>
+        style={{ width: "var(--sidebar-width, 240px)", background: "var(--color-sidebar-bg, #1A2540)", fontSize: "var(--sidebar-font-size, 15px)" }}>
         <Sidebar />
       </div>
 

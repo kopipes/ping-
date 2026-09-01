@@ -155,28 +155,29 @@ function WaItem({
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-1">
           <span
-            className="truncate text-sm"
-            style={{ color: textActive, fontWeight: unread || active ? 600 : 500 }}
+            className="truncate"
+            style={{ color: textActive, fontWeight: unread || active ? 600 : 500, fontSize: "1em" }}
           >
             {label}
           </span>
           {timestamp && (
-            <span className="text-[10px] shrink-0 tabular-nums" style={{ color: unread ? (active ? "rgba(255,255,255,0.85)" : "var(--color-brand-400, #7B93FF)") : textMuted }}>
+            <span className="shrink-0 tabular-nums" style={{ color: unread ? (active ? "rgba(255,255,255,0.85)" : "var(--color-brand-400, #7B93FF)") : textMuted, fontSize: "0.72em" }}>
               {timestamp}
             </span>
           )}
         </div>
         <div className="flex items-center justify-between gap-1 mt-0.5">
           <span
-            className="truncate text-[12px] leading-snug"
-            style={{ color: textMuted, fontWeight: unread && !active ? 500 : 400 }}
+            className="truncate leading-snug"
+            style={{ color: textMuted, fontWeight: unread && !active ? 500 : 400, fontSize: "0.85em" }}
           >
             {previewText || "\u00A0"}
           </span>
           {(unreadCount ?? 0) > 0 && (
             <span
-              className="shrink-0 text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none"
+              className="shrink-0 font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none"
               style={{
+                fontSize: "0.72em",
                 background: active ? "rgba(255,255,255,0.9)" : "var(--color-brand-500, #3B5BFA)",
                 color: active ? "var(--color-brand-600, #2E46E0)" : "#FFFFFF",
               }}
