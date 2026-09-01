@@ -34,8 +34,8 @@ export default defineConfig({
       workbox: {
         navigateFallback: "/index.html",
         globPatterns: ["**/*.{js,css,html,svg,png,ico,woff2}"],
-        // Inject custom push SW so it shares the same service worker scope
         importScripts: ["sw-push.js"],
+        additionalManifestEntries: [{ url: "/index.html", revision: Date.now().toString() }],
       },
     }),
   ],
