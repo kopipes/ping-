@@ -516,7 +516,7 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
                     if (!isArchived) onClose();
                   } catch (e: any) { toast(e?.message || "Gagal archive"); }
                 }}
-                className={`w-full h-9 rounded-lg text-sm font-semibold transition border ${
+                className={`w-full h-9 rounded-lg text-sm font-semibold transition border mt-2 ${
                   (convo as any)?.isArchived
                     ? "bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
                     : "bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100"
@@ -527,7 +527,7 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
               {!(convo as any)?.isPinnedTop && (
                 <button
                   onClick={deleteConversation}
-                  className="w-full h-9 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm font-semibold hover:bg-red-100 transition">
+                  className="w-full h-9 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm font-semibold hover:bg-red-100 transition mt-2">
                   🗑 Hapus Group Permanen
                 </button>
               )}
