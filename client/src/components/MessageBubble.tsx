@@ -14,6 +14,42 @@ import type { Message } from "../types";
 
 const EMOJIS = ["👍", "❤️", "😂", "🎉", "😮", "✅"];
 
+// ── Image Lightbox ─────────────────────────────────────────────────────────────
+function ImageLightbox({ src, alt, onClose }: { src: string; alt: string; onClose: () => void }) {
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onClose]);
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center"
+      onClick={onClose}
+    >
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white text-xl transition"
+      >✕</button>
+      <img
+        src={src}
+        alt={alt}
+        className="max-w-[92vw] max-h-[90vh] object-contain rounded-lg shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      />
+      <a
+        href={src}
+        download
+        onClick={(e) => e.stopPropagation()}
+        className="absolute bottom-4 right-4 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm transition"
+      >
+        ⬇ Download
+      </a>
+    </div>,
+    document.body
+  );
+}
+
 export function formatMessageTime(iso: string) {
   const d = new Date(iso);
   return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -64,6 +100,7 @@ export function MessageBubble(props: {
   const readAt = useChatStore((s) => s.readAt[message.conversationId] ?? EMPTY_READ_AT);
   const openForward = useUIStore((s) => s.openForward);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
   const menuBtnRef = useRef<HTMLButtonElement>(null);
   const [menuPos, setMenuPos] = useState({ top: 0, left: 0 });
 
@@ -187,9 +224,9 @@ export function MessageBubble(props: {
             {attachments.filter((a) => a.type === "IMAGE").length > 0 && (
               <div className="flex flex-wrap gap-1 p-1 justify-end">
                 {attachments.filter((a) => a.type === "IMAGE").map((a) => (
-                  <a key={a.id} href={assetUrl(a.fileUrl)} target="_blank" rel="noreferrer">
-                    <img src={assetUrl(a.thumbnailUrl || a.fileUrl)} alt={a.fileName || ""} className="rounded-xl max-h-56 max-w-xs object-cover" loading="lazy" />
-                  </a>
+                  <button key={a.id} onClick={() => setLightboxSrc(assetUrl(a.fileUrl))} className="focus:outline-none">
+                    <img src={assetUrl(a.thumbnailUrl || a.fileUrl)} alt={a.fileName || ""} className="rounded-xl max-h-56 max-w-xs object-cover hover:opacity-90 transition" loading="lazy" />
+                  </button>
                 ))}
               </div>
             )}
@@ -263,6 +300,7 @@ export function MessageBubble(props: {
 
   // ── Others' messages: left-aligned bubble ────────────────────────────────
   return (
+    <>
     <div className={`msg-row ${isFailed ? "bg-red-50" : ""}`}>
       {/* Avatar col */}
       <div className="w-9 shrink-0 pt-0.5">
@@ -317,10 +355,10 @@ export function MessageBubble(props: {
             {attachments.filter((a) => a.type === "IMAGE").length > 0 && (
               <div className="flex flex-wrap gap-2 mb-2">
                 {attachments.filter((a) => a.type === "IMAGE").map((a) => (
-                  <a key={a.id} href={assetUrl(a.fileUrl)} target="_blank" rel="noreferrer">
+                  <button key={a.id} onClick={() => setLightboxSrc(assetUrl(a.fileUrl))} className="focus:outline-none">
                     <img src={assetUrl(a.thumbnailUrl || a.fileUrl)} alt={a.fileName || "image"}
-                      className="rounded-lg max-h-56 max-w-xs border border-border/30 object-cover" loading="lazy" />
-                  </a>
+                      className="rounded-lg max-h-56 max-w-xs border border-border/30 object-cover hover:opacity-90 transition" loading="lazy" />
+                  </button>
                 ))}
               </div>
             )}
@@ -422,6 +460,8 @@ export function MessageBubble(props: {
         </div>
       )}
     </div>
+    {lightboxSrc && <ImageLightbox src={lightboxSrc} alt="" onClose={() => setLightboxSrc(null)} />}
+    </>
   );
 }
 
