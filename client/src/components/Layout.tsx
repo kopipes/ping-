@@ -75,7 +75,7 @@ export function Layout() {
         {/* Main content — fills space above bottom nav */}
         <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
           {adminOpen ? (
-            <AdminPanel />
+            <div className="h-full flex flex-col overflow-hidden"><AdminPanel /></div>
           ) : showChat ? (
             <div className="h-full flex flex-col" data-area="chat"><ChatView /></div>
           ) : profileOpen ? (
@@ -83,7 +83,7 @@ export function Layout() {
               <ProfileView onClose={() => setProfileOpen(false)} />
             </div>
           ) : railView === "search" || searchActive ? (
-            <SearchView />
+            <div className="h-full flex flex-col overflow-hidden"><SearchView /></div>
           ) : (
             <div className="h-full flex flex-col" data-area="sidebar" style={{ fontSize: "var(--sidebar-font-size, 15px)" }}><Sidebar /></div>
           )}
