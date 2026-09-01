@@ -302,13 +302,17 @@ export function ChatView() {
           {editing && (
             <div className="shrink-0 mx-4 mb-2 p-3 rounded-xl border border-warning bg-warning/5">
               <div className="text-xs text-warning font-semibold mb-1.5">✏️ Mengedit pesan</div>
-              <div className="flex gap-2">
-                <input className="input-base flex-1 !py-1.5 text-sm" value={editText}
-                  onChange={(e) => setEditText(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submitEdit(); } if (e.key === "Escape") setEditing(null); }}
-                  autoFocus />
-                <button onClick={submitEdit} className="px-3 h-8 rounded bg-primary text-white text-sm font-semibold hover:bg-primaryhover">Simpan</button>
+              <textarea
+                className="input-base w-full text-sm resize-none mb-2"
+                value={editText}
+                rows={Math.min(6, Math.max(2, editText.split("\n").length))}
+                onChange={(e) => setEditText(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submitEdit(); } if (e.key === "Escape") setEditing(null); }}
+                autoFocus
+              />
+              <div className="flex gap-2 justify-end">
                 <button onClick={() => setEditing(null)} className="px-3 h-8 rounded border border-border text-sm text-textm">Batal</button>
+                <button onClick={submitEdit} className="px-3 h-8 rounded bg-primary text-white text-sm font-semibold hover:bg-primaryhover">Simpan</button>
               </div>
             </div>
           )}
