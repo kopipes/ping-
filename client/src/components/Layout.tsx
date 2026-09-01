@@ -29,6 +29,7 @@ export function Layout() {
   const chatOpen = useUIStore((s) => s.chatOpen);
   const setChatOpen = useUIStore((s) => s.setChatOpen);
   const adminOpen = useUIStore((s) => s.adminOpen);
+  const setAdminOpen = useUIStore((s) => s.setAdminOpen);
   const profileOpen = useUIStore((s) => s.profileOpen);
   const setProfileOpen = useUIStore((s) => s.setProfileOpen);
   const forwardTarget = useUIStore((s) => s.forwardTarget);
@@ -43,17 +44,28 @@ export function Layout() {
     }
   }, [chatOpen, activeId, isDesktop]);
 
+  // Mobile: push history entry when admin opens so back button closes it
+  useEffect(() => {
+    if (isDesktop) return;
+    if (adminOpen) {
+      window.history.pushState({ admin: true }, "");
+    }
+  }, [adminOpen, isDesktop]);
+
   useEffect(() => {
     if (isDesktop) return;
     const handler = (e: PopStateEvent) => {
-      if (chatOpen) {
+      if (adminOpen) {
+        setAdminOpen(false);
+        e.preventDefault();
+      } else if (chatOpen) {
         setChatOpen(false);
         e.preventDefault();
       }
     };
     window.addEventListener("popstate", handler);
     return () => window.removeEventListener("popstate", handler);
-  }, [chatOpen, setChatOpen, isDesktop]);
+  }, [chatOpen, adminOpen, setChatOpen, setAdminOpen, isDesktop]);
 
   if (!isDesktop) {
     const showChat = chatOpen && !!activeId && !adminOpen;
