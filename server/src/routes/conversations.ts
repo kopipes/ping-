@@ -459,8 +459,17 @@ export async function conversationRoutes(app: FastifyInstance) {
     const isAdmin = user?.role === "SUPER_ADMIN" || user?.role === "ADMIN";
     const isOwner = conv.ownerId === req.user.id;
     const isSubTopic = !!conv.parentId;
-    const canArchiveSub = isOwner && isSubTopic;
-    if (!isAdmin && !canArchiveSub) {
+    // Check if user is MANAGER in parent group
+    let isParentManager = false;
+    if (isSubTopic && conv.parentId) {
+      const parentMembership = await prisma.conversationMember.findUnique({
+        where: { conversationId_userId: { conversationId: conv.parentId, userId: req.user.id } },
+        select: { role: true },
+      });
+      isParentManager = parentMembership?.role === "MANAGER" || parentMembership?.role === "ADMIN";
+    }
+    const canArchiveSub = isSubTopic && (isOwner || isParentManager);
+    if (!isAdmin && !canArchiveSub && !isOwner) {
       reply.code(403).send({ error: "Tidak punya izin archive topic" });
       return;
     }

@@ -520,16 +520,28 @@ function InviteModal({ onClose }: { onClose: () => void }) {
 // ─── Topics Tab ───────────────────────────────────────────────────────────────
 function TopicsTab() {
   const [topics, setTopics] = useState<Topic[]>([]);
+  const [archivedTopics, setArchivedTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showArchived, setShowArchived] = useState(false);
   const [managingId, setManagingId] = useState<string | null>(null);
   const { toast, confirm } = useModal();
 
   const load = () => {
     setLoading(true);
-    api<{ level1: Topic[]; pinnedTop: Topic[] }>("/api/conversations")
-      .then((d) => {
-        const all = [...(d.pinnedTop || []), ...(d.level1 || [])];
-        setTopics(all);
+    Promise.all([
+      api<{ level1: Topic[]; pinnedTop: Topic[] }>("/api/conversations"),
+      api<{ level1: Topic[]; pinnedTop: Topic[] }>("/api/conversations?includeArchived=true"),
+    ]).then(([active, all]) => {
+        const activeAll = [...(active.pinnedTop || []), ...(active.level1 || [])];
+        const allAll = [...(all.pinnedTop || []), ...(all.level1 || [])];
+        // Also include subTopics
+        const activeWithSubs: Topic[] = [];
+        activeAll.forEach((t) => { activeWithSubs.push(t); (t as any).subTopics?.forEach((s: any) => activeWithSubs.push(s)); });
+        const allWithSubs: Topic[] = [];
+        allAll.forEach((t) => { allWithSubs.push(t); (t as any).subTopics?.forEach((s: any) => allWithSubs.push(s)); });
+        const activeIds = new Set(activeWithSubs.map((t) => t.id));
+        setTopics(activeWithSubs);
+        setArchivedTopics(allWithSubs.filter((t) => !activeIds.has(t.id) && t.isArchived));
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -590,11 +602,18 @@ function TopicsTab() {
   return (
     <div className="p-5">
       <div className="flex items-center justify-between mb-4">
-        <SectionTitle>Semua Group ({topics.length})</SectionTitle>
+        <SectionTitle>Semua Group ({showArchived ? archivedTopics.length : topics.length})</SectionTitle>
+        <button
+          onClick={() => setShowArchived((v) => !v)}
+          className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition ${
+            showArchived ? "bg-amber-50 border-amber-200 text-amber-700" : "bg-hover border-border text-textm hover:bg-hover"
+          }`}>
+          {showArchived ? "📦 Archived" : "✅ Aktif"}
+        </button>
       </div>
       {loading ? <LoadingSpinner /> : (
         <div className="border border-border rounded-xl overflow-hidden">
-          {topics.map((t, i) => (
+          {(showArchived ? archivedTopics : topics).map((t, i) => (
             <div key={t.id} className={`flex items-center gap-2 px-4 py-3 flex-wrap ${i % 2 ? "bg-hover/50" : ""}`}>
               <span className="text-xl shrink-0">{t.icon || (t.type === "DM" ? "💬" : "📁")}</span>
               <div className="flex-1 min-w-0">
