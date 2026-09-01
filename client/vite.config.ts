@@ -35,7 +35,6 @@ export default defineConfig({
         navigateFallback: "/index.html",
         globPatterns: ["**/*.{js,css,html,svg,png,ico,woff2}"],
         importScripts: ["sw-push.js"],
-        additionalManifestEntries: [{ url: "/index.html", revision: Date.now().toString() }],
       },
     }),
   ],
