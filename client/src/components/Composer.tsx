@@ -127,6 +127,16 @@ export function Composer({
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
             }}
+            onPaste={(e) => {
+              const items = Array.from(e.clipboardData.items);
+              const imageItems = items.filter((i) => i.kind === "file" && i.type.startsWith("image/"));
+              if (imageItems.length === 0) return;
+              e.preventDefault();
+              const files = imageItems.map((i) => i.getAsFile()).filter(Boolean) as File[];
+              const dt = new DataTransfer();
+              files.forEach((f) => dt.items.add(f));
+              onPickFile(dt.files);
+            }}
           />
         </div>
 
