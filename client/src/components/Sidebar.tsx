@@ -156,7 +156,7 @@ function WaItem({
         <div className="flex items-center justify-between gap-1">
           <span
             className="truncate"
-            style={{ color: textActive, fontWeight: unread || active ? 600 : 500, fontSize: "1em" }}
+            style={{ color: textActive, fontWeight: unread || active ? 600 : 500, fontSize: indent ? "0.88em" : "1em" }}
           >
             {label}
           </span>
