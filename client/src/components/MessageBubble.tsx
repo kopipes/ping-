@@ -22,44 +22,55 @@ function ImageLightbox({ src, alt, onClose }: { src: string; alt: string; onClos
     return () => window.removeEventListener("keydown", handler);
   }, [onClose]);
 
-  // Attach to a portal root outside any zoom container
-  const [portalEl] = useState(() => {
-    let el = document.getElementById("lightbox-root");
-    if (!el) {
-      el = document.createElement("div");
-      el.id = "lightbox-root";
-      el.style.cssText = "position:fixed;inset:0;z-index:9999;pointer-events:none;";
-      document.body.appendChild(el);
-    }
-    return el;
-  });
-
   return createPortal(
     <div
-      style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.92)", display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "all" }}
+      style={{
+        position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+        zIndex: 9999, background: "rgba(0,0,0,0.92)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+      }}
       onClick={onClose}
     >
+      {/* Close button */}
       <button
-        onClick={onClose}
-        style={{ position: "absolute", top: 16, right: 16, width: 40, height: 40, borderRadius: "50%", background: "rgba(255,255,255,0.15)", border: "none", color: "white", fontSize: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+        onClick={(e) => { e.stopPropagation(); onClose(); }}
+        style={{
+          position: "absolute", top: 16, right: 16,
+          width: 40, height: 40, borderRadius: "50%",
+          background: "rgba(255,255,255,0.2)", border: "none",
+          color: "white", fontSize: 18, cursor: "pointer",
+        }}
       >✕</button>
+
+      {/* Image — stopPropagation so clicking it doesn't close */}
       <img
         src={src}
         alt={alt}
-        style={{ maxWidth: "92vw", maxHeight: "88vh", display: "block", objectFit: "contain", borderRadius: 8, boxShadow: "0 8px 32px rgba(0,0,0,0.5)" }}
         onClick={(e) => e.stopPropagation()}
+        style={{
+          display: "block",
+          maxWidth: "90vw",
+          maxHeight: "85vh",
+          objectFit: "contain",
+          borderRadius: 8,
+        }}
       />
+
+      {/* Open full size in new tab */}
       <a
         href={src}
         target="_blank"
-        rel="noreferrer"
+        rel="noopener noreferrer"
         onClick={(e) => e.stopPropagation()}
-        style={{ position: "absolute", bottom: 16, right: 16, padding: "8px 16px", borderRadius: 8, background: "rgba(255,255,255,0.15)", color: "white", textDecoration: "none", fontSize: 14 }}
-      >
-        ⬇ Download
-      </a>
+        style={{
+          position: "absolute", bottom: 16, right: 16,
+          padding: "8px 14px", borderRadius: 8,
+          background: "rgba(255,255,255,0.2)",
+          color: "white", textDecoration: "none", fontSize: 13,
+        }}
+      >Buka ukuran penuh ↗</a>
     </div>,
-    portalEl
+    document.body
   );
 }
 
