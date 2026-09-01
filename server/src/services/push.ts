@@ -95,8 +95,9 @@ export async function sendPushToUser(userId: string, payload: PushPayload) {
 }
 
 /**
- * Kirim push notification ke semua member suatu conversation yang sedang offline,
+ * Kirim push notification ke semua member suatu conversation,
  * kecuali pengirim pesan itu sendiri.
+ * Status online/offline diabaikan — browser/OS yang menentukan apakah notif ditampilkan.
  */
 export async function notifyConversationMembers(params: {
   conversationId: string;
@@ -115,22 +116,16 @@ export async function notifyConversationMembers(params: {
     hasAttachment,
   } = params;
 
-  // Cari semua member conversation yang bukan pengirim dan statusnya offline
+  // Cari semua member conversation yang bukan pengirim
   const members = await prisma.conversationMember.findMany({
     where: {
       conversationId,
       userId: { not: senderUserId },
     },
-    include: {
-      user: { select: { id: true, status: true } },
-    },
+    select: { userId: true },
   });
 
-  const offlineMembers = members.filter(
-    (m) => m.user.status === "offline" || m.user.status === "away"
-  );
-
-  if (offlineMembers.length === 0) return;
+  if (members.length === 0) return;
 
   // Susun body notifikasi
   let body: string;
@@ -153,6 +148,6 @@ export async function notifyConversationMembers(params: {
   };
 
   await Promise.allSettled(
-    offlineMembers.map((m) => sendPushToUser(m.user.id, payload))
+    members.map((m) => sendPushToUser(m.userId, payload))
   );
 }
