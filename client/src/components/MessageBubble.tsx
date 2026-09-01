@@ -22,9 +22,21 @@ function ImageLightbox({ src, alt, onClose }: { src: string; alt: string; onClos
     return () => window.removeEventListener("keydown", handler);
   }, [onClose]);
 
+  // Attach to a portal root outside any zoom container
+  const [portalEl] = useState(() => {
+    let el = document.getElementById("lightbox-root");
+    if (!el) {
+      el = document.createElement("div");
+      el.id = "lightbox-root";
+      el.style.cssText = "position:fixed;inset:0;z-index:9999;pointer-events:none;";
+      document.body.appendChild(el);
+    }
+    return el;
+  });
+
   return createPortal(
     <div
-      style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.92)", display: "flex", alignItems: "center", justifyContent: "center" }}
+      style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.92)", display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "all" }}
       onClick={onClose}
     >
       <button
@@ -47,7 +59,7 @@ function ImageLightbox({ src, alt, onClose }: { src: string; alt: string; onClos
         ⬇ Download
       </a>
     </div>,
-    document.body
+    portalEl
   );
 }
 
