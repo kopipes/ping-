@@ -336,6 +336,30 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
             </section>
           )}
 
+          {/* ── Sub-groups section (level1 topics only) ── */}
+          {!isDM && !convo?.parentId && (convo?.subTopics?.length ?? 0) > 0 && (
+            <section className="px-5 py-4 border-b border-gray-100">
+              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                Sub-group ({convo!.subTopics!.length})
+              </h3>
+              <div className="space-y-1">
+                {convo!.subTopics!.map((sub) => (
+                  <button
+                    key={sub.id}
+                    onClick={() => { openConversation(sub.id); onClose(); }}
+                    className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-gray-50 transition text-left"
+                  >
+                    <span className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-base shrink-0 bg-gray-50">
+                      {sub.icon || "#"}
+                    </span>
+                    <span className="flex-1 min-w-0 text-sm font-medium text-gray-800 truncate">{sub.name}</span>
+                    <svg className="w-4 h-4 text-gray-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="m9 18 6-6-6-6"/></svg>
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
+
           {/* ── Members section ── */}
           <section className="px-5 py-4">
             <div className="flex items-center justify-between mb-3">
