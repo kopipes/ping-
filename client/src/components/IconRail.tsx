@@ -109,12 +109,12 @@ export function IconRail({ variant = "side" }: { variant?: "side" | "bottom" }) 
         <img
           src={apiUrl(user.avatarUrl)}
           alt={user.name}
-          style={{ width: variant === "bottom" ? 26 : 24, height: variant === "bottom" ? 26 : 24, objectFit: "cover" }}
+          style={{ width: variant === "bottom" ? 30 : 24, height: variant === "bottom" ? 30 : 24, objectFit: "cover" }}
         />
       ) : (
         <span style={{
-          width: variant === "bottom" ? 28 : 27,
-          height: variant === "bottom" ? 28 : 27,
+          width: variant === "bottom" ? 32 : 27,
+          height: variant === "bottom" ? 32 : 27,
           background: "var(--color-rail-bg-active)",
           color: "var(--color-rail-icon-active, #fff)",
           display: "flex",
