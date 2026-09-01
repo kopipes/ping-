@@ -34,8 +34,10 @@ function ImageLightbox({ src, alt, onClose }: { src: string; alt: string; onClos
       <img
         src={src}
         alt={alt}
-        className="max-w-[92vw] max-h-[90vh] object-contain rounded-lg shadow-2xl"
+        style={{ maxWidth: "92vw", maxHeight: "90vh", display: "block", objectFit: "contain" }}
+        className="rounded-lg shadow-2xl"
         onClick={(e) => e.stopPropagation()}
+        onError={(e) => { (e.target as HTMLImageElement).style.border = "2px solid red"; }}
       />
       <a
         href={src}
