@@ -32,17 +32,25 @@ function ImageLightbox({ src, alt, onClose }: { src: string; alt: string; onClos
     closeBtn.style.cssText = "position:absolute;top:16px;right:16px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.2);border:none;color:white;font-size:18px;cursor:pointer;";
     closeBtn.onclick = (e) => { e.stopPropagation(); onClose(); };
 
-    const openLink = document.createElement("a");
-    openLink.href = src;
-    openLink.target = "_blank";
-    openLink.rel = "noopener noreferrer";
-    openLink.textContent = "Buka ukuran penuh ↗";
-    openLink.style.cssText = "position:absolute;bottom:16px;right:16px;padding:8px 14px;border-radius:8px;background:rgba(255,255,255,0.2);color:white;text-decoration:none;font-size:13px;";
-    openLink.onclick = (e) => e.stopPropagation();
+    const downloadBtn = document.createElement("button");
+    downloadBtn.textContent = "⬇ Download";
+    downloadBtn.style.cssText = "position:absolute;bottom:16px;right:16px;padding:8px 14px;border-radius:8px;background:rgba(255,255,255,0.2);border:none;color:white;font-size:13px;cursor:pointer;";
+    downloadBtn.onclick = (e) => {
+      e.stopPropagation();
+      fetch(src)
+        .then((r) => r.blob())
+        .then((blob) => {
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(blob);
+          a.download = src.split("/").pop() || "image";
+          a.click();
+          URL.revokeObjectURL(a.href);
+        });
+    };
 
     overlay.appendChild(img);
     overlay.appendChild(closeBtn);
-    overlay.appendChild(openLink);
+    overlay.appendChild(downloadBtn);
     overlay.onclick = () => onClose();
 
     document.body.appendChild(overlay);
