@@ -42,18 +42,22 @@ export async function messageRoutes(app: FastifyInstance) {
       return;
     }
 
-    // FR-5.4: batas waktu 15 menit untuk edit/delete oleh pengirim biasa
+    // FR-5.4: batas waktu 15 menit untuk edit/delete oleh pengirim biasa (admin bypass)
     if (who === "self") {
-      const mins = (Date.now() - message.createdAt.getTime()) / 60000;
-      if (mins > EDIT_WINDOW_MINUTES) {
-        reply.code(403).send({
-          error: `Batas ${EDIT_WINDOW_MINUTES} menit untuk edit/delete pesan telah lewat`,
-        });
-        return;
+      const user = await prisma.user.findUnique({ where: { id: req.user.id }, select: { role: true } });
+      const isAdmin = user?.role === "ADMIN" || user?.role === "SUPER_ADMIN";
+      if (!isAdmin) {
+        const mins = (Date.now() - message.createdAt.getTime()) / 60000;
+        if (mins > EDIT_WINDOW_MINUTES) {
+          reply.code(403).send({
+            error: `Batas ${EDIT_WINDOW_MINUTES} menit untuk edit/delete pesan telah lewat`,
+          });
+          return;
+        }
       }
     }
 
-    const updated = await prisma.message.update({
+    await prisma.message.update({
       where: { id },
       data: { content: body.content, isEdited: true },
     });
@@ -98,12 +102,16 @@ export async function messageRoutes(app: FastifyInstance) {
         },
       });
     } else {
-      const mins = (Date.now() - message.createdAt.getTime()) / 60000;
-      if (mins > EDIT_WINDOW_MINUTES) {
-        reply.code(403).send({
-          error: `Batas ${EDIT_WINDOW_MINUTES} menit untuk edit/delete pesan telah lewat`,
-        });
-        return;
+      const user = await prisma.user.findUnique({ where: { id: req.user.id }, select: { role: true } });
+      const isAdmin = user?.role === "ADMIN" || user?.role === "SUPER_ADMIN" || user?.role === "MANAGER";
+      if (!isAdmin) {
+        const mins = (Date.now() - message.createdAt.getTime()) / 60000;
+        if (mins > EDIT_WINDOW_MINUTES) {
+          reply.code(403).send({
+            error: `Batas ${EDIT_WINDOW_MINUTES} menit untuk edit/delete pesan telah lewat`,
+          });
+          return;
+        }
       }
     }
 
