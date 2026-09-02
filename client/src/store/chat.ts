@@ -391,14 +391,48 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   },
 
   receiveRemoved: (conversationId, messageId) => {
-    set((s) => ({
-      messages: {
-        ...s.messages,
-        [conversationId]: (s.messages[conversationId] || []).map((m) =>
-          m.id === messageId ? { ...m, isDeleted: true } : m
-        ),
-      },
-    }));
+    set((s) => {
+      const list = s.messages[conversationId] || [];
+      const updatedList = list.map((m) =>
+        m.id === messageId ? { ...m, isDeleted: true } : m
+      );
+
+      // If deleted message was the last visible one, update sidebar preview to previous
+      let sidebar = s.sidebar;
+      const nonDeleted = updatedList.filter((m) => !m.isDeleted);
+      const prev = nonDeleted[nonDeleted.length - 1];
+      // Check if the deleted message was the last message showing in sidebar
+      const wasLast = list.findIndex((m) => m.id === messageId) === list.length - 1
+        || list.slice(list.findIndex((m) => m.id === messageId) + 1).every((m) => m.isDeleted);
+
+      if (sidebar && wasLast) {
+        const bump = (items: SidebarDataItem[] | undefined): SidebarDataItem[] =>
+          (items || []).map((it) =>
+            ilConv(it, conversationId)
+              ? {
+                  ...it,
+                  lastMessageAt: prev?.createdAt ?? null,
+                  lastMessageText: prev ? (prev.content ?? null) : null,
+                  lastMessageSender: prev?.user?.name ?? null,
+                }
+              : {
+                  ...it,
+                  subTopics: it.subTopics ? bump(it.subTopics) : it.subTopics,
+                }
+          );
+        sidebar = {
+          ...sidebar,
+          pinnedTop: bump(sidebar.pinnedTop),
+          level1: bump(sidebar.level1),
+          dms: bump(sidebar.dms),
+        };
+      }
+
+      return {
+        messages: { ...s.messages, [conversationId]: updatedList },
+        sidebar,
+      };
+    });
   },
 
   search: async (q, scope = "global") => {
