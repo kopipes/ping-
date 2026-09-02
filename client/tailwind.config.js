@@ -4,30 +4,30 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Sidebar — Midnight Navy (exact from design system)
-        sb:         "#1A2540",
-        "sb-hover": "rgba(255,255,255,0.07)",
-        "sb-active":"rgba(255,255,255,0.13)",
-        "sb-text":  "rgba(255,255,255,0.62)",
-        "sb-white": "#FFFFFF",
-        // Main area — light surfaces
-        appbg:      "#F8F9FC",
-        "ch-bg":    "#FFFFFF",
-        hover:      "#F1F2F6",
-        border:     "#E5E7EF",
-        // Text — warm slate
-        textp:      "#14151F",
-        texts:      "#6E7284",
-        textm:      "#9A9FB0",
-        // Brand — Signal Blue (exact from design system)
-        primary:    "#2E46E0",
-        primaryhover:"#2436B8",
+        // Sidebar — Studio Ledger warm paper
+        sb:         "#EDECE5",
+        "sb-hover": "#EDECE5",
+        "sb-active":"#EAF1EE",
+        "sb-text":  "#8B8A7E",
+        "sb-white": "#22221D",
+        // Main area — Studio Ledger warm paper
+        appbg:      "#F7F6F1",
+        "ch-bg":    "#F7F6F1",
+        hover:      "#EDECE5",
+        border:     "#DEDCD2",
+        // Text — Studio Ledger ink
+        textp:      "#22221D",
+        texts:      "#5C5B51",
+        textm:      "#8B8A7E",
+        // Brand — Studio Ledger accent teal
+        primary:    "#3E7368",
+        primaryhover:"#32615A",
         // Status
-        success:    "#12B76A",
-        warning:    "#F79009",
-        danger:     "#F04438",
-        unread:     "#F04438",
-        online:     "#12B76A",
+        success:    "#3E7368",
+        warning:    "#A67C2E",
+        danger:     "#A5484A",
+        unread:     "#A5484A",
+        online:     "#3E7368",
         // Message
         mention:    "#EEF1FE",
         "msg-hover":"#F1F2F6",

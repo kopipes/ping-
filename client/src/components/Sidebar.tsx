@@ -42,27 +42,21 @@ function Avatar({
   size?: number;
   online?: boolean;
 }) {
-  const colors = [
-    "#E01E5A", "#ECB22E", "#2BAC76", "#1264A3",
-    "#611f69", "#36C5F0", "#4A154B", "#FF612B", "#008080", "#7B2D8B",
-  ];
-  const color = colors[name.charCodeAt(0) % colors.length];
   const avatar = avatarUrl ? (
     <img
       src={apiUrl(avatarUrl)}
       alt={name}
-      className="inline-block object-cover shrink-0 rounded"
-      style={{ width: size, height: size }}
+      className="inline-block object-cover shrink-0"
+      style={{ width: size, height: size, borderRadius: "var(--avatar-radius, 50%)" }}
     />
   ) : (
     <span
       className="inline-flex items-center justify-center font-bold shrink-0 uppercase"
       style={{
-        border: "1px solid rgba(128,128,128,0.35)",
-        background: "transparent",
-        color: "var(--color-sidebar-text-active, rgba(255,255,255,0.9))",
-        width: size, height: size, fontSize: size * 0.44,
-        borderRadius: "var(--avatar-radius, 8px)",
+        background: "var(--sl-accent, #3E7368)",
+        color: "#FFFFFF",
+        width: size, height: size, fontSize: size * 0.4,
+        borderRadius: "var(--avatar-radius, 50%)",
       }}
     >
       {name.charAt(0)}
@@ -76,15 +70,15 @@ function Avatar({
       {avatar}
       <span
         className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 ${
-          online ? "bg-green-500" : "bg-white/30"
+          online ? "bg-green-500" : "bg-gray-300"
         }`}
-        style={{ borderColor: "var(--color-sidebar-bg, #1A2540)" }}
+        style={{ borderColor: "var(--color-sidebar-bg, var(--sl-bg, #F7F6F1))" }}
       />
     </span>
   );
 }
 
-// WhatsApp-style row: avatar | name+preview | timestamp+badge
+// Studio Ledger row: tile | name+preview | timestamp+badge
 function WaItem({
   avatarName,
   avatarUrl,
@@ -97,6 +91,7 @@ function WaItem({
   unread,
   unreadCount,
   indent,
+  pinned,
   collapseBtn,
   online,
   onClick,
@@ -112,12 +107,12 @@ function WaItem({
   unread: boolean;
   unreadCount?: number;
   indent?: boolean;
+  pinned?: boolean;
   collapseBtn?: React.ReactNode;
   online?: boolean;
   onClick: () => void;
 }) {
-  const textActive = active ? "#FFFFFF" : "var(--color-sidebar-text-active, #FFFFFF)";
-  const textMuted = active ? "rgba(255,255,255,0.65)" : "var(--color-sidebar-text, rgba(255,255,255,0.5))";
+  const tileSize = indent ? 34 : 44;
   const previewText = preview
     ? (previewSender ? `${previewSender}: ${preview}` : preview)
     : null;
@@ -125,73 +120,101 @@ function WaItem({
   return (
     <button
       onClick={onClick}
-      className="w-full flex items-center gap-2.5 px-2 py-2 text-left transition rounded-md"
+      className="w-full flex items-center text-left transition"
       style={{
-        paddingLeft: indent ? "calc(0.5rem + 32px)" : "0.5rem",
-        background: active ? "var(--color-brand-600, #2E46E0)" : undefined,
+        gap: 13,
+        paddingTop: "var(--sl-row-y, 11px)",
+        paddingBottom: "var(--sl-row-y, 11px)",
+        paddingLeft: indent ? `calc(28px + var(--sl-indent, 20px))` : "var(--space-5, 16px)",
+        paddingRight: "var(--space-5, 16px)",
+        borderBottom: "1px solid var(--sl-line, rgba(0,0,0,0.06))",
+        borderLeft: pinned ? "2.5px solid var(--sl-accent, #3E7368)" : "2.5px solid transparent",
+        background: active ? "var(--sl-accent-soft, #E6F0EE)" : undefined,
       }}
     >
       {/* Collapse toggle for groups */}
       {collapseBtn}
 
-      {/* Avatar / icon */}
+      {/* Tile / Avatar */}
       <div className="shrink-0 relative">
         {avatarName ? (
-          <Avatar name={avatarName} avatarUrl={avatarUrl} size={40} />
+          <Avatar name={avatarName} avatarUrl={avatarUrl} size={tileSize} />
         ) : avatarIcon && (avatarIcon.startsWith("/") || avatarIcon.startsWith("http")) ? (
-          <img src={apiUrl(avatarIcon)} alt="" className="rounded-md object-cover shrink-0" style={{ width: 40, height: 40 }} />
+          <img src={apiUrl(avatarIcon)} alt="" className="object-cover shrink-0"
+            style={{ width: tileSize, height: tileSize, borderRadius: "var(--sl-radius-tile, 10px)" }} />
         ) : (
           <span
-            className="inline-flex items-center justify-center text-xl shrink-0"
+            className="inline-flex items-center justify-center shrink-0"
             style={{
-              width: 40, height: 40,
-              background: "transparent",
-              border: "1px solid rgba(128,128,128,0.35)",
-              color: "var(--color-sidebar-text-active, rgba(255,255,255,0.9))",
-              borderRadius: "var(--avatar-radius, 8px)",
+              width: tileSize, height: tileSize,
+              borderRadius: "var(--sl-radius-tile, 10px)",
+              background: "var(--sl-accent-soft, #E6F0EE)",
+              color: "var(--sl-accent, #3E7368)",
+              fontSize: indent ? 16 : 20,
             }}
           >
             {avatarIcon || "#"}
           </span>
         )}
-        {/* Online dot — only for DMs */}
+        {/* Online dot — DMs only */}
         {online !== undefined && (
           <span
-            className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 ${online ? "bg-green-500" : "bg-gray-400"}`}
-            style={{ borderColor: "var(--color-sidebar-bg, #1A2540)" }}
+            className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 ${online ? "bg-green-500" : "bg-gray-300"}`}
+            style={{ borderColor: "var(--color-sidebar-bg, var(--sl-bg, #F7F6F1))" }}
           />
         )}
       </div>
 
-      {/* Center: name + preview */}
+      {/* Text block */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-center justify-between gap-1">
+        {/* Name + timestamp */}
+        <div className="flex items-baseline justify-between gap-2">
           <span
             className="truncate"
-            style={{ color: textActive, fontWeight: unread || active ? 600 : 500, fontSize: indent ? "0.82em" : "1em" }}
+            style={{
+              fontFamily: "var(--font-display, 'Space Grotesk', sans-serif)",
+              fontSize: "14.5px",
+              fontWeight: unread || active ? 600 : 600,
+              color: active
+                ? "var(--sl-accent, #3E7368)"
+                : "var(--sl-ink, #1A1814)",
+            }}
           >
             {label}
           </span>
           {timestamp && (
-            <span className="shrink-0 tabular-nums" style={{ color: unread ? (active ? "rgba(255,255,255,0.85)" : "var(--color-brand-400, #7B93FF)") : textMuted, fontSize: "0.72em" }}>
+            <span style={{
+              fontSize: 11,
+              flexShrink: 0,
+              fontVariantNumeric: "tabular-nums",
+              color: unread
+                ? "var(--sl-accent, #3E7368)"
+                : "var(--sl-ink-fainter, #A09C93)",
+            }}>
               {timestamp}
             </span>
           )}
         </div>
-        <div className="flex items-center justify-between gap-1 mt-0.5">
+        {/* Preview + badge */}
+        <div className="flex items-center justify-between gap-2 mt-0.5">
           <span
-            className="truncate leading-snug"
-            style={{ color: textMuted, fontWeight: unread && !active ? 500 : 400, fontSize: "0.85em" }}
+            className="truncate"
+            style={{
+              fontSize: "12.5px",
+              color: unread
+                ? "var(--sl-ink-soft, #3D3B36)"
+                : "var(--sl-ink-faint, #726E66)",
+              fontWeight: unread ? 500 : 400,
+            }}
           >
             {previewText || "\u00A0"}
           </span>
           {(unreadCount ?? 0) > 0 && (
             <span
-              className="shrink-0 font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none"
+              className="shrink-0 font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none text-white"
               style={{
-                fontSize: "0.72em",
-                background: active ? "rgba(255,255,255,0.9)" : "var(--color-brand-500, #3B5BFA)",
-                color: active ? "var(--color-brand-600, #2E46E0)" : "#FFFFFF",
+                fontSize: 11,
+                background: "var(--sl-accent, #3E7368)",
               }}
             >
               {(unreadCount ?? 0) > 99 ? "99+" : unreadCount}
@@ -203,39 +226,51 @@ function WaItem({
   );
 }
 
-// Section header — uppercase muted label + optional (+) button
+// Section header — Studio Ledger: label + inline rule
 function SectionHeader({
   label,
+  icon,
   onAdd,
   collapsed,
   onToggle,
 }: {
   label: string;
+  icon?: React.ReactNode;
   onAdd?: () => void;
   collapsed?: boolean;
   onToggle?: () => void;
 }) {
   return (
-    <div className="flex items-center justify-between px-3 pt-4 pb-1 group">
+    <div className="flex items-center" style={{ padding: "18px 16px 10px", gap: 6 }}>
+      {icon && <span style={{ color: "var(--sl-ink-faint, #726E66)", flexShrink: 0 }}>{icon}</span>}
       <button
         onClick={onToggle}
-        className="flex items-center gap-1 flex-1 text-left text-xs font-semibold uppercase tracking-wide transition"
-        style={{ color: "var(--sidebar-section-label, rgba(255,255,255,0.5))" }}
+        className="flex items-center gap-1 text-left transition"
+        style={{
+          fontFamily: "var(--font-display, 'Space Grotesk', sans-serif)",
+          fontSize: 12.5,
+          fontWeight: 500,
+          color: "var(--sl-ink-faint, #726E66)",
+          flexShrink: 0,
+        }}
       >
         {onToggle && (
-          <span className="text-[9px] mr-0.5 opacity-60">{collapsed ? "▶" : "▼"}</span>
+          <span className="mr-0.5 opacity-60" style={{ fontSize: 9 }}>{collapsed ? "▶" : "▼"}</span>
         )}
         {label}
       </button>
+      {/* Inline rule */}
+      <div style={{ flex: 1, height: 1, background: "var(--sl-line-strong, rgba(0,0,0,0.10))", marginLeft: 4 }} />
       {onAdd && (
         <button
           onClick={onAdd}
-          className="opacity-0 group-hover:opacity-100 w-5 h-5 rounded flex items-center justify-center transition text-lg leading-none font-light"
-          style={{ color: "var(--color-sidebar-text, rgba(255,255,255,0.5))" }}
-          title={`Tambah ${label}`}
-        >
-          +
-        </button>
+          className="shrink-0 w-5 h-5 flex items-center justify-center rounded transition hover:opacity-80"
+          style={{
+            color: "var(--sl-accent, #3E7368)",
+            fontSize: 16,
+            marginLeft: 4,
+          }}
+        >+</button>
       )}
     </div>
   );
@@ -316,24 +351,62 @@ export function Sidebar() {
   return (
     <div
       className="h-full flex flex-col select-none overflow-x-hidden w-full"
-      style={{ background: "var(--color-sidebar-bg, #1A2540)", color: "var(--color-sidebar-text, rgba(255,255,255,0.7))" }}
+      style={{ background: "var(--color-sidebar-bg, var(--sl-bg, #F7F6F1))", color: "var(--sl-ink, #1A1814)" }}
     >
-      {/* ── Search bar ── */}
-      <div className="shrink-0 flex items-center gap-2.5 px-3 pt-5 pb-4"
+      {/* ── Topbar: logo left, admin right ── */}
+      <div className="shrink-0 flex items-center justify-between px-4 pt-4 pb-3"
         style={{
-          background: "var(--sidebar-header-bg, rgba(0,0,0,0.18))",
-          borderBottom: "1px solid var(--sidebar-header-border, rgba(255,255,255,0.07))"
+          background: "var(--sidebar-header-bg, var(--sl-surface, #EFEDE7))",
         }}>
-        {/* App logo — only on mobile (desktop rail already has it) */}
-        <div className="md:hidden shrink-0 w-8 h-8 rounded-lg overflow-hidden"
-          style={{ background: "var(--color-rail-active-pill)", boxShadow: "0 1px 4px rgba(0,0,0,0.25)" }}>
-          <img src="/logo.png" alt="Ping!" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        {/* Brand logo */}
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg overflow-hidden shrink-0"
+            style={{ background: "var(--sl-accent, #3E7368)" }}>
+            <img src="/logo.png" alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          </div>
+          <span style={{
+            fontFamily: "var(--font-display, 'Space Grotesk', sans-serif)",
+            fontWeight: 700, fontSize: 18,
+            color: "var(--sl-ink, #1A1814)",
+            letterSpacing: "-0.02em",
+          }}>
+            Ping<em style={{ fontStyle: "italic", color: "var(--sl-accent, #3E7368)" }}>!</em>
+          </span>
         </div>
-        {/* Search input */}
-        <div className="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl"
-          style={{ background: "var(--sidebar-input-bg, rgba(255,255,255,0.08))" }}>
+        {/* Admin icon — all screens */}
+        {isAdminish && (
+          <button
+            onClick={() => setAdminOpen(!adminOpen)}
+            title="Admin Dashboard"
+            className="shrink-0 w-8 h-8 flex items-center justify-center rounded-lg transition"
+            style={{
+              background: adminOpen ? "var(--sl-accent-soft, #E6F0EE)" : "var(--color-sidebar-bg, var(--sl-bg, #F7F6F1))",
+              color: "var(--sl-ink-soft, #3D3B36)",
+              border: "1px solid var(--sl-line-strong, rgba(0,0,0,0.10))",
+            }}
+          >
+            {/* Settings gear icon */}
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </button>
+        )}
+      </div>
+
+      {/* ── Search bar ── */}
+      <div className="shrink-0 px-3 pb-3 pt-2"
+        style={{
+          background: "var(--sidebar-header-bg, var(--sl-surface, #EFEDE7))",
+          borderBottom: "1px solid var(--sidebar-header-border, var(--sl-line-strong, rgba(0,0,0,0.10)))"
+        }}>
+        <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl"
+          style={{
+            background: "var(--sl-bg, #F7F6F1)",
+            border: "1px solid var(--sl-line-strong, rgba(0,0,0,0.08))"
+          }}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"
-            style={{ color: "var(--sidebar-input-icon, rgba(255,255,255,0.35))", flexShrink: 0 }}>
+            style={{ color: "var(--sl-ink-fainter, #A09C93)", flexShrink: 0 }}>
             <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
           </svg>
           <input
@@ -341,28 +414,14 @@ export function Sidebar() {
             onChange={(e) => setFilter(e.target.value)}
             placeholder={showDMs ? "Cari DM…" : "Cari group…"}
             className="flex-1 bg-transparent text-sm placeholder:opacity-40 outline-none"
-            style={{ color: "var(--color-sidebar-text-active, rgba(255,255,255,0.7))" }}
+            style={{ color: "var(--sl-ink, #1A1814)", fontSize: 14 }}
           />
           {filter && (
             <button onClick={() => setFilter("")}
               className="transition text-xs opacity-40 hover:opacity-70"
-              style={{ color: "var(--color-sidebar-text-active, white)" }}>✕</button>
+              style={{ color: "var(--sl-ink, #1A1814)" }}>✕</button>
           )}
         </div>
-        {/* Admin icon — mobile only, right of search */}
-        {isAdminish && (
-          <button
-            onClick={() => setAdminOpen(!adminOpen)}
-            title="Admin Dashboard"
-            className={`md:hidden shrink-0 w-9 h-9 rounded-lg flex items-center justify-center transition text-lg ${adminOpen ? "opacity-100" : "opacity-50"}`}
-            style={{
-              background: adminOpen ? "var(--color-sidebar-active, rgba(255,255,255,0.12))" : undefined,
-              color: "var(--color-sidebar-text-active, #FFFFFF)",
-            }}
-          >
-            ⚙️
-          </button>
-        )}
       </div>
 
       {/* ── Scrollable nav list ── */}
@@ -374,8 +433,10 @@ export function Sidebar() {
             {/* Pinned section */}
             {(sidebar?.pinnedTop || []).filter(matchItem).length > 0 && (
               <>
-                <SectionHeader label="Pinned" />
-                <div className="px-1">
+                <SectionHeader label="Pinned"
+                  icon={<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 0-1-1h-1V4h-2v2h-1a1 1 0 0 0-1 1z"/></svg>}
+                />
+                <div>
                   {(sidebar?.pinnedTop || []).filter(matchItem).map((item) => (
                     <WaItem
                       key={item.id}
@@ -387,6 +448,7 @@ export function Sidebar() {
                       active={activeId === item.id}
                       unread={item.unread > 0}
                       unreadCount={item.unread}
+                      pinned
                       onClick={() => onOpen(item.id)}
                     />
                   ))}
@@ -399,12 +461,13 @@ export function Sidebar() {
               <>
                 <SectionHeader
                   label="Groups"
+                  icon={<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>}
                   collapsed={collapsed["channels"]}
                   onToggle={() => toggleCollapse("channels")}
                   onAdd={isAdminish ? () => setShowNewTopic(true) : undefined}
                 />
                 {!collapsed["channels"] && (
-                  <div className="px-1">
+                  <div>
                     {(sidebar?.level1 || []).filter(matchItem).map((lv) => (
                       <div key={lv.id}>
                         <WaItem
@@ -420,8 +483,8 @@ export function Sidebar() {
                             (lv.subTopics?.length ?? 0) > 0 ? (
                               <button
                                 onClick={(e) => { e.stopPropagation(); toggleCollapse(`grp-${lv.id}`); }}
-                                className="shrink-0 text-[9px] opacity-40 hover:opacity-70 w-3 text-left"
-                                style={{ color: activeId === lv.id ? "#FFF" : "var(--color-sidebar-text-active, white)" }}
+                                className="shrink-0 opacity-30 hover:opacity-60 w-3 text-left transition"
+                                style={{ color: "var(--sl-ink-soft, #3D3B36)", fontSize: 9 }}
                               >
                                 {collapsed[`grp-${lv.id}`] ? "▶" : "▼"}
                               </button>
@@ -452,12 +515,12 @@ export function Sidebar() {
               </>
             ) : !sidebarLoading ? (
               <div className="px-4 py-6 text-center">
-                <p className="text-sm" style={{ color: "var(--color-sidebar-text, rgba(255,255,255,0.4))" }}>Belum ada group.</p>
+                <p className="text-sm" style={{ color: "var(--sl-ink-faint, #726E66)" }}>Belum ada group.</p>
                 {isAdminish && (
                   <button
                     onClick={() => setShowNewTopic(true)}
                     className="mt-2 text-sm underline transition"
-                    style={{ color: "var(--color-sidebar-text, rgba(255,255,255,0.6))" }}
+                    style={{ color: "var(--sl-accent, #3E7368)" }}
                   >
                     Buat group pertama
                   </button>

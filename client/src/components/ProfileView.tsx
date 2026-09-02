@@ -126,13 +126,15 @@ export function ProfileView({ onClose }: { onClose?: () => void }) {
   const [pwSaving, setPwSaving] = useState(false);
 
   // Font family
-  type FontFamilyKey = "jakarta" | "lato";
+  type FontFamilyKey = "jakarta" | "lato" | "ibmplex" | "spacegrotesk";
   const [fontFamily, setFontFamily] = useState<FontFamilyKey>(
     (localStorage.getItem("pvc-font-family") as FontFamilyKey) || "jakarta"
   );
   const FONT_FAMILIES: { key: FontFamilyKey; label: string; stack: string }[] = [
-    { key: "jakarta", label: "Plus Jakarta Sans", stack: "'Plus Jakarta Sans', sans-serif" },
-    { key: "lato",    label: "Lato",              stack: "Lato, sans-serif" },
+    { key: "jakarta",     label: "Plus Jakarta Sans", stack: "'Plus Jakarta Sans', sans-serif" },
+    { key: "ibmplex",     label: "IBM Plex Sans",     stack: "'IBM Plex Sans', sans-serif" },
+    { key: "spacegrotesk", label: "Space Grotesk",    stack: "'Space Grotesk', sans-serif" },
+    { key: "lato",        label: "Lato",              stack: "Lato, sans-serif" },
   ];
   const onFontFamily = (key: FontFamilyKey) => {
     setFontFamily(key);

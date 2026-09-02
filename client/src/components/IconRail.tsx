@@ -132,22 +132,21 @@ export function IconRail({ variant = "side" }: { variant?: "side" | "bottom" }) 
 
   if (variant === "bottom") {
     return (
-      <nav className="bottom-nav" style={{ background: "var(--color-rail-bg)" }}>
-        <RailBtn icon={<HomeIcon size={26} />} label="Home" active={railView === "home" && !profileOpen} onClick={() => navigate("home")} bottom />
-        <RailBtn icon={<DMIcon size={26} />} label="DM" active={railView === "dms" && !profileOpen} badge={dmUnread} onClick={() => navigate("dms")} bottom />
-        <RailBtn icon={<ActivityIcon size={26} />} label="Activity" active={railView === "activity" && !profileOpen} onClick={() => navigate("activity")} bottom />
-        <RailBtn icon={<SearchIcon size={26} />} label="Search" active={railView === "search" && !profileOpen} onClick={() => navigate("search")} bottom />
+      <nav className="bottom-nav" style={{
+        background: "var(--color-rail-bg, var(--sl-bg, #F7F6F1))",
+        borderTop: "1px solid var(--sl-line-strong, rgba(0,0,0,0.10))",
+      }}>
+        <RailBtn icon={<HomeIcon size={24} />} label="Home" active={railView === "home" && !profileOpen} onClick={() => navigate("home")} bottom />
+        <RailBtn icon={<DMIcon size={24} />} label="DM" active={railView === "dms" && !profileOpen} badge={dmUnread} onClick={() => navigate("dms")} bottom />
+        <RailBtn icon={<ActivityIcon size={24} />} label="Activity" active={railView === "activity" && !profileOpen} onClick={() => navigate("activity")} bottom />
+        <RailBtn icon={<SearchIcon size={24} />} label="Search" active={railView === "search" && !profileOpen} onClick={() => navigate("search")} bottom />
         {avatarBtn}
       </nav>
     );
   }
 
   return (
-    <aside className="icon-rail" style={{ background: "var(--color-rail-bg)" }}>
-      {/* Logo mark */}
-      <div className="icon-rail-logo" style={{ background: "var(--color-rail-active-pill)", overflow: "hidden", padding: 0 }}>
-        <img src="/logo.png" alt="Ping!" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-      </div>
+    <aside className="icon-rail" style={{ background: "var(--color-rail-bg, var(--sl-surface, #EDECE5))", borderRight: "1px solid var(--sl-line-strong, #DEDCD2)" }}>
 
       {/* Nav items */}
       <RailBtn icon={<HomeIcon />} label="Home" active={railView === "home" && !profileOpen} onClick={() => navigate("home")} />

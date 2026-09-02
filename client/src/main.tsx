@@ -29,8 +29,10 @@ document.documentElement.style.setProperty("--chat-zoom", zoomMap[savedChatSize]
 // Apply saved font family on boot
 const savedFont = localStorage.getItem("pvc-font-family") || "jakarta";
 const fontStackMap: Record<string, string> = {
-  jakarta: "'Plus Jakarta Sans', sans-serif",
-  lato:    "Lato, sans-serif",
+  jakarta:      "'Plus Jakarta Sans', sans-serif",
+  ibmplex:      "'IBM Plex Sans', sans-serif",
+  spacegrotesk: "'Space Grotesk', sans-serif",
+  lato:         "Lato, sans-serif",
 };
 const fontStack = fontStackMap[savedFont] || "'Plus Jakarta Sans', sans-serif";
 const fontStyle = document.createElement("style");

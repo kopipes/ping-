@@ -2,14 +2,36 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=JetBrains+Mono:wght@400;500&family=Lato:ital,wght@0,400;0,700;0,900;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=JetBrains+Mono:wght@400;500&family=Lato:ital,wght@0,400;0,700;0,900;1,400&display=swap');
 
 /* Design system tokens — exact values from pvchat-design-system.css */
 :root {
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-lato: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-body: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
-  --font-app: var(--font-sans);
+  --font-app: var(--font-body);
+
+  /* Studio Ledger — exact token values from ping-design-system.css */
+  --sl-bg:           #F7F6F1;   /* app background */
+  --sl-surface:      #EDECE5;   /* search field, icon buttons, tiles */
+  --sl-line:         #EFEEE7;   /* row dividers */
+  --sl-line-strong:  #DEDCD2;   /* rules next to section labels */
+  --sl-ink:          #22221D;   /* primary text */
+  --sl-ink-soft:     #5C5B51;   /* secondary text */
+  --sl-ink-faint:    #8B8A7E;   /* tertiary text, timestamps */
+  --sl-ink-fainter:  #A6A498;   /* placeholder, disabled */
+  --sl-accent:       #3E7368;   /* primary accent */
+  --sl-accent-soft:  #EAF1EE;   /* accent tint */
+  --sl-row-y:        11px;
+  --sl-indent:       34px;
+  --sl-radius-tile:  11px;
+  --sl-radius-field: 10px;
+  /* tile color variants — exact from sample */
+  --sl-tile-folder-bg: #F3EEE0; --sl-tile-folder-fg: #A67C2E;
+  --sl-tile-rocket-bg: #EEF0F6; --sl-tile-rocket-fg: #4A5FBF;
+  --sl-tile-tools-bg:  #F1EAEA; --sl-tile-tools-fg:  #A5484A;
 
   /* Brand — Signal Blue (exact from design system) */
   --color-brand-50:  #EEF1FE;
@@ -28,12 +50,12 @@
   --rail-width: 44px;
   --sidebar-width: 288px;
 
-  /* Sidebar — Midnight Navy (dark, same family as rail) */
-  --color-sidebar-bg:          #1A2540;
-  --color-sidebar-hover:       rgba(255,255,255,0.07);
-  --color-sidebar-active:      rgba(255,255,255,0.13);
-  --color-sidebar-text:        rgba(255,255,255,0.62);
-  --color-sidebar-text-active: #FFFFFF;
+  /* Sidebar — Studio Ledger warm paper */
+  --color-sidebar-bg:          var(--sl-bg);
+  --color-sidebar-hover:       var(--sl-surface);
+  --color-sidebar-active:      var(--sl-accent-soft);
+  --color-sidebar-text:        var(--sl-ink-faint);
+  --color-sidebar-text-active: var(--sl-ink);
 
   /* Neutral palette */
   --color-neutral-0:   #FFFFFF;
@@ -120,6 +142,30 @@
   --color-brand-700:        #2436B8;
   --surface-active:         #EEF1FE;
   --shadow-focus:           0 0 0 3px #DDE4FD;
+  /* Studio Ledger dark overrides */
+  --sl-bg:           #1A2540;
+  --sl-surface:      #243058;
+  --sl-line:         rgba(255,255,255,0.07);
+  --sl-line-strong:  rgba(255,255,255,0.12);
+  --sl-ink:          #E8ECF4;
+  --sl-ink-soft:     #A8B4CC;
+  --sl-ink-faint:    #6E7E99;
+  --sl-ink-fainter:  #4A5670;
+  --sl-accent:       #6B8EFA;
+  --sl-accent-soft:  rgba(59,91,250,0.18);
+  --sl-tile-folder-bg: rgba(166,124,46,0.18);  --sl-tile-folder-fg: #D4A94A;
+  --sl-tile-rocket-bg: rgba(74,95,191,0.20);   --sl-tile-rocket-fg: #7B97F5;
+  --sl-tile-tools-bg:  rgba(165,72,74,0.18);   --sl-tile-tools-fg:  #E07A7C;
+  /* Sidebar chrome overrides */
+  --color-sidebar-hover:       rgba(255,255,255,0.06);
+  --color-sidebar-active:      rgba(59,91,250,0.20);
+  --color-sidebar-text:        #6E7E99;
+  --color-sidebar-text-active: #E8ECF4;
+  --sidebar-header-bg:         rgba(255,255,255,0.04);
+  --sidebar-header-border:     rgba(255,255,255,0.10);
+  --sidebar-input-bg:          rgba(255,255,255,0.07);
+  --sidebar-input-icon:        rgba(232,236,244,0.35);
+  --sidebar-section-label:     rgba(232,236,244,0.40);
 }
 
 /* Theme 2: Slate — Deep Indigo */
@@ -134,6 +180,30 @@
   --color-brand-700:        #4338CA;
   --surface-active:         #EEF2FF;
   --shadow-focus:           0 0 0 3px #E0E7FF;
+  /* Studio Ledger dark overrides */
+  --sl-bg:           #1E293B;
+  --sl-surface:      #273549;
+  --sl-line:         rgba(255,255,255,0.07);
+  --sl-line-strong:  rgba(255,255,255,0.12);
+  --sl-ink:          #E2E8F0;
+  --sl-ink-soft:     #94A3B8;
+  --sl-ink-faint:    #64748B;
+  --sl-ink-fainter:  #475569;
+  --sl-accent:       #818CF8;
+  --sl-accent-soft:  rgba(99,102,241,0.18);
+  --sl-tile-folder-bg: rgba(166,124,46,0.18);  --sl-tile-folder-fg: #D4A94A;
+  --sl-tile-rocket-bg: rgba(99,102,241,0.20);  --sl-tile-rocket-fg: #818CF8;
+  --sl-tile-tools-bg:  rgba(165,72,74,0.18);   --sl-tile-tools-fg:  #E07A7C;
+  /* Sidebar chrome overrides */
+  --color-sidebar-hover:       rgba(255,255,255,0.06);
+  --color-sidebar-active:      rgba(99,102,241,0.20);
+  --color-sidebar-text:        #64748B;
+  --color-sidebar-text-active: #E2E8F0;
+  --sidebar-header-bg:         rgba(255,255,255,0.04);
+  --sidebar-header-border:     rgba(255,255,255,0.10);
+  --sidebar-input-bg:          rgba(255,255,255,0.07);
+  --sidebar-input-icon:        rgba(226,232,240,0.35);
+  --sidebar-section-label:     rgba(226,232,240,0.40);
 }
 
 /* Theme 3: Forest — Deep Emerald */
@@ -148,6 +218,30 @@
   --color-brand-700:        #047857;
   --surface-active:         #ECFDF5;
   --shadow-focus:           0 0 0 3px #D1FAE5;
+  /* Studio Ledger dark overrides */
+  --sl-bg:           #14302A;
+  --sl-surface:      #1C4035;
+  --sl-line:         rgba(255,255,255,0.07);
+  --sl-line-strong:  rgba(255,255,255,0.12);
+  --sl-ink:          #D1FAE5;
+  --sl-ink-soft:     #6EE7B7;
+  --sl-ink-faint:    #34D399;
+  --sl-ink-fainter:  #2A6B51;
+  --sl-accent:       #34D399;
+  --sl-accent-soft:  rgba(16,185,129,0.18);
+  --sl-tile-folder-bg: rgba(166,124,46,0.18);  --sl-tile-folder-fg: #D4A94A;
+  --sl-tile-rocket-bg: rgba(16,185,129,0.18);  --sl-tile-rocket-fg: #34D399;
+  --sl-tile-tools-bg:  rgba(165,72,74,0.18);   --sl-tile-tools-fg:  #E07A7C;
+  /* Sidebar chrome overrides */
+  --color-sidebar-hover:       rgba(255,255,255,0.06);
+  --color-sidebar-active:      rgba(16,185,129,0.18);
+  --color-sidebar-text:        #34D399;
+  --color-sidebar-text-active: #D1FAE5;
+  --sidebar-header-bg:         rgba(255,255,255,0.04);
+  --sidebar-header-border:     rgba(255,255,255,0.10);
+  --sidebar-input-bg:          rgba(255,255,255,0.07);
+  --sidebar-input-icon:        rgba(209,250,229,0.35);
+  --sidebar-section-label:     rgba(209,250,229,0.40);
 }
 
 /* Theme 4: Charcoal — Warm Gray */
@@ -162,6 +256,30 @@
   --color-brand-700:        #3F3F46;
   --surface-active:         #F4F4F5;
   --shadow-focus:           0 0 0 3px #E4E4E7;
+  /* Studio Ledger dark overrides */
+  --sl-bg:           #27272A;
+  --sl-surface:      #323235;
+  --sl-line:         rgba(255,255,255,0.07);
+  --sl-line-strong:  rgba(255,255,255,0.11);
+  --sl-ink:          #F4F4F5;
+  --sl-ink-soft:     #A1A1AA;
+  --sl-ink-faint:    #71717A;
+  --sl-ink-fainter:  #52525B;
+  --sl-accent:       #A1A1AA;
+  --sl-accent-soft:  rgba(161,161,170,0.15);
+  --sl-tile-folder-bg: rgba(166,124,46,0.18);  --sl-tile-folder-fg: #D4A94A;
+  --sl-tile-rocket-bg: rgba(113,113,122,0.20); --sl-tile-rocket-fg: #A1A1AA;
+  --sl-tile-tools-bg:  rgba(165,72,74,0.18);   --sl-tile-tools-fg:  #E07A7C;
+  /* Sidebar chrome overrides */
+  --color-sidebar-hover:       rgba(255,255,255,0.06);
+  --color-sidebar-active:      rgba(161,161,170,0.15);
+  --color-sidebar-text:        #71717A;
+  --color-sidebar-text-active: #F4F4F5;
+  --sidebar-header-bg:         rgba(255,255,255,0.04);
+  --sidebar-header-border:     rgba(255,255,255,0.09);
+  --sidebar-input-bg:          rgba(255,255,255,0.07);
+  --sidebar-input-icon:        rgba(244,244,245,0.35);
+  --sidebar-section-label:     rgba(244,244,245,0.40);
 }
 
 /* Theme 5: Crimson — Light Rose with vivid red accent */
@@ -185,6 +303,12 @@
   --color-brand-700:        #B91C1C;
   --surface-active:         #FEF2F2;
   --shadow-focus:           0 0 0 3px #FEE2E2;
+  --sl-bg:                  #FEF2F2;
+  --sl-surface:             #FDE8E8;
+  --sl-line:                rgba(239,68,68,0.12);
+  --sl-line-strong:         rgba(239,68,68,0.20);
+  --sl-accent:              #DC2626;
+  --sl-accent-soft:         rgba(239,68,68,0.12);
   --sidebar-header-bg:      rgba(239,68,68,0.06);
   --sidebar-header-border:  rgba(239,68,68,0.15);
   --sidebar-input-bg:       rgba(239,68,68,0.08);
@@ -217,6 +341,12 @@
   --color-brand-700:        #A21CAF;
   --surface-active:         #FDF4FF;
   --shadow-focus:           0 0 0 3px #FAE8FF;
+  --sl-bg:                  #FDF4FF;
+  --sl-surface:             #FAE8FF;
+  --sl-line:                rgba(217,70,239,0.12);
+  --sl-line-strong:         rgba(217,70,239,0.20);
+  --sl-accent:              #C026D3;
+  --sl-accent-soft:         rgba(217,70,239,0.12);
   --sidebar-header-bg:      rgba(217,70,239,0.06);
   --sidebar-header-border:  rgba(217,70,239,0.15);
   --sidebar-input-bg:       rgba(217,70,239,0.08);
@@ -224,7 +354,7 @@
   --sidebar-section-label:  rgba(74,4,78,0.45);
 }
 
-/* Theme 7: Ocean — Soft Teal */
+/* Theme 7: Ocean — Deep Teal */
 [data-theme="ocean"] {
   --color-rail-bg:          #0A2A35;
   --color-sidebar-bg:       #0F3D4A;
@@ -236,9 +366,33 @@
   --color-brand-700:        #0E7490;
   --surface-active:         #ECFEFF;
   --shadow-focus:           0 0 0 3px #CFFAFE;
+  /* Studio Ledger dark overrides */
+  --sl-bg:           #0F3D4A;
+  --sl-surface:      #164F60;
+  --sl-line:         rgba(255,255,255,0.07);
+  --sl-line-strong:  rgba(255,255,255,0.12);
+  --sl-ink:          #CFFAFE;
+  --sl-ink-soft:     #67E8F9;
+  --sl-ink-faint:    #22D3EE;
+  --sl-ink-fainter:  #155E75;
+  --sl-accent:       #22D3EE;
+  --sl-accent-soft:  rgba(6,182,212,0.18);
+  --sl-tile-folder-bg: rgba(166,124,46,0.18);  --sl-tile-folder-fg: #D4A94A;
+  --sl-tile-rocket-bg: rgba(6,182,212,0.18);   --sl-tile-rocket-fg: #22D3EE;
+  --sl-tile-tools-bg:  rgba(165,72,74,0.18);   --sl-tile-tools-fg:  #E07A7C;
+  /* Sidebar chrome overrides */
+  --color-sidebar-hover:       rgba(255,255,255,0.06);
+  --color-sidebar-active:      rgba(6,182,212,0.18);
+  --color-sidebar-text:        #22D3EE;
+  --color-sidebar-text-active: #CFFAFE;
+  --sidebar-header-bg:         rgba(255,255,255,0.04);
+  --sidebar-header-border:     rgba(255,255,255,0.10);
+  --sidebar-input-bg:          rgba(255,255,255,0.07);
+  --sidebar-input-icon:        rgba(207,250,254,0.35);
+  --sidebar-section-label:     rgba(207,250,254,0.40);
 }
 
-/* Theme 8: Lavender — Soft Purple */
+/* Theme 8: Lavender — Deep Purple */
 [data-theme="lavender"] {
   --color-rail-bg:          #2D1B4E;
   --color-sidebar-bg:       #3D2566;
@@ -250,6 +404,30 @@
   --color-brand-700:        #6D28D9;
   --surface-active:         #F5F3FF;
   --shadow-focus:           0 0 0 3px #EDE9FE;
+  /* Studio Ledger dark overrides */
+  --sl-bg:           #3D2566;
+  --sl-surface:      #4E3080;
+  --sl-line:         rgba(255,255,255,0.07);
+  --sl-line-strong:  rgba(255,255,255,0.12);
+  --sl-ink:          #EDE9FE;
+  --sl-ink-soft:     #C4B5FD;
+  --sl-ink-faint:    #A78BFA;
+  --sl-ink-fainter:  #5B3F9A;
+  --sl-accent:       #A78BFA;
+  --sl-accent-soft:  rgba(139,92,246,0.18);
+  --sl-tile-folder-bg: rgba(166,124,46,0.18);  --sl-tile-folder-fg: #D4A94A;
+  --sl-tile-rocket-bg: rgba(139,92,246,0.20);  --sl-tile-rocket-fg: #A78BFA;
+  --sl-tile-tools-bg:  rgba(165,72,74,0.18);   --sl-tile-tools-fg:  #E07A7C;
+  /* Sidebar chrome overrides */
+  --color-sidebar-hover:       rgba(255,255,255,0.06);
+  --color-sidebar-active:      rgba(139,92,246,0.18);
+  --color-sidebar-text:        #A78BFA;
+  --color-sidebar-text-active: #EDE9FE;
+  --sidebar-header-bg:         rgba(255,255,255,0.04);
+  --sidebar-header-border:     rgba(255,255,255,0.10);
+  --sidebar-input-bg:          rgba(255,255,255,0.07);
+  --sidebar-input-icon:        rgba(237,233,254,0.35);
+  --sidebar-section-label:     rgba(237,233,254,0.40);
 }
 
 /* Theme 9: Sunset — Light Amber with vivid accent */
@@ -273,6 +451,12 @@
   --color-brand-700:        #B45309;
   --surface-active:         #FFFBEB;
   --shadow-focus:           0 0 0 3px #FEF3C7;
+  --sl-bg:                  #FFFBEB;
+  --sl-surface:             #FEF3C7;
+  --sl-line:                rgba(245,158,11,0.15);
+  --sl-line-strong:         rgba(245,158,11,0.25);
+  --sl-accent:              #D97706;
+  --sl-accent-soft:         rgba(245,158,11,0.15);
   --sidebar-header-bg:      rgba(245,158,11,0.06);
   --sidebar-header-border:  rgba(245,158,11,0.18);
   --sidebar-input-bg:       rgba(245,158,11,0.10);
@@ -301,6 +485,12 @@
   --color-brand-700:        #1D4ED8;
   --surface-active:         #EFF6FF;
   --shadow-focus:           0 0 0 3px #DBEAFE;
+  --sl-bg:                  #EFF6FF;
+  --sl-surface:             #DBEAFE;
+  --sl-line:                rgba(59,130,246,0.12);
+  --sl-line-strong:         rgba(59,130,246,0.22);
+  --sl-accent:              #2563EB;
+  --sl-accent-soft:         rgba(59,130,246,0.12);
   --sidebar-header-bg:      rgba(59,130,246,0.06);
   --sidebar-header-border:  rgba(59,130,246,0.18);
   --sidebar-input-bg:       rgba(59,130,246,0.10);
@@ -308,33 +498,49 @@
   --sidebar-section-label:  rgba(10,30,80,0.45);
 }
 
-/* Theme 11: Light — White / Admin only */
+/* Theme 11: Light — Studio Ledger warm paper / Admin only */
 [data-theme="light"] {
-  --color-rail-bg:          #E8EDF5;
-  --color-sidebar-bg:       #F0F4FA;
-  --color-rail-active-pill: #2E46E0;
-  --color-rail-icon:        rgba(20,21,31,0.45);
-  --color-rail-icon-hover:  rgba(20,21,31,0.80);
-  --color-rail-icon-active: #2E46E0;
-  --color-rail-bg-hover:    rgba(20,21,31,0.07);
-  --color-rail-bg-active:   rgba(46,70,224,0.12);
-  --color-sidebar-text:        rgba(20,21,31,0.60);
-  --color-sidebar-text-active: #14151F;
-  --color-sidebar-hover:       rgba(20,21,31,0.06);
-  --color-sidebar-active:      rgba(46,70,224,0.10);
-  --color-brand-50:         #EEF1FE;
-  --color-brand-100:        #DDE4FD;
-  --color-brand-500:        #3B5BFA;
-  --color-brand-600:        #2E46E0;
-  --color-brand-700:        #2436B8;
-  --surface-active:         #EEF1FE;
-  --shadow-focus:           0 0 0 3px #DDE4FD;
-  /* Sidebar search header overrides */
-  --sidebar-header-bg:      rgba(0,0,0,0.04);
-  --sidebar-header-border:  rgba(0,0,0,0.08);
-  --sidebar-input-bg:       rgba(0,0,0,0.06);
-  --sidebar-input-icon:     rgba(20,21,31,0.35);
-  --sidebar-section-label:  rgba(20,21,31,0.45);
+  /* Rail — uses the Studio Ledger surface color as background (light, not dark) */
+  --color-rail-bg:          #EDECE5;
+  --color-rail-bg-hover:    rgba(62,115,104,0.10);
+  --color-rail-bg-active:   rgba(62,115,104,0.15);
+  --color-rail-icon:        rgba(34,34,29,0.45);
+  --color-rail-icon-hover:  rgba(34,34,29,0.80);
+  --color-rail-icon-active: #3E7368;
+  --color-rail-active-pill: #3E7368;
+  /* Brand — Studio Ledger teal accent */
+  --color-brand-50:         #EAF1EE;
+  --color-brand-100:        #C8DDD7;
+  --color-brand-500:        #3E7368;
+  --color-brand-600:        #32615A;
+  --color-brand-700:        #274D47;
+  --surface-active:         #EAF1EE;
+  --shadow-focus:           0 0 0 3px #C8DDD7;
+  /* Studio Ledger --sl-* tokens — exact sample values */
+  --sl-bg:           #F7F6F1;
+  --sl-surface:      #EDECE5;
+  --sl-line:         #EFEEE7;
+  --sl-line-strong:  #DEDCD2;
+  --sl-ink:          #22221D;
+  --sl-ink-soft:     #5C5B51;
+  --sl-ink-faint:    #8B8A7E;
+  --sl-ink-fainter:  #A6A498;
+  --sl-accent:       #3E7368;
+  --sl-accent-soft:  #EAF1EE;
+  --sl-tile-folder-bg: #F3EEE0; --sl-tile-folder-fg: #A67C2E;
+  --sl-tile-rocket-bg: #EEF0F6; --sl-tile-rocket-fg: #4A5FBF;
+  --sl-tile-tools-bg:  #F1EAEA; --sl-tile-tools-fg:  #A5484A;
+  /* Sidebar chrome */
+  --color-sidebar-bg:          #F7F6F1;
+  --color-sidebar-hover:       #EDECE5;
+  --color-sidebar-active:      #EAF1EE;
+  --color-sidebar-text:        #8B8A7E;
+  --color-sidebar-text-active: #22221D;
+  --sidebar-header-bg:         #EDECE5;
+  --sidebar-header-border:     #DEDCD2;
+  --sidebar-input-bg:          #EDECE5;
+  --sidebar-input-icon:        rgba(34,34,29,0.40);
+  --sidebar-section-label:     rgba(34,34,29,0.45);
 }
 
 @layer base {
@@ -360,7 +566,7 @@
     background: var(--surface-page);
   }
   .chat-window-bg {
-    background-color: var(--chat-bg, #FFFFFF);
+    background-color: var(--chat-bg, var(--sl-bg, #F7F6F1));
   }
   /* Scoped font sizes */
   [data-area="sidebar"] {
@@ -474,7 +680,7 @@
     align-items: center;
     justify-content: center;
     gap: 3px;
-    color: var(--color-rail-icon);
+    color: var(--sl-ink-fainter, var(--color-rail-icon, rgba(255,255,255,0.55)));
     position: relative;
     cursor: pointer;
     border: none;
@@ -482,23 +688,23 @@
     transition: color 120ms ease;
     min-width: 0;
   }
-  .bottom-nav-item:hover { color: var(--color-rail-icon-hover); }
-  .bottom-nav-item.is-active { color: var(--color-rail-icon-active); }
+  .bottom-nav-item:hover { color: var(--sl-ink-soft, var(--color-rail-icon-hover)); }
+  .bottom-nav-item.is-active { color: var(--sl-accent, var(--color-rail-icon-active, #3E7368)); }
   .bottom-nav-item.is-active::after {
     content: '';
     position: absolute;
     top: 0; left: 25%; right: 25%;
     height: 2px;
     border-radius: 9999px;
-    background: var(--color-rail-icon-active, #FFFFFF);
+    background: var(--sl-accent, var(--color-rail-icon-active, #3E7368));
   }
   .bottom-nav-label {
-    font-size: 10px;
+    font-family: var(--font-display, 'Space Grotesk', sans-serif);
+    font-size: 10.5px;
     font-weight: 500;
     line-height: 1;
-    opacity: 0.85;
   }
-  .bottom-nav-item.is-active .bottom-nav-label { opacity: 1; }
+  .bottom-nav-item.is-active .bottom-nav-label { font-weight: 600; }
   .bottom-nav-avatar {
     flex: 1;
     height: 100%;

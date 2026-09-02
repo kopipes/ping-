@@ -172,23 +172,29 @@ export function ChatView() {
 
   return (
     <div className="h-full flex flex-col chat-window-bg">
-      {/* Channel header — modern navy style */}
-      <div className="shrink-0 flex items-center gap-3 px-4 py-2.5 border-b border-border bg-gradient-to-r from-sb to-sb/80 text-white shadow-sm">
+      {/* Channel header — Studio Ledger light style */}
+      <div className="shrink-0 flex items-center gap-3 px-4 py-2.5"
+        style={{
+          background: "var(--sl-surface, #EDECE5)",
+          borderBottom: "1px solid var(--sl-line-strong, #DEDCD2)",
+        }}>
         {/* Back button — mobile only */}
         <button onClick={() => setChatOpen(false)}
-          className="md:hidden w-8 h-8 flex items-center justify-center rounded hover:bg-white/10 text-white/70 transition">
+          className="md:hidden w-8 h-8 flex items-center justify-center rounded transition"
+          style={{ color: "var(--sl-ink-faint, #8B8A7E)" }}>
           <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><path d="M15 18l-6-6 6-6"/></svg>
         </button>
 
         {isDM && convo?.members && (
-          <Avatar name={convo.members.find((m) => m.user.id !== myId)?.user?.name || name} size={28} />
+          <Avatar name={convo.members.find((m) => m.user.id !== myId)?.user?.name || name} size={32} />
         )}
         {!isDM && (
-          <div className="w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center shrink-0 overflow-hidden">
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 overflow-hidden"
+            style={{ background: "var(--sl-accent-soft, #EAF1EE)", color: "var(--sl-accent, #3E7368)" }}>
             {convo?.icon && (convo.icon.startsWith("/") || convo.icon.startsWith("http")) ? (
               <img src={apiUrl(convo.icon)} alt="" className="w-full h-full object-cover" />
             ) : (
-              <span className="text-white/90 font-bold text-sm">{convo?.icon || "#"}</span>
+              <span className="font-bold text-sm">{convo?.icon || "#"}</span>
             )}
           </div>
         )}
@@ -198,36 +204,42 @@ export function ChatView() {
           onClick={() => setInfoOpen(true)}
           className="flex-1 min-w-0 text-left hover:opacity-80 transition"
         >
-          <h2 className="font-bold text-white text-[1.05em] truncate leading-tight">
+          <h2 className="font-bold text-[1.05em] truncate leading-tight"
+            style={{ color: "var(--sl-ink, #22221D)", fontFamily: "var(--font-display, 'Space Grotesk', sans-serif)" }}>
             {name}
           </h2>
           {isDM ? (
-            <p className={`text-[0.72em] font-medium ${partnerOnline ? "text-success" : "text-white/50"}`}>
+            <p className="text-[0.72em] font-medium" style={{ color: partnerOnline ? "var(--sl-accent, #3E7368)" : "var(--sl-ink-fainter, #A6A498)" }}>
               {partnerOnline ? "● Aktif" : "● Offline"}
             </p>
           ) : convo?.description ? (
-            <p className="text-[0.72em] text-white/55 truncate hidden md:block">{convo.description}</p>
+            <p className="text-[0.72em] truncate hidden md:block" style={{ color: "var(--sl-ink-faint, #8B8A7E)" }}>{convo.description}</p>
           ) : (
-            <p className="text-[0.72em] text-white/40 hidden md:block">Klik untuk info & pengaturan</p>
+            <p className="text-[0.72em] hidden md:block" style={{ color: "var(--sl-ink-fainter, #A6A498)" }}>Klik untuk info & pengaturan</p>
           )}
         </button>
 
         {/* Right actions */}
         <div className="flex items-center gap-0.5">
           {memberCount && !isDM && (
-            <button onClick={() => setInfoOpen(true)} className="flex items-center gap-1 px-2 h-8 rounded-lg hover:bg-white/10 text-white/70 text-sm transition">
+            <button onClick={() => setInfoOpen(true)} className="flex items-center gap-1 px-2 h-8 rounded-lg transition text-sm"
+              style={{ color: "var(--sl-ink-faint, #8B8A7E)" }}>
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="7" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg>
               <span className="text-xs">{memberCount}</span>
             </button>
           )}
           {/* Tabs */}
           {[
-            { key: "chat", label: "Chat", icon: <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> },
-            { key: "pinned", label: "📌", icon: null },
-            { key: "library", label: "🗂️", icon: null },
+            { key: "chat", label: "Chat" },
+            { key: "pinned", label: "📌" },
+            { key: "library", label: "🗂️" },
           ].map(({ key, label }) => (
             <button key={key} onClick={() => setTab(key as Tab)}
-              className={`px-2.5 h-8 rounded-lg text-sm font-medium transition ${tab === key ? "bg-white/20 text-white" : "text-white/60 hover:bg-white/10 hover:text-white"}`}>
+              className="px-2.5 h-8 rounded-lg text-sm font-medium transition"
+              style={{
+                background: tab === key ? "var(--sl-accent-soft, #EAF1EE)" : "transparent",
+                color: tab === key ? "var(--sl-accent, #3E7368)" : "var(--sl-ink-faint, #8B8A7E)",
+              }}>
               {label}
             </button>
           ))}
