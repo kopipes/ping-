@@ -528,28 +528,53 @@ function renderContent(text: string, dark: boolean) {
   const urls = text.match(URL_RE) ?? [];
   return parts.map((part, i) => {
     const url = urls[i - 1];
-    // Render text part with mention highlighting
-    const renderPart = (str: string) => {
-      const mentionRe = /@([\w][\w\s]*?)(?=\s|$|[^\w\s])/g;
+    // Render text part with mention + markdown highlighting
+    const renderPart = (str: string): React.ReactNode[] => {
+      // Combined regex: bold (**), italic (_), strikethrough (~~), inline code (`)
+      // and @mentions — processed in one pass
+      const tokenRe = /(\*\*(.+?)\*\*|_(.+?)_|~~(.+?)~~|`([^`]+)`|@([\w][\w\s]*?)(?=\s|$|[^\w\s]))/g;
       const segments: React.ReactNode[] = [];
       let last = 0;
       let m: RegExpExecArray | null;
-      while ((m = mentionRe.exec(str)) !== null) {
+      while ((m = tokenRe.exec(str)) !== null) {
         if (m.index > last) segments.push(str.slice(last, m.index));
-        const isSelf = m[1].trim().toLowerCase() === myName;
-        segments.push(
-          <span key={m.index} className={`font-semibold rounded px-0.5 ${
-            isSelf
-              ? "bg-yellow-200 text-yellow-900"
-              : dark ? "text-sky-200" : "text-primary"
-          }`}>
-            @{m[1]}
-          </span>
-        );
+        if (m[2] !== undefined) {
+          // **bold**
+          segments.push(<strong key={m.index}>{m[2]}</strong>);
+        } else if (m[3] !== undefined) {
+          // _italic_
+          segments.push(<em key={m.index}>{m[3]}</em>);
+        } else if (m[4] !== undefined) {
+          // ~~strikethrough~~
+          segments.push(<s key={m.index}>{m[4]}</s>);
+        } else if (m[5] !== undefined) {
+          // `code`
+          segments.push(
+            <code key={m.index} style={{
+              fontFamily: "var(--font-mono, monospace)",
+              fontSize: "0.875em",
+              background: dark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.08)",
+              borderRadius: 4,
+              padding: "1px 4px",
+            }}>{m[5]}</code>
+          );
+        } else if (m[6] !== undefined) {
+          // @mention
+          const isSelf = m[6].trim().toLowerCase() === myName;
+          segments.push(
+            <span key={m.index} className={`font-semibold rounded px-0.5 ${
+              isSelf
+                ? "bg-yellow-200 text-yellow-900"
+                : dark ? "text-sky-200" : "text-primary"
+            }`}>
+              @{m[6]}
+            </span>
+          );
+        }
         last = m.index + m[0].length;
       }
       if (last < str.length) segments.push(str.slice(last));
-      return segments.length > 0 ? segments : str;
+      return segments.length > 0 ? segments : [str];
     };
     return (
       <span key={i}>
