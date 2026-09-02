@@ -140,8 +140,7 @@ export function ProfileView({ onClose }: { onClose?: () => void }) {
   const onFontFamily = (key: "jakarta" | "lato") => {
     setFontFamily(key);
     const value = key === "lato" ? "Lato, sans-serif" : "'Plus Jakarta Sans', sans-serif";
-    document.documentElement.style.fontFamily = value;
-    document.documentElement.style.setProperty("--font-app", key === "lato" ? "Lato" : "Plus Jakarta Sans");
+    document.body.style.fontFamily = value;
     localStorage.setItem("pvc-font-family", key);
   };
 
