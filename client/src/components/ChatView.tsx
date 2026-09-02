@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo, useLayoutEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "../store/auth";
 import { useChatStore } from "../store/chat";
@@ -47,6 +47,19 @@ export function ChatView() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const topRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const prevMessagesCountRef = useRef(0);
+  const prevScrollHeightRef = useRef(0);
+  const isLoadingMoreRef = useRef(false);
+
+  // Preserve scroll position when older messages are prepended
+  useLayoutEffect(() => {
+    if (isLoadingMoreRef.current && scrollRef.current) {
+      const newScrollHeight = scrollRef.current.scrollHeight;
+      const diff = newScrollHeight - prevScrollHeightRef.current;
+      scrollRef.current.scrollTop += diff;
+      isLoadingMoreRef.current = false;
+    }
+  }, [messages.length]);
 
   // Infinite scroll — load older messages when top sentinel is visible
   useEffect(() => {
@@ -54,7 +67,12 @@ export function ChatView() {
     if (!el) return;
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && prevCursor && !loadingMore) {
+        if (entries[0].isIntersecting && prevCursor && !loadingMore && !loading) {
+          // Capture scroll height before loading
+          if (scrollRef.current) {
+            prevScrollHeightRef.current = scrollRef.current.scrollHeight;
+            isLoadingMoreRef.current = true;
+          }
           loadMoreMessages(id);
         }
       },
@@ -62,17 +80,27 @@ export function ChatView() {
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [id, prevCursor, loadingMore, loadMoreMessages]);
+  }, [id, prevCursor, loadingMore, loading, loadMoreMessages]);
 
   useEffect(() => {
     openConversation(id);
     markRead(id);
     joinConversation(id);
+    prevMessagesCountRef.current = 0;
+    isLoadingMoreRef.current = false;
   }, [id]);
 
+  // Scroll to bottom only for new messages (not load-more prepends)
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages.length]);
+    if (loading) return; // don't scroll during initial load
+    const prev = prevMessagesCountRef.current;
+    const curr = messages.length;
+    prevMessagesCountRef.current = curr;
+    // Only scroll if messages were appended (new message), not prepended (load more)
+    if (curr > prev && !isLoadingMoreRef.current) {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages.length, loading]);
 
   const isDM = convo?.type === "DM";
   // Use server-computed canPost — it already accounts for isReadOnly AND admin role
