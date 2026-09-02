@@ -164,36 +164,36 @@
   --shadow-focus:           0 0 0 3px #E4E4E7;
 }
 
-/* Theme 5: Bordeaux — Deep Rose */
-[data-theme="bordeaux"] {
-  --color-rail-bg:          #1A0E14;
-  --color-sidebar-bg:       #2D1520;
-  --color-rail-active-pill: #E11D48;
-  --color-brand-50:         #FFF1F2;
-  --color-brand-100:        #FFE4E6;
-  --color-brand-500:        #F43F5E;
-  --color-brand-600:        #E11D48;
-  --color-brand-700:        #BE123C;
-  --surface-active:         #FFF1F2;
-  --shadow-focus:           0 0 0 3px #FFE4E6;
+/* Theme 5: Crimson — Vivid Red */
+[data-theme="crimson"] {
+  --color-rail-bg:          #1A0A0A;
+  --color-sidebar-bg:       #2D1010;
+  --color-rail-active-pill: #EF4444;
+  --color-brand-50:         #FEF2F2;
+  --color-brand-100:        #FEE2E2;
+  --color-brand-500:        #EF4444;
+  --color-brand-600:        #DC2626;
+  --color-brand-700:        #B91C1C;
+  --surface-active:         #FEF2F2;
+  --shadow-focus:           0 0 0 3px #FEE2E2;
 }
 
 /* ── Pastel Themes ─────────────────────────────────────────────────────────────
    Light rail & sidebar with soft brand accents.
    ──────────────────────────────────────────────────────────────────────────── */
 
-/* Theme 6: Sakura — Soft Pink */
-[data-theme="sakura"] {
-  --color-rail-bg:          #4A1A2A;
-  --color-sidebar-bg:       #6B2D3E;
-  --color-rail-active-pill: #F472B6;
-  --color-brand-50:         #FDF2F8;
-  --color-brand-100:        #FCE7F3;
-  --color-brand-500:        #EC4899;
-  --color-brand-600:        #DB2777;
-  --color-brand-700:        #BE185D;
-  --surface-active:         #FDF2F8;
-  --shadow-focus:           0 0 0 3px #FCE7F3;
+/* Theme 6: Fuchsia — Vivid Magenta */
+[data-theme="fuchsia"] {
+  --color-rail-bg:          #2A0A2E;
+  --color-sidebar-bg:       #3D1045;
+  --color-rail-active-pill: #D946EF;
+  --color-brand-50:         #FDF4FF;
+  --color-brand-100:        #FAE8FF;
+  --color-brand-500:        #D946EF;
+  --color-brand-600:        #C026D3;
+  --color-brand-700:        #A21CAF;
+  --surface-active:         #FDF4FF;
+  --shadow-focus:           0 0 0 3px #FAE8FF;
 }
 
 /* Theme 7: Ocean — Soft Teal */
@@ -224,18 +224,18 @@
   --shadow-focus:           0 0 0 3px #EDE9FE;
 }
 
-/* Theme 9: Peach — Soft Orange */
-[data-theme="peach"] {
-  --color-rail-bg:          #3D1A0A;
-  --color-sidebar-bg:       #5C2D12;
-  --color-rail-active-pill: #FB923C;
-  --color-brand-50:         #FFF7ED;
-  --color-brand-100:        #FFEDD5;
-  --color-brand-500:        #F97316;
-  --color-brand-600:        #EA6C0A;
-  --color-brand-700:        #C2570B;
-  --surface-active:         #FFF7ED;
-  --shadow-focus:           0 0 0 3px #FFEDD5;
+/* Theme 9: Sunset — Vivid Amber */
+[data-theme="sunset"] {
+  --color-rail-bg:          #1A1205;
+  --color-sidebar-bg:       #2E1E08;
+  --color-rail-active-pill: #F59E0B;
+  --color-brand-50:         #FFFBEB;
+  --color-brand-100:        #FEF3C7;
+  --color-brand-500:        #F59E0B;
+  --color-brand-600:        #D97706;
+  --color-brand-700:        #B45309;
+  --surface-active:         #FFFBEB;
+  --shadow-focus:           0 0 0 3px #FEF3C7;
 }
 
 /* Theme 10: Mint — Soft Green */
