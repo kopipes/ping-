@@ -352,6 +352,19 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
                       Edit info group
                     </button>
                   )}
+                  {/* Channel ID — visible to admins only for webhook integration */}
+                  {isAdminish && (
+                    <div className="mt-3 pt-3 border-t border-gray-100">
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Channel ID (Webhook)</p>
+                      <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+                        <code className="flex-1 text-xs text-gray-600 font-mono truncate">{conversationId}</code>
+                        <button
+                          onClick={() => { navigator.clipboard.writeText(conversationId); toast("Channel ID disalin"); }}
+                          className="shrink-0 text-xs text-primary hover:underline font-medium"
+                        >Salin</button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </section>
