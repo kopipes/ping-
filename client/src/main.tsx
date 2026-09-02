@@ -26,6 +26,15 @@ const savedSidebarSize = localStorage.getItem("pvc-font-sidebar") || "normal";
 document.documentElement.style.fontSize = sizeMap[savedChatSize] || "15px";
 document.documentElement.style.setProperty("--sidebar-font-size", sizeMap[savedSidebarSize] || "15px");
 
+// Apply saved font family on boot
+const savedFont = localStorage.getItem("pvc-font-family") || "jakarta";
+document.documentElement.style.setProperty(
+  "--font-app",
+  savedFont === "lato"
+    ? "'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+    : "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+);
+
 // Apply saved avatar shape on boot
 const shapeMap: Record<string, string> = { circle: "50%", rounded: "8px", square: "0px" };
 const savedShape = localStorage.getItem("pvc-avatar-shape") || "rounded";

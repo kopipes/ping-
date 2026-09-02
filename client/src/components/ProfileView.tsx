@@ -133,6 +133,19 @@ export function ProfileView({ onClose }: { onClose?: () => void }) {
     (localStorage.getItem("pvc-font-chat") as FontSizeKey) || "normal"
   );
 
+  // Font family
+  const [fontFamily, setFontFamily] = useState<"jakarta" | "lato">(
+    (localStorage.getItem("pvc-font-family") as "jakarta" | "lato") || "jakarta"
+  );
+  const onFontFamily = (key: "jakarta" | "lato") => {
+    setFontFamily(key);
+    const value = key === "lato"
+      ? "'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+      : "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+    document.documentElement.style.setProperty("--font-app", value);
+    localStorage.setItem("pvc-font-family", key);
+  };
+
   // Avatar shape
   const [avatarShape, setAvatarShape] = useState<AvatarShapeKey>(
     (localStorage.getItem("pvc-avatar-shape") as AvatarShapeKey) || "rounded"
@@ -395,6 +408,25 @@ export function ProfileView({ onClose }: { onClose?: () => void }) {
                 </button>
               );
             })}
+          </div>
+        </section>
+
+        {/* Font family */}
+        <section>
+          <h4 className="text-sm font-semibold text-textp mb-2">Jenis Font</h4>
+          <div className="flex gap-2">
+            {([
+              { key: "jakarta", label: "Plus Jakarta Sans", font: "'Plus Jakarta Sans', sans-serif" },
+              { key: "lato",    label: "Lato",              font: "'Lato', sans-serif" },
+            ] as const).map((f) => (
+              <button key={f.key} onClick={() => onFontFamily(f.key)}
+                className={`flex-1 h-12 rounded-xl border font-medium transition ${
+                  fontFamily === f.key ? "bg-primary text-white border-primary" : "bg-white border-border text-texts hover:bg-hover"
+                }`}
+                style={{ fontFamily: f.font }}>
+                {f.label}
+              </button>
+            ))}
           </div>
         </section>
 

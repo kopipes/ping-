@@ -2,12 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=JetBrains+Mono:wght@400;500&family=Lato:ital,wght@0,400;0,700;0,900;1,400&display=swap');
 
 /* Design system tokens — exact values from pvchat-design-system.css */
 :root {
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-lato: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+  --font-app: var(--font-sans);
 
   /* Brand — Signal Blue (exact from design system) */
   --color-brand-50:  #EEF1FE;
@@ -290,7 +292,7 @@
   }
   body {
     @apply bg-appbg text-textp antialiased;
-    font-family: var(--font-sans);
+    font-family: var(--font-app);
     font-size: 15px;
     line-height: 1.5;
     overscroll-behavior: none;
