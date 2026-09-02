@@ -294,7 +294,6 @@
   body {
     @apply bg-appbg text-textp antialiased;
     font-family: var(--font-app);
-    font-size: 15px;
     line-height: 1.5;
     overscroll-behavior: none;
     overflow-x: hidden;
