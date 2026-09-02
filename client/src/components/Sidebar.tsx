@@ -207,7 +207,9 @@ function WaItem({
               fontWeight: unread ? 500 : 400,
             }}
           >
-            {previewText || "\u00A0"}
+            {previewSender ? (
+              <><span style={{ fontWeight: 600 }}>{previewSender}:</span> {preview || "\u00A0"}</>
+            ) : (previewText || "\u00A0")}
           </span>
           {(unreadCount ?? 0) > 0 && (
             <span
