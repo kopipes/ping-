@@ -337,17 +337,8 @@ export const useChatStore = create<ChatStore>((set, get) => ({
           x.userId === m.userId &&
           (x.content === m.content || (x.content === null && m.content === null))
       );
-      if (pendingIdx >= 0) {
-        const next = [...list];
-        next[pendingIdx] = { ...m, status: "sent" };
-        return { messages: { ...s.messages, [m.conversationId]: next } };
-      }
-      const exists = list.some((x) => x.id === m.id);
-      const messages = {
-        ...s.messages,
-        [m.conversationId]: exists ? list.map((x) => (x.id === m.id ? m : x)) : [...list, m],
-      };
-      // update unread + last message preview di sidebar utk conversation bukan aktif
+
+      // Always bump sidebar preview regardless of optimistic reconcile
       let sidebar = s.sidebar;
       if (sidebar) {
         const isActive = m.conversationId === s.activeId;
@@ -373,6 +364,17 @@ export const useChatStore = create<ChatStore>((set, get) => ({
           dms: bump(sidebar.dms),
         };
       }
+
+      if (pendingIdx >= 0) {
+        const next = [...list];
+        next[pendingIdx] = { ...m, status: "sent" };
+        return { messages: { ...s.messages, [m.conversationId]: next }, sidebar };
+      }
+      const exists = list.some((x) => x.id === m.id);
+      const messages = {
+        ...s.messages,
+        [m.conversationId]: exists ? list.map((x) => (x.id === m.id ? m : x)) : [...list, m],
+      };
       return { messages, sidebar };
     });
   },
