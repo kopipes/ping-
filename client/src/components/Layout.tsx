@@ -99,7 +99,7 @@ export function Layout() {
 
   // Desktop: Icon Rail (72px) + Sidebar (240px) + Main content
   return (
-    <div className="h-full flex bg-appbg" style={{ fontFamily: "var(--font-sans)" }}>
+    <div className="h-full flex bg-appbg">
       {/* Icon Rail — always visible on desktop */}
       <IconRail />
 
