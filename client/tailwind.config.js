@@ -10,27 +10,27 @@ export default {
         "sb-active":"#EAF1EE",
         "sb-text":  "#8B8A7E",
         "sb-white": "#22221D",
-        // Main area — Studio Ledger warm paper
-        appbg:      "#F7F6F1",
-        "ch-bg":    "#F7F6F1",
-        hover:      "#EDECE5",
-        border:     "#DEDCD2",
-        // Text — Studio Ledger ink
-        textp:      "#22221D",
-        texts:      "#5C5B51",
-        textm:      "#8B8A7E",
-        // Brand — Studio Ledger accent teal
-        primary:    "#3E7368",
+        // Main area
+        appbg:       "#F7F6F1",
+        "ch-bg":     "#F7F6F1",
+        hover:       "#EDECE5",
+        border:      "#DEDCD2",
+        // Text
+        textp:       "#22221D",
+        texts:       "#5C5B51",
+        textm:       "#8B8A7E",
+        // Brand
+        primary:     "#3E7368",
         primaryhover:"#32615A",
         // Status
-        success:    "#3E7368",
-        warning:    "#A67C2E",
-        danger:     "#A5484A",
-        unread:     "#A5484A",
-        online:     "#3E7368",
+        success:     "#3E7368",
+        warning:     "#A67C2E",
+        danger:      "#A5484A",
+        unread:      "#A5484A",
+        online:      "#3E7368",
         // Message
-        mention:    "#EEF1FE",
-        "msg-hover":"#F1F2F6",
+        mention:     "#EAF1EE",
+        "msg-hover": "#EDECE5",
       },
       fontFamily: {
         sans: ["'Plus Jakarta Sans'", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],

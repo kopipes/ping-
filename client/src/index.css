@@ -57,6 +57,17 @@
   --color-sidebar-text:        var(--sl-ink-faint);
   --color-sidebar-text-active: var(--sl-ink);
 
+  /* Chat area - driven by --sl-* so all themes work */
+  --color-chat-bg:         var(--sl-bg);
+  --color-chat-hover:      var(--sl-surface);
+  --color-chat-border:     var(--sl-line-strong);
+  --color-chat-text:       var(--sl-ink);
+  --color-chat-text-soft:  var(--sl-ink-soft);
+  --color-chat-text-muted: var(--sl-ink-faint);
+  --color-accent-hover:    var(--sl-accent);
+  --color-mention-bg:      var(--sl-accent-soft);
+  --color-msg-hover:       var(--sl-surface);
+
   /* Neutral palette */
   --color-neutral-0:   #FFFFFF;
   --color-neutral-50:  #F8F9FC;
@@ -567,6 +578,78 @@
   }
   .chat-window-bg {
     background-color: var(--chat-bg, var(--sl-bg, #F7F6F1));
+  }
+  /* Theme-aware chat area overrides.
+     Tailwind compiles static hex values, so we override them here via --sl-* tokens.
+     These rules have higher specificity than Tailwind utilities inside [data-area=chat]. */
+  body {
+    background-color: var(--sl-bg, #F7F6F1);
+    color: var(--sl-ink, #22221D);
+  }
+  /* bg-appbg / bg-ch-bg used on chat window wrappers */
+  .bg-appbg, .bg-ch-bg {
+    background-color: var(--sl-bg) !important;
+  }
+  /* bg-hover used on hover states */
+  .hover\:bg-hover:hover, .bg-hover {
+    background-color: var(--sl-surface) !important;
+  }
+  /* border color */
+  .border-border {
+    border-color: var(--sl-line-strong) !important;
+  }
+  .bg-border {
+    background-color: var(--sl-line-strong) !important;
+  }
+  /* text colors */
+  .text-textp {
+    color: var(--sl-ink) !important;
+  }
+  .text-texts {
+    color: var(--sl-ink-soft) !important;
+  }
+  .text-textm {
+    color: var(--sl-ink-faint) !important;
+  }
+  /* message hover row */
+  .hover\:bg-msg-hover:hover {
+    background-color: var(--sl-surface) !important;
+  }
+  /* primary / brand accent */
+  .bg-primary {
+    background-color: var(--sl-accent) !important;
+  }
+  .text-primary {
+    color: var(--sl-accent) !important;
+  }
+  .hover\:bg-primaryhover:hover {
+    background-color: var(--sl-accent) !important;
+  }
+  .border-primary {
+    border-color: var(--sl-accent) !important;
+  }
+  /* mention highlight */
+  .bg-mention {
+    background-color: var(--sl-accent-soft) !important;
+  }
+  /* composer / input boxes */
+  .composer-box {
+    background-color: var(--sl-bg);
+    border-color: var(--sl-line-strong);
+  }
+  .input-base {
+    background-color: var(--sl-bg);
+    color: var(--sl-ink);
+    border-color: var(--sl-line-strong);
+  }
+  /* msg-actions popup */
+  .msg-actions {
+    background-color: var(--sl-bg) !important;
+    border-color: var(--sl-line-strong) !important;
+  }
+  /* date separator pill */
+  .bg-appbg.px-2 {
+    background-color: var(--sl-bg) !important;
   }
   /* Scoped font sizes */
   [data-area="sidebar"] {
