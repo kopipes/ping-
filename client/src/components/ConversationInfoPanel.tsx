@@ -38,6 +38,7 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
   const iconInputRef = useRef<HTMLInputElement>(null);
   // Local isPublic state — initialized from convo, updates instantly on toggle
   const [isPublic, setIsPublic] = useState<boolean>(false);
+  const [allowGuestPost, setAllowGuestPost] = useState<boolean>(false);
 
   // Members state
   const [members, setMembers] = useState<any[]>([]);
@@ -61,6 +62,7 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
       setEditDesc(convo.description || "");
       setEditIcon(convo.icon || "📁");
       setIsPublic(!!convo.isPublic);
+      setAllowGuestPost(!!(convo as any).allowGuestPost);
     }
   }, [convo]);
 
@@ -199,6 +201,25 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
       // Revert local state on error
       setIsPublic(!newValue);
       toast(e?.message || "Gagal update visibilitas");
+    }
+  };
+
+  const toggleGuestPost = async () => {
+    const newValue = !allowGuestPost;
+    setAllowGuestPost(newValue);
+    try {
+      await api(`/api/conversations/${conversationId}`, {
+        method: "PATCH",
+        body: { allowGuestPost: newValue },
+      });
+      useChatStore.setState((s) => ({
+        conversation: { ...s.conversation, [conversationId]: undefined as any },
+      }));
+      await openConversation(conversationId);
+      toast(newValue ? "Siapapun bisa mengirim pesan di group ini" : "Hanya member yang bisa mengirim pesan");
+    } catch (e: any) {
+      setAllowGuestPost(!newValue);
+      toast(e?.message || "Gagal update pengaturan posting");
     }
   };
 
@@ -482,6 +503,35 @@ export function ConversationInfoPanel({ conversationId, onClose }: Props) {
                   {isPublic ? "Jadikan Member Only" : "Jadikan Public"}
                 </button>
               </div>
+              {/* Allow guest post — only shown when group is public */}
+              {isPublic && (
+                <div className="mb-3 p-3 rounded-lg border border-gray-200 bg-gray-50">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Siapa yang bisa posting?</span>
+                    <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
+                      allowGuestPost
+                        ? "bg-blue-100 text-blue-700 border border-blue-200"
+                        : "bg-gray-200 text-gray-600 border border-gray-300"
+                    }`}>
+                      {allowGuestPost ? "✏️ Semua User" : "👥 Member Only"}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-500 mb-2">
+                    {allowGuestPost
+                      ? "Semua user (member atau bukan) bisa mengirim pesan."
+                      : "Hanya member yang terdaftar yang bisa mengirim pesan."}
+                  </p>
+                  <button
+                    onClick={toggleGuestPost}
+                    className={`w-full h-8 rounded-lg text-xs font-semibold transition border ${
+                      allowGuestPost
+                        ? "bg-white border-gray-300 text-gray-700 hover:bg-gray-100"
+                        : "bg-white border-blue-300 text-blue-700 hover:bg-blue-50"
+                    }`}>
+                    {allowGuestPost ? "Jadikan Member Only Posting" : "Izinkan Semua User Posting"}
+                  </button>
+                </div>
+              )}
               {/* Pin/unpin */}
               <button
                 onClick={togglePinnedTop}

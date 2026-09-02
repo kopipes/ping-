@@ -47,6 +47,7 @@ model Conversation {
   isPinnedTop    Boolean  @default(false) // true utk Announcement & General Chat
   isReadOnly     Boolean  @default(false) // true khusus utk Announcement
   isPublic       Boolean  @default(false) // true = visible to all users without membership
+  allowGuestPost Boolean  @default(false) // true = non-members can post (only if isPublic=true)
   createdAt      DateTime @default(now())
 
   parent        Conversation?         @relation("SubTopics", fields: [parentId], references: [id])

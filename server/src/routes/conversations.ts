@@ -498,6 +498,7 @@ export async function conversationRoutes(app: FastifyInstance) {
       description?: string;
       icon?: string;
       isPublic?: boolean;
+      allowGuestPost?: boolean;
     };
     const user = await prisma.user.findUnique({ where: { id: req.user.id } });
     const conv = await prisma.conversation.findUnique({
@@ -523,6 +524,7 @@ export async function conversationRoutes(app: FastifyInstance) {
     if (body.description !== undefined) data.description = body.description?.trim() || null;
     if (body.icon?.trim()) data.icon = body.icon.trim();
     if (typeof body.isPublic === "boolean") data.isPublic = body.isPublic;
+    if (typeof body.allowGuestPost === "boolean") data.allowGuestPost = body.allowGuestPost;
     const updated = await prisma.conversation.update({ where: { id }, data });
     await prisma.auditLog.create({
       data: {
@@ -648,23 +650,30 @@ export async function conversationRoutes(app: FastifyInstance) {
       where: { id },
       select: {
         ownerId: true, parentId: true, allowStaffPin: true, isReadOnly: true, name: true, icon: true, type: true,
+        allowGuestPost: true,
         members: { select: { userId: true } },
       },
     });
     const roleRank = tupleRank(user?.role ?? "STAFF");
+    const isMember = !!member;
     // canDeleteDM: DM where the other user's account is gone (only 1 member remains)
     const canDeleteDM = conv?.type === "DM" && (conv?.members?.length ?? 0) === 1;
+    // canPost: member can post unless isReadOnly; non-member can only post if allowGuestPost=true
+    const canPost = isMember
+      ? !(conv?.isReadOnly && roleRank < 2)
+      : (conv?.allowGuestPost === true && !conv?.isReadOnly);
     return {
       isSuperAdmin: roleRank >= 3,
       isAdmin: roleRank >= 2,
       isManagerOrAbove: roleRank >= 1,
       isOwner: conv?.ownerId === req.user.id,
-      canPost: !(conv?.isReadOnly && roleRank < 2),
+      canPost,
       canCreateLevel1: roleRank >= 2,
       canManageMembers: roleRank >= 2 || conv?.ownerId === req.user.id,
       canStaffPin: conv?.allowStaffPin ?? true,
       isSystemTopic: conv?.name === SYSTEM_ANNOUNCEMENT_NAME || conv?.name === SYSTEM_GENERAL_NAME,
       canDeleteDM,
+      allowGuestPost: conv?.allowGuestPost ?? false,
     };
   });
 }
