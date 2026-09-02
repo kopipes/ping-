@@ -68,7 +68,7 @@ function PinnedBubble({ message }: { message: Message }) {
   const img = message.attachments?.find((a) => a.type === "IMAGE");
   return (
     <div className="rounded-xl bg-sidebar border border-border px-3 py-2">
-      {message.content && <div className="text-[15px] whitespace-pre-wrap break-words">{message.content}</div>}
+      {message.content && <div className="whitespace-pre-wrap break-words">{message.content}</div>}
       {img && <img src={assetUrl(img.thumbnailUrl || img.fileUrl)} alt="" className="mt-1 rounded-lg max-h-40" />}
       <div className="text-[11px] text-textm mt-1">{message.user?.name} · {new Date(message.createdAt).toLocaleString()}</div>
     </div>

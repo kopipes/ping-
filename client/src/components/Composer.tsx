@@ -180,7 +180,7 @@ export function Composer({
         <div className="px-3 py-2">
           <textarea
             ref={textareaRef}
-            className="w-full resize-none bg-transparent text-textp text-[15px] outline-none placeholder:text-textm leading-[1.46668]"
+            className="w-full resize-none bg-transparent text-textp outline-none placeholder:text-textm leading-[1.46668]"
             style={{ minHeight: 22 }}
             rows={1}
             placeholder={t("chat.placeholder")}

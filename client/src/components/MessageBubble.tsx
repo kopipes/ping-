@@ -262,7 +262,7 @@ export function MessageBubble(props: {
             {/* Text */}
             {message.content && (
               <div className="px-3.5 py-2 text-white leading-[1.46] whitespace-pre-wrap break-words"
-                style={{ fontSize: "var(--app-font-size, 15px)" }}>
+                style={{ fontSize: "var(--chat-font-size, 15px)" }}>
                 {renderContent(message.content, true)}
               </div>
             )}
@@ -415,7 +415,7 @@ export function MessageBubble(props: {
             {/* Text */}
             {message.content && (
               <p className="leading-[1.46668] text-textp whitespace-pre-wrap break-words"
-                style={{ fontSize: "var(--app-font-size, 15px)" }}>
+                style={{ fontSize: "var(--chat-font-size, 15px)" }}>
                 {renderContent(message.content, false)}
               </p>
             )}
