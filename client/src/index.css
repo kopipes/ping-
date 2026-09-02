@@ -164,11 +164,20 @@
   --shadow-focus:           0 0 0 3px #E4E4E7;
 }
 
-/* Theme 5: Crimson — Vivid Red */
+/* Theme 5: Crimson — Light Rose with vivid red accent */
 [data-theme="crimson"] {
-  --color-rail-bg:          #1A0A0A;
-  --color-sidebar-bg:       #2D1010;
+  --color-rail-bg:          #FDE8E8;
+  --color-sidebar-bg:       #FEF2F2;
   --color-rail-active-pill: #EF4444;
+  --color-rail-icon:        rgba(80,10,10,0.50);
+  --color-rail-icon-hover:  rgba(80,10,10,0.85);
+  --color-rail-icon-active: #DC2626;
+  --color-rail-bg-hover:    rgba(239,68,68,0.10);
+  --color-rail-bg-active:   rgba(239,68,68,0.15);
+  --color-sidebar-text:        rgba(80,10,10,0.60);
+  --color-sidebar-text-active: #450A0A;
+  --color-sidebar-hover:       rgba(239,68,68,0.08);
+  --color-sidebar-active:      rgba(239,68,68,0.15);
   --color-brand-50:         #FEF2F2;
   --color-brand-100:        #FEE2E2;
   --color-brand-500:        #EF4444;
@@ -176,17 +185,31 @@
   --color-brand-700:        #B91C1C;
   --surface-active:         #FEF2F2;
   --shadow-focus:           0 0 0 3px #FEE2E2;
+  --sidebar-header-bg:      rgba(239,68,68,0.06);
+  --sidebar-header-border:  rgba(239,68,68,0.15);
+  --sidebar-input-bg:       rgba(239,68,68,0.08);
+  --sidebar-input-icon:     rgba(80,10,10,0.35);
+  --sidebar-section-label:  rgba(80,10,10,0.45);
 }
 
 /* ── Pastel Themes ─────────────────────────────────────────────────────────────
    Light rail & sidebar with soft brand accents.
    ──────────────────────────────────────────────────────────────────────────── */
 
-/* Theme 6: Fuchsia — Vivid Magenta */
+/* Theme 6: Fuchsia — Light Magenta with vivid accent */
 [data-theme="fuchsia"] {
-  --color-rail-bg:          #2A0A2E;
-  --color-sidebar-bg:       #3D1045;
+  --color-rail-bg:          #FAE8FF;
+  --color-sidebar-bg:       #FDF4FF;
   --color-rail-active-pill: #D946EF;
+  --color-rail-icon:        rgba(74,4,78,0.50);
+  --color-rail-icon-hover:  rgba(74,4,78,0.85);
+  --color-rail-icon-active: #C026D3;
+  --color-rail-bg-hover:    rgba(217,70,239,0.10);
+  --color-rail-bg-active:   rgba(217,70,239,0.15);
+  --color-sidebar-text:        rgba(74,4,78,0.60);
+  --color-sidebar-text-active: #4A044E;
+  --color-sidebar-hover:       rgba(217,70,239,0.08);
+  --color-sidebar-active:      rgba(217,70,239,0.15);
   --color-brand-50:         #FDF4FF;
   --color-brand-100:        #FAE8FF;
   --color-brand-500:        #D946EF;
@@ -194,6 +217,11 @@
   --color-brand-700:        #A21CAF;
   --surface-active:         #FDF4FF;
   --shadow-focus:           0 0 0 3px #FAE8FF;
+  --sidebar-header-bg:      rgba(217,70,239,0.06);
+  --sidebar-header-border:  rgba(217,70,239,0.15);
+  --sidebar-input-bg:       rgba(217,70,239,0.08);
+  --sidebar-input-icon:     rgba(74,4,78,0.35);
+  --sidebar-section-label:  rgba(74,4,78,0.45);
 }
 
 /* Theme 7: Ocean — Soft Teal */
@@ -224,11 +252,20 @@
   --shadow-focus:           0 0 0 3px #EDE9FE;
 }
 
-/* Theme 9: Sunset — Vivid Amber */
+/* Theme 9: Sunset — Light Amber with vivid accent */
 [data-theme="sunset"] {
-  --color-rail-bg:          #1A1205;
-  --color-sidebar-bg:       #2E1E08;
+  --color-rail-bg:          #FEF3C7;
+  --color-sidebar-bg:       #FFFBEB;
   --color-rail-active-pill: #F59E0B;
+  --color-rail-icon:        rgba(78,40,0,0.50);
+  --color-rail-icon-hover:  rgba(78,40,0,0.85);
+  --color-rail-icon-active: #D97706;
+  --color-rail-bg-hover:    rgba(245,158,11,0.12);
+  --color-rail-bg-active:   rgba(245,158,11,0.18);
+  --color-sidebar-text:        rgba(78,40,0,0.60);
+  --color-sidebar-text-active: #451A03;
+  --color-sidebar-hover:       rgba(245,158,11,0.08);
+  --color-sidebar-active:      rgba(245,158,11,0.18);
   --color-brand-50:         #FFFBEB;
   --color-brand-100:        #FEF3C7;
   --color-brand-500:        #F59E0B;
@@ -236,6 +273,11 @@
   --color-brand-700:        #B45309;
   --surface-active:         #FFFBEB;
   --shadow-focus:           0 0 0 3px #FEF3C7;
+  --sidebar-header-bg:      rgba(245,158,11,0.06);
+  --sidebar-header-border:  rgba(245,158,11,0.18);
+  --sidebar-input-bg:       rgba(245,158,11,0.10);
+  --sidebar-input-icon:     rgba(78,40,0,0.35);
+  --sidebar-section-label:  rgba(78,40,0,0.45);
 }
 
 /* Theme 10: Mint — Soft Green */
