@@ -470,6 +470,30 @@ export function Sidebar() {
                   <div>
                     {(sidebar?.level1 || []).filter(matchItem).map((lv) => (
                       <div key={lv.id}>
+                        {/* Orphan sub: show parent as non-clickable label above */}
+                        {lv.isOrphanSub && (
+                          <div
+                            className="flex items-center gap-2 px-4 pt-2 pb-1 select-none"
+                            style={{ opacity: 0.5, cursor: "default" }}
+                          >
+                            <span
+                              className="inline-flex items-center justify-center shrink-0 text-xs font-bold"
+                              style={{
+                                width: 22, height: 22,
+                                borderRadius: "var(--sl-radius-tile, 8px)",
+                                background: "var(--sl-tile-folder-bg, #F3EEE0)",
+                                color: "var(--sl-tile-folder-fg, #A67C2E)",
+                              }}
+                            >
+                              {lv.parentIcon && (lv.parentIcon.startsWith("/") || lv.parentIcon.startsWith("http"))
+                                ? <img src={apiUrl(lv.parentIcon)} alt="" style={{ width: 22, height: 22, borderRadius: "var(--sl-radius-tile, 8px)", objectFit: "cover" }} />
+                                : (lv.parentIcon || "#")}
+                            </span>
+                            <span style={{ fontSize: 12, fontWeight: 600, color: "var(--sl-ink-faint, #8B8A7E)" }}>
+                              {lv.parentName || "Group"}
+                            </span>
+                          </div>
+                        )}
                         <WaItem
                           avatarIcon={lv.icon || "#"}
                           label={lv.name || "channel"}

@@ -23,6 +23,8 @@ export interface SidebarItem {
   unread: number;
   subTopics?: SidebarItem[];
   isOrphanSub?: boolean;
+  parentName?: string | null;
+  parentIcon?: string | null;
   partnerId?: string | null;
   lastMessageAt?: string | null;
   lastMessageText?: string | null;

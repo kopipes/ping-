@@ -65,6 +65,8 @@ interface SidebarItem {
   unread: number;
   subTopics?: SidebarItem[];
   isOrphanSub?: boolean;
+  parentName?: string | null;
+  parentIcon?: string | null;
   partnerId?: string | null;
   lastMessageAt?: string | null;
   lastMessageText?: string | null;
@@ -200,6 +202,25 @@ export async function getSidebar(userId: string) {
       parent.subTopics.push(sub);
     } else {
       level1.push({ ...sub, isOrphanSub: true, subTopics: [] });
+    }
+  }
+
+  // Fetch parent name/icon for orphan subs in one query
+  const orphanParentIds = level1
+    .filter((i) => i.isOrphanSub && i.parentId)
+    .map((i) => i.parentId as string);
+  if (orphanParentIds.length > 0) {
+    const parents = await prisma.conversation.findMany({
+      where: { id: { in: orphanParentIds } },
+      select: { id: true, name: true, icon: true },
+    });
+    const parentMap = new Map(parents.map((p) => [p.id, p]));
+    for (const item of level1) {
+      if (item.isOrphanSub && item.parentId) {
+        const p = parentMap.get(item.parentId);
+        item.parentName = p?.name ?? null;
+        item.parentIcon = p?.icon ?? null;
+      }
     }
   }
 
