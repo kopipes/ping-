@@ -75,7 +75,7 @@ function applySidebarFontSize(key: FontSizeKey) {
 function applyChatFontSize(key: FontSizeKey) {
   const size = FONT_SIZES.find((f) => f.key === key);
   if (size) {
-    document.documentElement.style.setProperty("--chat-font-size", size.px);
+    document.documentElement.style.fontSize = size.px;
     localStorage.setItem("pvc-font-chat", key);
   }
 }
