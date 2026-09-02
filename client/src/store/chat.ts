@@ -157,6 +157,22 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     // cache: kalau sudah pernah dibuka, langsung tampilkan tanpa menunggu network
     if (get().messages[id]) {
       set((s) => ({ messagesLoading: { ...s.messagesLoading, [id]: false } }));
+      // Background refresh — fetch latest messages and merge to catch any missed ones
+      api<{ messages: Message[]; prevCursor: string | null }>(`/api/conversations/${id}/messages?limit=50`)
+        .then((res) => {
+          set((s) => {
+            const existing = s.messages[id] || [];
+            const existingIds = new Set(existing.map((m) => m.id));
+            // Append any new messages not already in cache
+            const newMsgs = res.messages.filter((m) => !existingIds.has(m.id));
+            const merged = newMsgs.length > 0 ? [...existing, ...newMsgs] : existing;
+            return {
+              messages: { ...s.messages, [id]: merged },
+              prevCursor: { ...s.prevCursor, [id]: res.prevCursor },
+            };
+          });
+        })
+        .catch(() => {});
     } else {
       set((s) => ({ messagesLoading: { ...s.messagesLoading, [id]: true } }));
       api<{ messages: Message[]; prevCursor: string | null }>(`/api/conversations/${id}/messages?limit=50`)
