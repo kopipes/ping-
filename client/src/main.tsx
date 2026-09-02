@@ -28,7 +28,14 @@ document.documentElement.style.setProperty("--sidebar-font-size", sizeMap[savedS
 
 // Apply saved font family on boot
 const savedFont = localStorage.getItem("pvc-font-family") || "jakarta";
-const fontStack = savedFont === "lato" ? "Lato, sans-serif" : "'Plus Jakarta Sans', sans-serif";
+const fontStackMap: Record<string, string> = {
+  jakarta:  "'Plus Jakarta Sans', sans-serif",
+  inter:    "Inter, sans-serif",
+  roboto:   "Roboto, sans-serif",
+  lato:     "Lato, sans-serif",
+  opensans: "'Open Sans', sans-serif",
+};
+const fontStack = fontStackMap[savedFont] || "'Plus Jakarta Sans', sans-serif";
 const fontStyle = document.createElement("style");
 fontStyle.id = "pvc-font-override";
 fontStyle.textContent = `* { font-family: ${fontStack} !important; }`;

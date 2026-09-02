@@ -134,19 +134,27 @@ export function ProfileView({ onClose }: { onClose?: () => void }) {
   );
 
   // Font family
-  const [fontFamily, setFontFamily] = useState<"jakarta" | "lato">(
-    (localStorage.getItem("pvc-font-family") as "jakarta" | "lato") || "jakarta"
+  type FontFamilyKey = "jakarta" | "lato" | "roboto" | "inter" | "opensans";
+  const [fontFamily, setFontFamily] = useState<FontFamilyKey>(
+    (localStorage.getItem("pvc-font-family") as FontFamilyKey) || "jakarta"
   );
-  const onFontFamily = (key: "jakarta" | "lato") => {
+  const FONT_FAMILIES: { key: FontFamilyKey; label: string; stack: string }[] = [
+    { key: "jakarta",  label: "Plus Jakarta Sans", stack: "'Plus Jakarta Sans', sans-serif" },
+    { key: "inter",    label: "Inter",              stack: "Inter, sans-serif" },
+    { key: "roboto",   label: "Roboto",             stack: "Roboto, sans-serif" },
+    { key: "lato",     label: "Lato",               stack: "Lato, sans-serif" },
+    { key: "opensans", label: "Open Sans",          stack: "'Open Sans', sans-serif" },
+  ];
+  const onFontFamily = (key: FontFamilyKey) => {
     setFontFamily(key);
-    const fontStack = key === "lato" ? "Lato, sans-serif" : "'Plus Jakarta Sans', sans-serif";
+    const stack = FONT_FAMILIES.find((f) => f.key === key)!.stack;
     let el = document.getElementById("pvc-font-override") as HTMLStyleElement | null;
     if (!el) {
       el = document.createElement("style");
       el.id = "pvc-font-override";
       document.head.appendChild(el);
     }
-    el.textContent = `* { font-family: ${fontStack} !important; }`;
+    el.textContent = `* { font-family: ${stack} !important; }`;
     localStorage.setItem("pvc-font-family", key);
   };
 
@@ -418,16 +426,13 @@ export function ProfileView({ onClose }: { onClose?: () => void }) {
         {/* Font family */}
         <section>
           <h4 className="text-sm font-semibold text-textp mb-2">Jenis Font</h4>
-          <div className="flex gap-2">
-            {([
-              { key: "jakarta", label: "Plus Jakarta Sans", font: "'Plus Jakarta Sans', sans-serif" },
-              { key: "lato",    label: "Lato",              font: "'Lato', sans-serif" },
-            ] as const).map((f) => (
+          <div className="flex flex-wrap gap-2">
+            {FONT_FAMILIES.map((f) => (
               <button key={f.key} onClick={() => onFontFamily(f.key)}
-                className={`flex-1 h-12 rounded-xl border font-medium transition ${
+                className={`flex-1 h-12 rounded-xl border font-medium transition min-w-[120px] ${
                   fontFamily === f.key ? "bg-primary text-white border-primary" : "bg-white border-border text-texts hover:bg-hover"
                 }`}
-                style={{ fontFamily: f.font }}>
+                style={{ fontFamily: f.stack }}>
                 {f.label}
               </button>
             ))}
