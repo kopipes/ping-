@@ -19,15 +19,6 @@ if ("serviceWorker" in navigator) {
 
 registerSW({ immediate: true });
 
-// Apply saved font sizes on boot
-const sizeMap: Record<string, string> = { xs: "11px", small: "13px", normal: "15px", medium: "17px", large: "19px", xl: "21px", xxl: "24px" };
-const savedChatSize = localStorage.getItem("pvc-font-chat") || "normal";
-const savedSidebarSize = localStorage.getItem("pvc-font-sidebar") || "normal";
-// Chat size scales html so all rem-based Tailwind classes scale in chat
-document.documentElement.style.fontSize = sizeMap[savedChatSize] || "15px";
-// Sidebar size stored as CSS var — applied as absolute px on sidebar container
-document.documentElement.style.setProperty("--sidebar-font-size", sizeMap[savedSidebarSize] || "15px");
-
 // Apply saved font family on boot
 const savedFont = localStorage.getItem("pvc-font-family") || "jakarta";
 const fontStackMap: Record<string, string> = {

@@ -52,34 +52,6 @@ function applyAvatarShape(key: AvatarShapeKey) {
   }
 }
 
-const FONT_SIZES = [
-  { key: "xs",     label: "XS",   px: "11px" },
-  { key: "small",  label: "S",    px: "13px" },
-  { key: "normal", label: "M",    px: "15px" },
-  { key: "medium", label: "L",    px: "17px" },
-  { key: "large",  label: "XL",   px: "19px" },
-  { key: "xl",     label: "XXL",  px: "21px" },
-  { key: "xxl",    label: "XXXL", px: "24px" },
-] as const;
-
-type FontSizeKey = "xs" | "small" | "normal" | "medium" | "large" | "xl" | "xxl";
-
-function applySidebarFontSize(key: FontSizeKey) {
-  const size = FONT_SIZES.find((f) => f.key === key);
-  if (size) {
-    document.documentElement.style.setProperty("--sidebar-font-size", size.px);
-    localStorage.setItem("pvc-font-sidebar", key);
-  }
-}
-
-function applyChatFontSize(key: FontSizeKey) {
-  const size = FONT_SIZES.find((f) => f.key === key);
-  if (size) {
-    document.documentElement.style.fontSize = size.px;
-    localStorage.setItem("pvc-font-chat", key);
-  }
-}
-
 const CHAT_BG_PRESETS = [
   { label: "Putih",        value: "#FFFFFF" },
   { label: "Abu Muda",     value: "#F0F4F9" },
@@ -124,14 +96,6 @@ export function ProfileView({ onClose }: { onClose?: () => void }) {
   const [pwErr, setPwErr] = useState("");
   const [pwSuccess, setPwSuccess] = useState(false);
   const [pwSaving, setPwSaving] = useState(false);
-
-  // Font sizes
-  const [sidebarFontSize, setSidebarFontSize] = useState<FontSizeKey>(
-    (localStorage.getItem("pvc-font-sidebar") as FontSizeKey) || "normal"
-  );
-  const [chatFontSize, setChatFontSize] = useState<FontSizeKey>(
-    (localStorage.getItem("pvc-font-chat") as FontSizeKey) || "normal"
-  );
 
   // Font family
   type FontFamilyKey = "jakarta" | "lato";
@@ -248,8 +212,6 @@ export function ProfileView({ onClose }: { onClose?: () => void }) {
     finally { setAvatarUploading(false); }
   };
 
-  const onSidebarFontSize = (key: FontSizeKey) => { setSidebarFontSize(key); applySidebarFontSize(key); };
-  const onChatFontSize = (key: FontSizeKey) => { setChatFontSize(key); applyChatFontSize(key); };
   const onAvatarShape = (key: AvatarShapeKey) => { setAvatarShape(key); applyAvatarShape(key); };
   const statusText = user.status === "online" ? t("profile.online") : user.status === "away" ? t("profile.away") : t("profile.offline");
 
@@ -434,44 +396,6 @@ export function ProfileView({ onClose }: { onClose?: () => void }) {
               </button>
             ))}
           </div>
-        </section>
-
-        {/* Font size — Sidebar */}
-        <section>
-          <h4 className="text-sm font-semibold text-textp mb-2">Ukuran Font Sidebar</h4>
-          <div className="flex gap-2">
-            {FONT_SIZES.map((f) => (
-              <button key={f.key} onClick={() => onSidebarFontSize(f.key)}
-                className={`flex-1 h-10 rounded-xl border font-medium transition ${
-                  sidebarFontSize === f.key ? "bg-primary text-white border-primary" : "bg-white border-border text-texts hover:bg-hover"
-                }`}
-                style={{ fontSize: f.px }}>
-                {f.label}
-              </button>
-            ))}
-          </div>
-          <p className="text-xs text-textm mt-1.5">
-            Pratinjau: <span style={{ fontSize: FONT_SIZES.find((f) => f.key === sidebarFontSize)?.px }}>Nama group &amp; preview pesan</span>
-          </p>
-        </section>
-
-        {/* Font size — Chat */}
-        <section>
-          <h4 className="text-sm font-semibold text-textp mb-2">Ukuran Font Chat</h4>
-          <div className="flex gap-2">
-            {FONT_SIZES.map((f) => (
-              <button key={f.key} onClick={() => onChatFontSize(f.key)}
-                className={`flex-1 h-10 rounded-xl border font-medium transition ${
-                  chatFontSize === f.key ? "bg-primary text-white border-primary" : "bg-white border-border text-texts hover:bg-hover"
-                }`}
-                style={{ fontSize: f.px }}>
-                {f.label}
-              </button>
-            ))}
-          </div>
-          <p className="text-xs text-textm mt-1.5">
-            Pratinjau: <span style={{ fontSize: FONT_SIZES.find((f) => f.key === chatFontSize)?.px }}>Teks pesan terlihat seperti ini</span>
-          </p>
         </section>
 
         {/* Avatar / icon shape */}

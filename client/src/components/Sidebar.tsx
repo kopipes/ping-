@@ -219,8 +219,8 @@ function SectionHeader({
     <div className="flex items-center justify-between px-3 pt-4 pb-1 group">
       <button
         onClick={onToggle}
-        className="flex items-center gap-1 flex-1 text-left font-semibold uppercase tracking-wide transition"
-        style={{ color: "var(--sidebar-section-label, rgba(255,255,255,0.5))", fontSize: "11px" }}
+        className="flex items-center gap-1 flex-1 text-left text-xs font-semibold uppercase tracking-wide transition"
+        style={{ color: "var(--sidebar-section-label, rgba(255,255,255,0.5))" }}
       >
         {onToggle && (
           <span className="text-[9px] mr-0.5 opacity-60">{collapsed ? "▶" : "▼"}</span>

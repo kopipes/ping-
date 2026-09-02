@@ -77,7 +77,7 @@ export function Layout() {
           {adminOpen ? (
             <div className="h-full flex flex-col overflow-hidden"><AdminPanel /></div>
           ) : showChat ? (
-            <div className="h-full flex flex-col" data-area="chat" style={{ fontSize: "var(--chat-font-size, 15px)" }}><ChatView /></div>
+            <div className="h-full flex flex-col" data-area="chat"><ChatView /></div>
           ) : profileOpen ? (
             <div className="h-full flex flex-col overflow-hidden">
               <ProfileView onClose={() => setProfileOpen(false)} />
@@ -111,7 +111,7 @@ export function Layout() {
       </div>
 
       {/* Main content area */}
-      <div className="flex-1 min-w-0 flex flex-col" data-area="chat" style={{ fontSize: "var(--chat-font-size, 15px)" }}>
+      <div className="flex-1 min-w-0 flex flex-col" data-area="chat">
         {adminOpen ? (
           <AdminPanel />
         ) : profileOpen ? (
