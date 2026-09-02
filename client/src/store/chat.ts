@@ -331,13 +331,20 @@ export const useChatStore = create<ChatStore>((set, get) => ({
         ...s.messages,
         [m.conversationId]: exists ? list.map((x) => (x.id === m.id ? m : x)) : [...list, m],
       };
-      // update unread di sidebar utk conversation bukan aktif
+      // update unread + last message preview di sidebar utk conversation bukan aktif
       let sidebar = s.sidebar;
-      if (sidebar && m.conversationId !== s.activeId) {
+      if (sidebar) {
+        const isActive = m.conversationId === s.activeId;
         const bump = (items: SidebarDataItem[] | undefined): SidebarDataItem[] =>
           (items || []).map((it) =>
             ilConv(it, m.conversationId)
-              ? { ...it, unread: (it.unread || 0) + 1 }
+              ? {
+                  ...it,
+                  unread: isActive ? it.unread : (it.unread || 0) + 1,
+                  lastMessageAt: m.createdAt,
+                  lastMessageText: m.content ?? (it.lastMessageText || null),
+                  lastMessageSender: m.user?.name ?? null,
+                }
               : {
                   ...it,
                   subTopics: it.subTopics ? bump(it.subTopics) : it.subTopics,
