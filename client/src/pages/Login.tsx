@@ -66,7 +66,7 @@ export function Login() {
           <div className="inline-flex w-16 h-16 rounded-2xl overflow-hidden items-center justify-center mb-4">
             <img src="/logo.png" alt="Ping!" className="w-full h-full object-cover" />
           </div>
-          <h1 className="text-white text-2xl font-bold">{t("login.welcome")}</h1>
+          <h1 className="text-sb-white text-2xl font-bold">{t("login.welcome")}</h1>
           <p className="text-sb-text mt-1 text-sm">Ping! — Internal Company Chat</p>
         </div>
 
