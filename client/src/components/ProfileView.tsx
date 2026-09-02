@@ -139,9 +139,7 @@ export function ProfileView({ onClose }: { onClose?: () => void }) {
   );
   const onFontFamily = (key: "jakarta" | "lato") => {
     setFontFamily(key);
-    const value = key === "lato"
-      ? "'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-      : "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+    const value = key === "lato" ? "Lato" : "Plus Jakarta Sans";
     document.documentElement.style.setProperty("--font-app", value);
     localStorage.setItem("pvc-font-family", key);
   };

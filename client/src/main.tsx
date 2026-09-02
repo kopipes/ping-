@@ -30,9 +30,7 @@ document.documentElement.style.setProperty("--sidebar-font-size", sizeMap[savedS
 const savedFont = localStorage.getItem("pvc-font-family") || "jakarta";
 document.documentElement.style.setProperty(
   "--font-app",
-  savedFont === "lato"
-    ? "'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-    : "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+  savedFont === "lato" ? "Lato" : "Plus Jakarta Sans"
 );
 
 // Apply saved avatar shape on boot
