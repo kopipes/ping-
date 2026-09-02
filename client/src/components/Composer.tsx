@@ -1,10 +1,77 @@
-import { useRef, useState, useMemo } from "react";
+import { useRef, useState, useMemo, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import imageCompression from "browser-image-compression";
 import { api, apiUrl } from "../lib/api";
 import { useChatStore } from "../store/chat";
 import { useAuthStore } from "../store/auth";
 import { useModal } from "./Modal";
+
+// ── Formatting popup ──────────────────────────────────────────────────────────
+interface FormatPopupProps {
+  anchorRect: DOMRect;
+  containerRect: DOMRect;
+  onFormat: (syntax: string) => void;
+}
+
+function FormatPopup({ anchorRect, containerRect, onFormat }: FormatPopupProps) {
+  const popupWidth = 148;
+  const popupHeight = 34;
+  const gap = 6;
+
+  // Position above the selection, centered horizontally, clamped to container
+  let left = anchorRect.left - containerRect.left + anchorRect.width / 2 - popupWidth / 2;
+  left = Math.max(4, Math.min(left, containerRect.width - popupWidth - 4));
+  let top = anchorRect.top - containerRect.top - popupHeight - gap;
+  // If not enough room above, show below
+  if (top < 0) top = anchorRect.bottom - containerRect.top + gap;
+
+  return (
+    <div
+      onMouseDown={(e) => e.preventDefault()}
+      style={{
+        position: "absolute",
+        left, top,
+        width: popupWidth,
+        height: popupHeight,
+        zIndex: 50,
+        display: "flex",
+        alignItems: "center",
+        gap: 2,
+        padding: "0 4px",
+        background: "var(--sl-ink, #22221D)",
+        borderRadius: 8,
+        boxShadow: "0 4px 16px rgba(0,0,0,0.22)",
+        pointerEvents: "all",
+      }}
+    >
+      {[
+        { label: "B", title: "Bold (Ctrl+B)", syntax: "**", style: { fontWeight: 700, fontFamily: "inherit" } },
+        { label: "I", title: "Italic (Ctrl+I)", syntax: "_",  style: { fontStyle: "italic" } },
+        { label: "S", title: "Strikethrough", syntax: "~~", style: { textDecoration: "line-through" } },
+        { label: "</>", title: "Inline code", syntax: "`",  style: { fontFamily: "monospace", fontSize: 11 } },
+      ].map(({ label, title, syntax, style }) => (
+        <button
+          key={syntax}
+          title={title}
+          onMouseDown={(e) => { e.preventDefault(); onFormat(syntax); }}
+          style={{
+            flex: 1, height: 26,
+            border: "none", borderRadius: 5, cursor: "pointer",
+            background: "transparent",
+            color: "rgba(255,255,255,0.85)",
+            fontSize: 13,
+            transition: "background 100ms",
+            ...style,
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.15)")}
+          onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}
 
 export function Composer({
   conversationId,
@@ -31,6 +98,40 @@ export function Composer({
   const [mentionIndex, setMentionIndex] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const composerRef = useRef<HTMLDivElement>(null);
+  const [formatPopup, setFormatPopup] = useState<{ anchorRect: DOMRect; containerRect: DOMRect } | null>(null);
+
+  // Show/hide formatting popup based on selection
+  const checkSelection = useCallback(() => {
+    const ta = textareaRef.current;
+    const container = composerRef.current;
+    if (!ta || !container) return;
+    const start = ta.selectionStart ?? 0;
+    const end = ta.selectionEnd ?? 0;
+    if (end > start) {
+      setFormatPopup({ anchorRect: ta.getBoundingClientRect(), containerRect: container.getBoundingClientRect() });
+    } else {
+      setFormatPopup(null);
+    }
+  }, []);
+
+  // Wrap selected text with markdown syntax
+  const formatText = useCallback((syntax: string) => {
+    const ta = textareaRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart ?? 0;
+    const end = ta.selectionEnd ?? 0;
+    if (end <= start) return;
+    const selected = text.slice(start, end);
+    const wrapped = `${syntax}${selected}${syntax}`;
+    const newText = text.slice(0, start) + wrapped + text.slice(end);
+    setText(newText);
+    setFormatPopup(null);
+    setTimeout(() => {
+      ta.focus();
+      ta.setSelectionRange(start + syntax.length, start + syntax.length + selected.length);
+    }, 0);
+  }, [text]);
 
   // H-10: memoize members array to avoid new array on every render
   const members = useMemo(
@@ -130,7 +231,15 @@ export function Composer({
   };
 
   return (
-    <div className="shrink-0 px-4 pb-4 pt-1">
+    <div className="shrink-0 px-4 pb-4 pt-1" ref={composerRef} style={{ position: "relative" }}>
+      {/* Formatting popup */}
+      {formatPopup && (
+        <FormatPopup
+          anchorRect={formatPopup.anchorRect}
+          containerRect={formatPopup.containerRect}
+          onFormat={formatText}
+        />
+      )}
       {/* @ mention autocomplete dropdown */}
       {mentionSuggestions.length > 0 && (
         <div className="mb-1 bg-white border border-border rounded-xl shadow-md overflow-hidden">
@@ -186,7 +295,14 @@ export function Composer({
             placeholder={t("chat.placeholder")}
             value={text}
             onChange={autoResize}
+            onSelect={checkSelection}
+            onMouseUp={checkSelection}
+            onKeyUp={checkSelection}
+            onBlur={() => setTimeout(() => setFormatPopup(null), 150)}
             onKeyDown={(e) => {
+              // Ctrl/Cmd+B = bold, Ctrl/Cmd+I = italic
+              if ((e.ctrlKey || e.metaKey) && e.key === "b") { e.preventDefault(); formatText("**"); return; }
+              if ((e.ctrlKey || e.metaKey) && e.key === "i") { e.preventDefault(); formatText("_"); return; }
               if (mentionSuggestions.length > 0) {
                 if (e.key === "ArrowDown") { e.preventDefault(); setMentionIndex((i) => Math.min(i + 1, mentionSuggestions.length - 1)); return; }
                 if (e.key === "ArrowUp") { e.preventDefault(); setMentionIndex((i) => Math.max(i - 1, 0)); return; }
