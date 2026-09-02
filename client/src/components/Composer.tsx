@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import imageCompression from "browser-image-compression";
 import { api, apiUrl } from "../lib/api";
@@ -32,14 +32,18 @@ export function Composer({
   const fileRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Members for @ autocomplete (exclude self)
-  const members = (conversation?.members || [])
-    .filter((m) => m.user.id !== myId)
-    .map((m) => m.user);
+  // H-10: memoize members array to avoid new array on every render
+  const members = useMemo(
+    () => (conversation?.members || []).filter((m) => m.user.id !== myId).map((m) => m.user),
+    [conversation?.members, myId]
+  );
 
-  const mentionSuggestions = mentionQuery !== null
-    ? members.filter((m) => m.name.toLowerCase().startsWith(mentionQuery.toLowerCase()))
-    : [];
+  const mentionSuggestions = useMemo(
+    () => mentionQuery !== null
+      ? members.filter((m) => m.name.toLowerCase().startsWith(mentionQuery.toLowerCase()))
+      : [],
+    [members, mentionQuery]
+  );
 
   interface PendingUpload {
     fileUrl: string;

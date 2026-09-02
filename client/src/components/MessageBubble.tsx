@@ -1,13 +1,12 @@
 import { useState, useEffect, useRef, useMemo } from "react";
+import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
+import { useAuthStore } from "../store/auth";
+import { useChatStore, assetUrl } from "../store/chat";
 
 // Stable empty object — avoids creating a new reference on every render
 // when a conversation has no read receipts yet
 const EMPTY_READ_AT: Record<string, string> = {};
-import { createPortal } from "react-dom";
-import { useTranslation } from "react-i18next";
-import { useAuthStore } from "../store/auth";
-import { useChatStore } from "../store/chat";
-import { assetUrl } from "../store/chat";
 import { apiUrl, api } from "../lib/api";
 import { useUIStore } from "../store/ui";
 import type { Message } from "../types";

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "../store/auth";
 import { useChatStore } from "../store/chat";
@@ -14,6 +14,9 @@ import { ConversationInfoPanel } from "./ConversationInfoPanel";
 import { useModal } from "./Modal";
 import type { Message } from "../types";
 
+// H-8: stable empty array to avoid new reference on every render
+const EMPTY_TYPING: { userId: string; userName: string }[] = [];
+
 type Tab = "chat" | "pinned" | "library";
 
 export function ChatView() {
@@ -27,7 +30,7 @@ export function ChatView() {
   const loadMoreMessages = useChatStore((s) => s.loadMoreMessages);
   const convo = useChatStore((s) => s.conversation[id]);
   const perms = useChatStore((s) => s.permissions[id]);
-  const typing = useChatStore((s) => s.typing[id] || []);
+  const typing = useChatStore((s) => s.typing[id] ?? EMPTY_TYPING);
   const openConversation = useChatStore((s) => s.openConversation);
   const deleteMessage = useChatStore((s) => s.deleteMessage);
   const editMessage = useChatStore((s) => s.editMessage);

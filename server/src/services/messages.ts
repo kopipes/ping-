@@ -69,7 +69,8 @@ export async function deleteMessageById(userId: string, messageId: string) {
 }
 
 async function isAdminUser(userId: string) {
-  const user = await prisma.user.findUnique({ where: { id: userId } });
+  // H-1: select only role field instead of full user record
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { role: true } });
   return user?.role === "ADMIN" || user?.role === "SUPER_ADMIN";
 }
 
@@ -114,26 +115,30 @@ export async function createMessage(params: {
 
   // Detect @mentions and send push to mentioned users
   if (content) {
-    const mentionPattern = /@([\w\s]+?)(?=\s|$|[^a-zA-Z\s])/g;
+    // C-4: tighter regex — match @Name where Name has no spaces (word chars only)
+    const mentionPattern = /@(\w[\w]*(?:\s\w+)*?)(?=\s|$|[^\w\s])/g;
     const mentionedNames = [...content.matchAll(mentionPattern)].map((m) => m[1].trim().toLowerCase());
     if (mentionedNames.length > 0) {
-      const members = await prisma.conversationMember.findMany({
-        where: { conversationId, userId: { not: userId } },
-        include: { user: { select: { id: true, name: true } } },
-      });
-      const sender = await prisma.user.findUnique({ where: { id: userId }, select: { name: true } });
-      const conversation = await prisma.conversation.findUnique({ where: { id: conversationId }, select: { name: true } });
-      for (const member of members) {
-        if (mentionedNames.includes(member.user.name.toLowerCase())) {
-          await sendPushToUser(member.user.id, {
+      const [members, sender, conversation] = await Promise.all([
+        prisma.conversationMember.findMany({
+          where: { conversationId, userId: { not: userId } },
+          select: { user: { select: { id: true, name: true } } },
+        }),
+        prisma.user.findUnique({ where: { id: userId }, select: { name: true } }),
+        prisma.conversation.findUnique({ where: { id: conversationId }, select: { name: true } }),
+      ]);
+      // M-6: send all mention pushes in parallel
+      await Promise.allSettled(
+        members
+          .filter((m) => mentionedNames.includes(m.user.name.toLowerCase()))
+          .map((m) => sendPushToUser(m.user.id, {
             title: `${sender?.name ?? "Seseorang"} menyebut Anda`,
             body: content.length > 100 ? content.slice(0, 97) + "…" : content,
             conversationId,
             conversationName: conversation?.name ?? undefined,
             senderName: sender?.name ?? "",
-          });
-        }
-      }
+          }))
+      );
     }
   }
 

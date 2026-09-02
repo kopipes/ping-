@@ -103,6 +103,8 @@ model Message {
 
   @@index([conversationId, createdAt])
   @@index([parentId])
+  @@index([conversationId, isDeleted])
+  @@index([userId, conversationId])
 }
 
 // AttachmentType sebagai String: IMAGE | FILE | LINK

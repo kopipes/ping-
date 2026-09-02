@@ -101,13 +101,25 @@ export function setupSocket(io: Server) {
     // join user's personal room utk broadcast khusus user (multi-device sync)
     void socket.join(userRoomOf(userId));
 
-    // === daftarkan handler SEMUANYA secara sinkron, tanpa await apa pun ===
-    console.log(`[socket] user ${userId} connected, socketId=${socket.id}`);
+    // Cache user name to avoid DB query on every typing:start event
+    let cachedUserName: string = userId;
+    prisma.user.findUnique({ where: { id: userId }, select: { name: true } })
+      .then((u) => { if (u) cachedUserName = u.name; })
+      .catch(() => {});
 
+    // === daftarkan handler SEMUANYA secara sinkron, tanpa await apa pun ===
+
+    // C-2: verify membership before allowing join to prevent unauthorized room access
     socket.on("join", (conversationId: string) => {
       if (typeof conversationId !== "string") return;
-      void socket.join(roomOf(conversationId));
-      console.log(`[socket] user ${userId} joined room convo:${conversationId}`);
+      void (async () => {
+        const member = await prisma.conversationMember.findUnique({
+          where: { conversationId_userId: { conversationId, userId } },
+          select: { conversationId: true },
+        });
+        if (!member) return; // not a member — silently ignore
+        void socket.join(roomOf(conversationId));
+      })();
     });
 
     socket.on("message:send", (data) => {
@@ -119,24 +131,26 @@ export function setupSocket(io: Server) {
           if (message) {
             // pastikan pengirim ada di room conversation utk menerima broadcast message:new
             void socket.join(roomOf(data.conversationId));
-            // io.to (bukan socket.to) supaya pengirim sendiri juga terima — penting untuk
-            // multi-device (laptop + mobile akun sama) dan reconcile optimistic message
+            // io.to supaya pengirim sendiri juga terima (multi-device reconcile)
             io.to(roomOf(data.conversationId)).emit("message:new", { message });
 
-            // For new DMs: the recipient may not have joined the conversation room yet
-            // (it's their first message). Broadcast to each member's personal user room
-            // so they always receive it regardless of which rooms they've joined.
+            // H-2: only send to user room for members NOT already in the conversation room
+            // (avoids duplicate message:new for users who joined the room)
+            const convoRoom = io.sockets.adapter.rooms.get(roomOf(data.conversationId));
             const members = await prisma.conversationMember.findMany({
               where: { conversationId: data.conversationId },
               select: { userId: true },
             });
             for (const m of members) {
-              if (m.userId !== userId) {
+              if (m.userId === userId) continue;
+              const userSockets = io.sockets.adapter.rooms.get(userRoomOf(m.userId));
+              if (!userSockets) continue;
+              // Check if any of this user's sockets are already in the convo room
+              const alreadyInRoom = convoRoom && [...userSockets].some((sid) => convoRoom.has(sid));
+              if (!alreadyInRoom) {
                 io.to(userRoomOf(m.userId)).emit("message:new", { message });
               }
             }
-            const room = io.sockets.adapter.rooms.get(roomOf(data.conversationId));
-            console.log(`[socket] message:new broadcast to room convo:${data.conversationId}, sockets in room: ${room?.size ?? 0}`);
 
             // Push notification ke member offline (fire-and-forget)
             void (async () => {
@@ -212,14 +226,12 @@ export function setupSocket(io: Server) {
 
     socket.on("typing:start", (data) => {
       if (!data?.conversationId) return;
-      void (async () => {
-        const user = await prisma.user.findUnique({ where: { id: userId }, select: { name: true } });
-        socket.to(roomOf(data.conversationId)).emit("typing:start", {
-          conversationId: data.conversationId,
-          userId,
-          userName: user?.name ?? userId,
-        });
-      })();
+      // H-9: use cached name — no DB query per keystroke
+      socket.to(roomOf(data.conversationId)).emit("typing:start", {
+        conversationId: data.conversationId,
+        userId,
+        userName: cachedUserName,
+      });
     });
 
     socket.on("typing:stop", (data) => {
@@ -258,17 +270,18 @@ export function setupSocket(io: Server) {
     });
 
     socket.on("disconnect", async () => {
-      // cek apakah masih ada socket lain utk user ini
-      const remaining = io.sockets.adapter.rooms.get(userRoomOf(userId));
-      if (!remaining || remaining.size === 0) {
+      // C-3: Count remaining sockets for this user by checking all connected sockets
+      // (userRoom check is unreliable at disconnect time as socket may have already left)
+      const allSockets = await io.fetchSockets();
+      const remainingForUser = allSockets.filter((s) =>
+        s.id !== socket.id && s.rooms.has(userRoomOf(userId))
+      );
+      if (remainingForUser.length === 0) {
         await prisma.user.update({
           where: { id: userId },
           data: { status: "offline", lastSeenAt: new Date() },
         });
-        io.to(userRoomOf(userId)).emit("presence:update", {
-          userId,
-          status: "offline",
-        });
+        io.to(userRoomOf(userId)).emit("presence:update", { userId, status: "offline" });
         // Notify DM partners in their conversation rooms
         const dmMemberships = await prisma.conversationMember.findMany({
           where: { userId, conversation: { type: "DM" } },

@@ -511,6 +511,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     }),
 }));
 
+// Helper: check if a sidebar item matches a conversation ID
 function ilConv(item: any, id: string) {
   return item && item.id === id;
 }
