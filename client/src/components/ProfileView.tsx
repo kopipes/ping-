@@ -139,8 +139,14 @@ export function ProfileView({ onClose }: { onClose?: () => void }) {
   );
   const onFontFamily = (key: "jakarta" | "lato") => {
     setFontFamily(key);
-    const value = key === "lato" ? "Lato, sans-serif" : "'Plus Jakarta Sans', sans-serif";
-    document.body.style.fontFamily = value;
+    const fontStack = key === "lato" ? "Lato, sans-serif" : "'Plus Jakarta Sans', sans-serif";
+    let el = document.getElementById("pvc-font-override") as HTMLStyleElement | null;
+    if (!el) {
+      el = document.createElement("style");
+      el.id = "pvc-font-override";
+      document.head.appendChild(el);
+    }
+    el.textContent = `* { font-family: ${fontStack} !important; }`;
     localStorage.setItem("pvc-font-family", key);
   };
 
