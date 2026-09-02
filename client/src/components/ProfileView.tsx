@@ -25,7 +25,7 @@ const THEMES = [
   { key: "ocean",    label: "Ocean",     rail: "#0A2A35", sidebar: "#0F3D4A", brand: "#06B6D4", description: "Soft Teal" },
   { key: "lavender", label: "Lavender",  rail: "#2D1B4E", sidebar: "#3D2566", brand: "#8B5CF6", description: "Soft Purple" },
   { key: "sunset",   label: "Sunset",    rail: "#1A1205", sidebar: "#2E1E08", brand: "#F59E0B", description: "Vivid Amber" },
-  { key: "mint",     label: "Mint",      rail: "#0A2E1E", sidebar: "#14402A", brand: "#22C55E", description: "Soft Green" },
+  { key: "mint",     label: "Sky",      rail: "#DBEAFE", sidebar: "#EFF6FF", brand: "#3B82F6", description: "Light Blue" },
   { key: "light",    label: "Light",     rail: "#E8EDF5", sidebar: "#F0F4FA", brand: "#2E46E0", description: "Light Mode", adminOnly: true },
 ] as const;
 

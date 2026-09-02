@@ -280,18 +280,32 @@
   --sidebar-section-label:  rgba(78,40,0,0.45);
 }
 
-/* Theme 10: Mint — Soft Green */
+/* Theme 10: Sky — Light Blue */
 [data-theme="mint"] {
-  --color-rail-bg:          #0A2E1E;
-  --color-sidebar-bg:       #14402A;
-  --color-rail-active-pill: #34D399;
-  --color-brand-50:         #F0FDF4;
-  --color-brand-100:        #DCFCE7;
-  --color-brand-500:        #22C55E;
-  --color-brand-600:        #16A34A;
-  --color-brand-700:        #15803D;
-  --surface-active:         #F0FDF4;
-  --shadow-focus:           0 0 0 3px #DCFCE7;
+  --color-rail-bg:          #DBEAFE;
+  --color-sidebar-bg:       #EFF6FF;
+  --color-rail-active-pill: #3B82F6;
+  --color-rail-icon:        rgba(10,30,80,0.50);
+  --color-rail-icon-hover:  rgba(10,30,80,0.85);
+  --color-rail-icon-active: #2563EB;
+  --color-rail-bg-hover:    rgba(59,130,246,0.12);
+  --color-rail-bg-active:   rgba(59,130,246,0.18);
+  --color-sidebar-text:        rgba(10,30,80,0.60);
+  --color-sidebar-text-active: #1E3A8A;
+  --color-sidebar-hover:       rgba(59,130,246,0.08);
+  --color-sidebar-active:      rgba(59,130,246,0.18);
+  --color-brand-50:         #EFF6FF;
+  --color-brand-100:        #DBEAFE;
+  --color-brand-500:        #3B82F6;
+  --color-brand-600:        #2563EB;
+  --color-brand-700:        #1D4ED8;
+  --surface-active:         #EFF6FF;
+  --shadow-focus:           0 0 0 3px #DBEAFE;
+  --sidebar-header-bg:      rgba(59,130,246,0.06);
+  --sidebar-header-border:  rgba(59,130,246,0.18);
+  --sidebar-input-bg:       rgba(59,130,246,0.10);
+  --sidebar-input-icon:     rgba(10,30,80,0.35);
+  --sidebar-section-label:  rgba(10,30,80,0.45);
 }
 
 /* Theme 11: Light — White / Admin only */
