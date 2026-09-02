@@ -83,6 +83,12 @@ const io = new Server(app.server, {
 setupSocket(io);
 app.decorate("io", io);
 
+// Reset all online users to offline on startup (handles unclean shutdowns)
+await prisma.user.updateMany({
+  where: { status: "online" },
+  data: { status: "offline", lastSeenAt: new Date() },
+});
+
 // Auto-archive cron — runs daily at 02:00, only when policy is auto-archive
 schedule("0 2 * * *", async () => {
   try {
