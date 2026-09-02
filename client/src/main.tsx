@@ -28,7 +28,11 @@ document.documentElement.style.setProperty("--sidebar-font-size", sizeMap[savedS
 
 // Apply saved font family on boot
 const savedFont = localStorage.getItem("pvc-font-family") || "jakarta";
-document.body.style.fontFamily = savedFont === "lato" ? "Lato, sans-serif" : "'Plus Jakarta Sans', sans-serif";
+const fontStack = savedFont === "lato" ? "Lato, sans-serif" : "'Plus Jakarta Sans', sans-serif";
+const fontStyle = document.createElement("style");
+fontStyle.id = "pvc-font-override";
+fontStyle.textContent = `* { font-family: ${fontStack} !important; }`;
+document.head.appendChild(fontStyle);
 
 // Apply saved avatar shape on boot
 const shapeMap: Record<string, string> = { circle: "50%", rounded: "8px", square: "0px" };
