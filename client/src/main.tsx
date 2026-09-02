@@ -28,10 +28,9 @@ document.documentElement.style.setProperty("--sidebar-font-size", sizeMap[savedS
 
 // Apply saved font family on boot
 const savedFont = localStorage.getItem("pvc-font-family") || "jakarta";
-document.documentElement.style.setProperty(
-  "--font-app",
-  savedFont === "lato" ? "Lato" : "Plus Jakarta Sans"
-);
+const fontValue = savedFont === "lato" ? "Lato, sans-serif" : "'Plus Jakarta Sans', sans-serif";
+document.documentElement.style.fontFamily = fontValue;
+document.documentElement.style.setProperty("--font-app", savedFont === "lato" ? "Lato" : "Plus Jakarta Sans");
 
 // Apply saved avatar shape on boot
 const shapeMap: Record<string, string> = { circle: "50%", rounded: "8px", square: "0px" };
