@@ -286,6 +286,7 @@
     overflow-x: hidden;
     max-width: 100%;
     font-size: 15px;
+    font-family: var(--font-app, 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
   }
   html, body, #root {
     height: 100%;
@@ -511,7 +512,7 @@
   .input-base {
     @apply w-full rounded border border-border bg-white px-3 py-2 outline-none;
     font-size: var(--chat-font-size, 15px);
-    font-family: var(--font-sans);
+    font-family: var(--font-app);
     border-radius: var(--radius-md);
     color: #111827; /* always dark text regardless of parent CSS vars */
     @apply focus:border-primary focus:ring-2 focus:ring-primary/20 transition;
