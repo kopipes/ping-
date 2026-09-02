@@ -33,7 +33,7 @@ export default {
         "msg-hover":"#F1F2F6",
       },
       fontFamily: {
-        sans: ["var(--font-app)", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
+        sans: ["'Plus Jakarta Sans'", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
         mono: ["'JetBrains Mono'", "SF Mono", "Consolas", "monospace"],
       },
       fontSize: {
