@@ -52,6 +52,34 @@ function applyAvatarShape(key: AvatarShapeKey) {
   }
 }
 
+const FONT_SIZES = [
+  { key: "xs",     label: "XS",   zoom: "0.733" },
+  { key: "small",  label: "S",    zoom: "0.867" },
+  { key: "normal", label: "M",    zoom: "1"     },
+  { key: "medium", label: "L",    zoom: "1.133" },
+  { key: "large",  label: "XL",   zoom: "1.267" },
+  { key: "xl",     label: "XXL",  zoom: "1.4"   },
+  { key: "xxl",    label: "XXXL", zoom: "1.6"   },
+] as const;
+
+type FontSizeKey = "xs" | "small" | "normal" | "medium" | "large" | "xl" | "xxl";
+
+function applySidebarFontSize(key: FontSizeKey) {
+  const size = FONT_SIZES.find((f) => f.key === key);
+  if (size) {
+    document.documentElement.style.setProperty("--sidebar-zoom", size.zoom);
+    localStorage.setItem("pvc-font-sidebar", key);
+  }
+}
+
+function applyChatFontSize(key: FontSizeKey) {
+  const size = FONT_SIZES.find((f) => f.key === key);
+  if (size) {
+    document.documentElement.style.setProperty("--chat-zoom", size.zoom);
+    localStorage.setItem("pvc-font-chat", key);
+  }
+}
+
 const CHAT_BG_PRESETS = [
   { label: "Putih",        value: "#FFFFFF" },
   { label: "Abu Muda",     value: "#F0F4F9" },
@@ -118,6 +146,14 @@ export function ProfileView({ onClose }: { onClose?: () => void }) {
     el.textContent = `* { font-family: ${stack} !important; }`;
     localStorage.setItem("pvc-font-family", key);
   };
+
+  // Font sizes
+  const [sidebarFontSize, setSidebarFontSize] = useState<FontSizeKey>(
+    (localStorage.getItem("pvc-font-sidebar") as FontSizeKey) || "normal"
+  );
+  const [chatFontSize, setChatFontSize] = useState<FontSizeKey>(
+    (localStorage.getItem("pvc-font-chat") as FontSizeKey) || "normal"
+  );
 
   // Avatar shape
   const [avatarShape, setAvatarShape] = useState<AvatarShapeKey>(
@@ -213,6 +249,8 @@ export function ProfileView({ onClose }: { onClose?: () => void }) {
   };
 
   const onAvatarShape = (key: AvatarShapeKey) => { setAvatarShape(key); applyAvatarShape(key); };
+  const onSidebarFontSize = (key: FontSizeKey) => { setSidebarFontSize(key); applySidebarFontSize(key); };
+  const onChatFontSize = (key: FontSizeKey) => { setChatFontSize(key); applyChatFontSize(key); };
   const statusText = user.status === "online" ? t("profile.online") : user.status === "away" ? t("profile.away") : t("profile.offline");
 
   return (
@@ -409,6 +447,36 @@ export function ProfileView({ onClose }: { onClose?: () => void }) {
                 }`}>
                 <span className={`w-7 h-7 border-2 ${avatarShape === s.key ? "border-white" : "border-texts"} ${s.preview}`} />
                 <span className="text-xs">{s.label}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {/* Font size — Sidebar */}
+        <section>
+          <h4 className="text-sm font-semibold text-textp mb-2">Ukuran Font Sidebar</h4>
+          <div className="flex gap-2">
+            {FONT_SIZES.map((f) => (
+              <button key={f.key} onClick={() => onSidebarFontSize(f.key)}
+                className={`flex-1 h-10 rounded-xl border font-medium transition ${
+                  sidebarFontSize === f.key ? "bg-primary text-white border-primary" : "bg-white border-border text-texts hover:bg-hover"
+                }`}>
+                {f.label}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {/* Font size — Chat */}
+        <section>
+          <h4 className="text-sm font-semibold text-textp mb-2">Ukuran Font Chat</h4>
+          <div className="flex gap-2">
+            {FONT_SIZES.map((f) => (
+              <button key={f.key} onClick={() => onChatFontSize(f.key)}
+                className={`flex-1 h-10 rounded-xl border font-medium transition ${
+                  chatFontSize === f.key ? "bg-primary text-white border-primary" : "bg-white border-border text-texts hover:bg-hover"
+                }`}>
+                {f.label}
               </button>
             ))}
           </div>
