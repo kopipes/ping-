@@ -24,7 +24,8 @@ export function ChatView() {
   const { t } = useTranslation();
   const { toast, confirm, prompt } = useModal();
   const id = useChatStore((s) => s.activeId)!;
-  const messages = useChatStore((s) => s.messages[id] || []);
+  // Filter out thread replies (parentId set) — they only appear in ThreadView
+  const messages = useChatStore((s) => (s.messages[id] || []).filter((m) => !m.parentId));
   const loading = useChatStore((s) => s.messagesLoading[id]);
   const prevCursor = useChatStore((s) => s.prevCursor[id]);
   const loadingMore = useChatStore((s) => s.loadingMore[id]);
