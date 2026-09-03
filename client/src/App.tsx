@@ -141,6 +141,22 @@ export default function App() {
         if (activeId) useChatStore.getState().removeTask(activeId, p.taskId);
       });
 
+      // Update replyCount on root message when a thread reply arrives
+      const offThreadCount = on("thread:count", (p: { messageId: string; replyCount: number }) => {
+        useChatStore.setState((s) => {
+          const nextMessages: typeof s.messages = {};
+          for (const cid of Object.keys(s.messages)) {
+            const list = s.messages[cid];
+            if (list.some((m) => m.id === p.messageId)) {
+              nextMessages[cid] = list.map((m) => m.id === p.messageId ? { ...m, replyCount: p.replyCount } : m);
+            } else {
+              nextMessages[cid] = list;
+            }
+          }
+          return { messages: nextMessages };
+        });
+      });
+
       return () => {
         offMessage();
         offEdited();
@@ -157,6 +173,7 @@ export default function App() {
         offTaskCreated();
         offTaskDone();
         offTaskDeleted();
+        offThreadCount();
       };
     }
   }, [user, loadSidebar, receiveMessage, receiveEdited, receiveRemoved, toggleTyping, toggleReaction, loadPinned]);

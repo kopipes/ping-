@@ -80,6 +80,8 @@ export function connectSocket() {
   wire("task:created");
   wire("task:done");
   wire("task:deleted");
+  wire("thread:reply");
+  wire("thread:count");
 }
 
 export function disconnectSocket() {
@@ -118,4 +120,10 @@ export function emitReaction(action: "add" | "remove", messageId: string, emoji:
 }
 export function joinConversation(conversationId: string) {
   socketSend("join", conversationId);
+}
+export function joinThread(threadId: string) {
+  socketSend("join:thread", { threadId });
+}
+export function leaveThread(threadId: string) {
+  socketSend("leave:thread", { threadId });
 }

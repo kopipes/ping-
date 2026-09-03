@@ -11,6 +11,7 @@ import { PinnedTab } from "./PinnedTab";
 import { LibraryTab } from "./LibraryTab";
 import { TaskBar } from "./TaskBar";
 import { ConversationInfoPanel } from "./ConversationInfoPanel";
+import { ThreadView } from "./ThreadView";
 import { useModal } from "./Modal";
 import type { Message } from "../types";
 
@@ -44,6 +45,7 @@ export function ChatView() {
   const [editText, setEditText] = useState("");
   const [replyTo, setReplyTo] = useState<Message | null>(null);
   const [infoOpen, setInfoOpen] = useState(false);
+  const [activeThread, setActiveThread] = useState<Message | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const topRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -204,7 +206,19 @@ export function ChatView() {
   const partnerOnline = isDM && convo?.members?.find((m) => m.user.id !== myId)?.user?.status === "online";
 
   return (
-    <div className="h-full flex flex-col chat-window-bg">
+    <div className="h-full flex flex-col chat-window-bg relative">
+      {/* Thread view — full replace */}
+      {activeThread && (
+        <div className="absolute inset-0 z-20 chat-window-bg">
+          <ThreadView
+            rootMessage={activeThread}
+            conversationId={id}
+            onClose={() => setActiveThread(null)}
+            readOnly={!!readOnly}
+          />
+        </div>
+      )}
+
       {/* Channel header — Studio Ledger light style */}
       <div className="shrink-0 flex items-center gap-3 px-4 py-2.5"
         style={{
@@ -367,6 +381,7 @@ export function ChatView() {
                       onDelete={handleDelete}
                       onPin={handlePin}
                       onCreateTask={handleCreateTask}
+                      onOpenThread={setActiveThread}
                       onRetry={handleRetry}
                     />
                   </div>

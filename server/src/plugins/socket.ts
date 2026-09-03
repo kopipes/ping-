@@ -134,6 +134,23 @@ export function setupSocket(io: Server) {
             // io.to supaya pengirim sendiri juga terima (multi-device reconcile)
             io.to(roomOf(data.conversationId)).emit("message:new", { message });
 
+            // If this is a thread reply, emit thread:reply to the thread room
+            // and update replyCount on the parent message in the conversation room
+            if (message.parentId) {
+              io.to(`thread:${message.parentId}`).emit("thread:reply", { message });
+              // Get updated replyCount for parent
+              const parent = await prisma.message.findUnique({
+                where: { id: message.parentId },
+                select: { id: true, _count: { select: { replies: true } } },
+              });
+              if (parent) {
+                io.to(roomOf(data.conversationId)).emit("thread:count", {
+                  messageId: parent.id,
+                  replyCount: parent._count.replies,
+                });
+              }
+            }
+
             // H-2: only send to user room for members NOT already in the conversation room
             // (avoids duplicate message:new for users who joined the room)
             const convoRoom = io.sockets.adapter.rooms.get(roomOf(data.conversationId));
@@ -189,6 +206,14 @@ export function setupSocket(io: Server) {
           });
         }
       })();
+    });
+
+    // Thread room join/leave
+    socket.on("join:thread", (data: { threadId: string }) => {
+      if (data?.threadId) void socket.join(`thread:${data.threadId}`);
+    });
+    socket.on("leave:thread", (data: { threadId: string }) => {
+      if (data?.threadId) void socket.leave(`thread:${data.threadId}`);
     });
 
     socket.on("message:edit", (data) => {
