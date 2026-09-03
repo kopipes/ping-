@@ -131,9 +131,21 @@ export async function messageRoutes(app: FastifyInstance) {
         select: { id: true, _count: { select: { replies: true } } },
       });
       if (parent) {
+        const firstReplies = await prisma.message.findMany({
+          where: { parentId: parent.id, isDeleted: false },
+          orderBy: { createdAt: "asc" },
+          select: { user: { select: { name: true } } },
+        });
+        const replyUsers: { name: string }[] = [];
+        for (const r of firstReplies) {
+          if (!replyUsers.some((u) => u.name === r.user.name) && replyUsers.length < 3) {
+            replyUsers.push({ name: r.user.name });
+          }
+        }
         req.server.io.to(`convo:${message.conversationId}`).emit("thread:count", {
           messageId: parent.id,
           replyCount: parent._count.replies,
+          replyUsers,
         });
       }
     }
@@ -330,6 +342,7 @@ export async function messageRoutes(app: FastifyInstance) {
     req.server.io.to(`convo:${parent.conversationId}`).emit("thread:count", {
       messageId: id,
       replyCount: 0,
+      replyUsers: [],
     });
 
     return { ok: true, deleted: deleted.count };

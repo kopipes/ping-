@@ -138,15 +138,27 @@ export function setupSocket(io: Server) {
             // and update replyCount on the parent message in the conversation room
             if (message.parentId) {
               io.to(`thread:${message.parentId}`).emit("thread:reply", { message });
-              // Get updated replyCount for parent
+              // Get updated replyCount + replyUsers for parent
               const parent = await prisma.message.findUnique({
                 where: { id: message.parentId },
                 select: { id: true, _count: { select: { replies: true } } },
               });
               if (parent) {
+                const firstReplies = await prisma.message.findMany({
+                  where: { parentId: parent.id, isDeleted: false },
+                  orderBy: { createdAt: "asc" },
+                  select: { user: { select: { name: true } } },
+                });
+                const replyUsers: { name: string }[] = [];
+                for (const r of firstReplies) {
+                  if (!replyUsers.some((u) => u.name === r.user.name) && replyUsers.length < 3) {
+                    replyUsers.push({ name: r.user.name });
+                  }
+                }
                 io.to(roomOf(data.conversationId)).emit("thread:count", {
                   messageId: parent.id,
                   replyCount: parent._count.replies,
+                  replyUsers,
                 });
               }
             }

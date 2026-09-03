@@ -141,14 +141,17 @@ export default function App() {
         if (activeId) useChatStore.getState().removeTask(activeId, p.taskId);
       });
 
-      // Update replyCount on root message when a thread reply arrives
-      const offThreadCount = on("thread:count", (p: { messageId: string; replyCount: number }) => {
+      // Update replyCount on root message when a thread reply arrives or is deleted
+      const offThreadCount = on("thread:count", (p: { messageId: string; replyCount: number; replyUsers?: { name: string }[] }) => {
         useChatStore.setState((s) => {
           const nextMessages: typeof s.messages = {};
           for (const cid of Object.keys(s.messages)) {
             const list = s.messages[cid];
             if (list.some((m) => m.id === p.messageId)) {
-              nextMessages[cid] = list.map((m) => m.id === p.messageId ? { ...m, replyCount: p.replyCount } : m);
+              nextMessages[cid] = list.map((m) => m.id === p.messageId
+                ? { ...m, replyCount: p.replyCount, replyUsers: p.replyUsers ?? m.replyUsers }
+                : m
+              );
             } else {
               nextMessages[cid] = list;
             }
