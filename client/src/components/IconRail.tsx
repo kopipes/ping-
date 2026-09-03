@@ -100,6 +100,7 @@ export function IconRail({ variant = "side" }: { variant?: "side" | "bottom" }) 
       style={{
         border: "2px solid transparent",
         overflow: "hidden",
+        borderRadius: "9999px",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -109,7 +110,7 @@ export function IconRail({ variant = "side" }: { variant?: "side" | "bottom" }) 
         <img
           src={apiUrl(user.avatarUrl)}
           alt={user.name}
-          style={{ width: variant === "bottom" ? 34 : 24, height: variant === "bottom" ? 34 : 24, objectFit: "cover" }}
+          style={{ width: variant === "bottom" ? 34 : 24, height: variant === "bottom" ? 34 : 24, objectFit: "cover", borderRadius: "9999px" }}
         />
       ) : (
         <span style={{
