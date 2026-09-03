@@ -177,8 +177,7 @@ export default function App() {
         offTaskDone();
         offTaskDeleted();
         offThreadCount();
-      };
-    }
+      };    }
   }, [user, loadSidebar, receiveMessage, receiveEdited, receiveRemoved, toggleTyping, toggleReaction, loadPinned]);
 
   if (loading) {

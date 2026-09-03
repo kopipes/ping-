@@ -82,6 +82,9 @@ export function connectSocket() {
   wire("task:deleted");
   wire("thread:reply");
   wire("thread:count");
+  wire("poll:new");
+  wire("poll:vote");
+  wire("poll:deleted");
 }
 
 export function disconnectSocket() {

@@ -79,12 +79,14 @@ export function Composer({
   parentId,
   replyTo,
   onCancelReply,
+  onCreatePoll,
 }: {
   conversationId: string;
   readOnly: boolean;
   parentId?: string | null;
   replyTo?: { name: string; content: string | null } | null;
   onCancelReply?: () => void;
+  onCreatePoll?: () => void;
 }) {
   const { t } = useTranslation();
   const { toast, prompt } = useModal();
@@ -328,8 +330,7 @@ export function Composer({
         <div className="flex items-center gap-0.5 px-2 pb-2 pt-0.5">
           {/* Attachment */}
           <ToolBtn title="Lampiran" onClick={() => fileRef.current?.click()}>
-            {uploading ? <span className="text-xs text-primary font-bold">…</span> : (
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="m21.4 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+            {uploading ? <span className="text-xs text-primary font-bold">…</span> : (              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="m21.4 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
             )}
           </ToolBtn>
           <ToolBtn title="Kirim link" onClick={async () => {
@@ -340,6 +341,15 @@ export function Composer({
           }}>
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
           </ToolBtn>
+
+          {/* Poll button */}
+          {onCreatePoll && (
+            <ToolBtn title="Buat Poll" onClick={onCreatePoll}>
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
+                <rect x="2" y="14" width="4" height="8"/><rect x="9" y="9" width="4" height="13"/><rect x="16" y="4" width="4" height="18"/>
+              </svg>
+            </ToolBtn>
+          )}
 
           {/* Spacer */}
           <div className="flex-1" />

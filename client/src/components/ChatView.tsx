@@ -4,7 +4,7 @@ import { useAuthStore } from "../store/auth";
 import { useChatStore } from "../store/chat";
 import { useUIStore } from "../store/ui";
 import { api, apiUrl } from "../lib/api";
-import { markRead, joinConversation } from "../lib/socket";
+import { markRead, joinConversation, on } from "../lib/socket";
 import { MessageBubble, Avatar } from "./MessageBubble";
 import { Composer } from "./Composer";
 import { PinnedTab } from "./PinnedTab";
@@ -12,6 +12,8 @@ import { LibraryTab } from "./LibraryTab";
 import { TaskBar } from "./TaskBar";
 import { ConversationInfoPanel } from "./ConversationInfoPanel";
 import { ThreadView } from "./ThreadView";
+import { PollCard, PollData } from "./PollCard";
+import { CreatePollModal } from "./CreatePollModal";
 import { useModal } from "./Modal";
 import type { Message } from "../types";
 
@@ -47,6 +49,8 @@ export function ChatView() {
   const [replyTo, setReplyTo] = useState<Message | null>(null);
   const [infoOpen, setInfoOpen] = useState(false);
   const [activeThread, setActiveThread] = useState<Message | null>(null);
+  const [polls, setPolls] = useState<Record<string, PollData>>({});
+  const [showCreatePoll, setShowCreatePoll] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const topRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -91,6 +95,28 @@ export function ChatView() {
     joinConversation(id);
     prevMessagesCountRef.current = 0;
     isLoadingMoreRef.current = false;
+    // Load polls for this conversation
+    api<PollData[]>(`/api/polls/${id}`).then((data) => {
+      const map: Record<string, PollData> = {};
+      data.forEach((p) => { map[p.id] = p; });
+      setPolls(map);
+    }).catch(() => {});
+  }, [id]);
+
+  // Poll socket events — scoped to active conversation
+  useEffect(() => {
+    const offNew = on("poll:new", (p: { poll: PollData }) => {
+      if (p.poll.conversationId !== id) return;
+      setPolls((prev) => ({ ...prev, [p.poll.id]: p.poll }));
+    });
+    const offVote = on("poll:vote", (p: { poll: PollData }) => {
+      if (p.poll.conversationId !== id) return;
+      setPolls((prev) => ({ ...prev, [p.poll.id]: p.poll }));
+    });
+    const offDeleted = on("poll:deleted", (p: { pollId: string }) => {
+      setPolls((prev) => { const n = { ...prev }; delete n[p.pollId]; return n; });
+    });
+    return () => { offNew(); offVote(); offDeleted(); };
   }, [id]);
 
   // Scroll to bottom only for new messages (not load-more prepends)
@@ -219,6 +245,17 @@ export function ChatView() {
             isAdminish={perms?.isAdmin || perms?.isManagerOrAbove || false}
           />
         </div>
+      )}
+      {/* Create Poll Modal */}
+      {showCreatePoll && (
+        <CreatePollModal
+          conversationId={id}
+          onClose={() => setShowCreatePoll(false)}
+          onCreate={(poll) => {
+            setPolls((p) => ({ ...p, [poll.id]: poll }));
+            setShowCreatePoll(false);
+          }}
+        />
       )}
 
       {/* Channel header — Studio Ledger light style */}
@@ -390,6 +427,17 @@ export function ChatView() {
                 );
               })
             )}
+            {/* Polls — rendered after messages, sorted by createdAt */}
+            {Object.values(polls).sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).map((poll) => (
+              <div key={poll.id} className="px-4 py-1">
+                <PollCard
+                  poll={poll}
+                  isAdminish={perms?.isAdmin || perms?.isManagerOrAbove || false}
+                  onUpdate={(updated) => setPolls((p) => ({ ...p, [updated.id]: updated }))}
+                  onDelete={(pollId) => setPolls((p) => { const n = { ...p }; delete n[pollId]; return n; })}
+                />
+              </div>
+            ))}
             <div ref={bottomRef} />
           </div>
 
@@ -430,6 +478,7 @@ export function ChatView() {
             parentId={replyTo ? replyTo.id : null}
             replyTo={replyTo ? { name: replyTo.user?.name || "", content: replyTo.content } : null}
             onCancelReply={() => setReplyTo(null)}
+            onCreatePoll={!isDM ? () => setShowCreatePoll(true) : undefined}
           />
         </>
       )}

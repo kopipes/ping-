@@ -32,6 +32,8 @@ model User {
   tasksCreated       Task[]             @relation("TaskCreatedBy")
   tasksDone          Task[]             @relation("TaskDoneBy")
   tasksAssigned      Task[]             @relation("TaskAssignedTo")
+  pollsCreated       Poll[]             @relation("PollCreatedBy")
+  pollVotes          PollVote[]         @relation("PollVotes")
 }
 
 // ConversationType sebagai String: TOPIC | DM
@@ -199,4 +201,50 @@ model Task {
   doneBy         User?        @relation("TaskDoneBy", fields: [doneById], references: [id])
 
   @@index([conversationId, isDone])
+}
+
+// Poll — voting di dalam conversation
+model Poll {
+  id             String    @id @default(cuid())
+  conversationId String
+  createdById    String
+  question       String
+  isMultiVote    Boolean   @default(false) // true = pilih lebih dari 1 opsi
+  isClosed       Boolean   @default(false)
+  closedAt       DateTime?
+  createdAt      DateTime  @default(now())
+
+  createdBy  User         @relation("PollCreatedBy", fields: [createdById], references: [id])
+  options    PollOption[]
+  votes      PollVote[]
+
+  @@index([conversationId])
+}
+
+model PollOption {
+  id         String  @id @default(cuid())
+  pollId     String
+  text       String?  // optional bila ada gambar
+  imageUrl   String?  // optional image untuk visual poll
+  order      Int      @default(0)
+
+  poll       Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  votes      PollVote[]
+
+  @@index([pollId])
+}
+
+model PollVote {
+  id       String   @id @default(cuid())
+  pollId   String
+  optionId String
+  userId   String
+  votedAt  DateTime @default(now())
+
+  poll     Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  option   PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  user     User       @relation("PollVotes", fields: [userId], references: [id])
+
+  @@unique([pollId, optionId, userId])
+  @@index([pollId])
 }
