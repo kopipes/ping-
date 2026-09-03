@@ -123,24 +123,24 @@ export function PollCard({
                 style={{
                   border: `2px solid ${isVoted ? "var(--sl-accent)" : "var(--sl-line-strong)"}`,
                   background: "var(--sl-bg)",
-                  opacity: poll.isClosed && !isVoted ? 0.75 : 1,
                 }}
               >
                 {/* Image option */}
                 {opt.imageUrl && (
                   <img src={apiUrl(opt.imageUrl)} alt={opt.text || ""}
-                    className="w-full object-cover" style={{ maxHeight: 120 }} />
+                    className="w-full object-cover" style={{ maxHeight: 120, pointerEvents: "none" }} />
                 )}
                 <div className="relative px-3 py-2">
-                  {/* Progress bar background */}
+                  {/* Progress bar background — pointer-events none so it never blocks clicks */}
                   <div className="absolute inset-0 rounded-lg"
                     style={{
                       background: `var(--sl-accent-soft)`,
                       width: `${pct}%`,
                       opacity: poll.myVotes.length > 0 || poll.isClosed ? 1 : 0,
                       transition: "width 400ms ease",
+                      pointerEvents: "none",
                     }} />
-                  <div className="relative flex items-center justify-between gap-2">
+                  <div className="relative flex items-center justify-between gap-2" style={{ pointerEvents: "none" }}>
                     <span className="text-sm font-medium" style={{ color: "var(--sl-ink)" }}>
                       {isVoted && <span className="mr-1" style={{ color: "var(--sl-accent)" }}>✓</span>}
                       {opt.text || `Opsi ${opt.order + 1}`}
