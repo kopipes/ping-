@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { api, apiUrl } from "../lib/api";
+import { api, apiBase, apiUrl, getAccessToken } from "../lib/api";
 import imageCompression from "browser-image-compression";
 import type { PollData } from "./PollCard";
 
@@ -49,14 +49,16 @@ export function CreatePollModal({
       const preview = URL.createObjectURL(compressed);
       const formData = new FormData();
       formData.append("file", compressed, file.name);
-      const res = await fetch("/api/upload", {
+      const token = getAccessToken();
+      const res = await fetch(`${apiBase}/api/upload`, {
         method: "POST",
         body: formData,
         credentials: "include",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       const data = await res.json();
       setOptions((o) => o.map((opt, idx) =>
-        idx === i ? { ...opt, imageUrl: data.url, imagePreview: preview, uploading: false } : opt
+        idx === i ? { ...opt, imageUrl: data.fileUrl, imagePreview: preview, uploading: false } : opt
       ));
     } catch {
       setOptions((o) => o.map((opt, idx) => idx === i ? { ...opt, uploading: false } : opt));
