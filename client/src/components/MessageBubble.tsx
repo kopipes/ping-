@@ -320,7 +320,7 @@ export function MessageBubble(props: {
         {!message.parentId && message.replyCount > 0 && (
           <button
             onClick={() => props.onOpenThread(message)}
-            className="flex items-center gap-1.5 mt-1 text-xs font-medium px-2.5 py-1 rounded-full border transition hover:opacity-80"
+            className="w-fit flex items-center gap-1 mt-0.5 text-xs font-medium px-2 py-0.5 rounded-full border transition hover:opacity-80"
             style={{ color: "var(--sl-accent)", borderColor: "var(--sl-accent)", background: "var(--sl-accent-soft)" }}
           >
             <span>🧵</span>
@@ -462,14 +462,17 @@ export function MessageBubble(props: {
 
       {/* Thread reply count pill — others' message */}
       {!message.parentId && message.replyCount > 0 && (
-        <button
-          onClick={() => props.onOpenThread(message)}
-          className="flex items-center gap-1.5 mt-1 text-xs font-medium px-2.5 py-1 rounded-full border transition hover:opacity-80 ml-9"
-          style={{ color: "var(--sl-accent)", borderColor: "var(--sl-accent)", background: "var(--sl-accent-soft)" }}
-        >
-          <span>🧵</span>
-          <span>{message.replyCount} balasan</span>
-        </button>
+        <div className="flex px-4 pb-0.5">
+          <div className="w-9 shrink-0" />{/* align with bubble content */}
+          <button
+            onClick={() => props.onOpenThread(message)}
+            className="w-fit flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border transition hover:opacity-80"
+            style={{ color: "var(--sl-accent)", borderColor: "var(--sl-accent)", background: "var(--sl-accent-soft)" }}
+          >
+            <span>🧵</span>
+            <span>{message.replyCount} balasan</span>
+          </button>
+        </div>
       )}
 
       {/* Floating action bar (on hover, desktop) */}
