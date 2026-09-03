@@ -7,13 +7,13 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["icon.svg", "logo.png", "favicon-192x192.png"],
+      includeAssets: ["icon.svg", "logo.png", "favicon-192x192.png", "badge-96x96.png"],
       manifest: {
         name: "Ping!",
         short_name: "Ping!",
         description: "Ping! — Internal Company Chat App",
-        theme_color: "#2563EB",
-        background_color: "#FFFFFF",
+        theme_color: "#3E7368",
+        background_color: "#F7F6F1",
         display: "standalone",
         start_url: "/",
         icons: [
@@ -24,8 +24,8 @@ export default defineConfig({
             purpose: "any",
           },
           {
-            src: "/logo.png",
-            sizes: "any",
+            src: "/favicon-192x192.png",
+            sizes: "192x192",
             type: "image/png",
             purpose: "maskable",
           },

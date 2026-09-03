@@ -13,11 +13,11 @@ self.addEventListener("push", (event) => {
     payload = { title: "PVC", body: event.data.text(), conversationId: "" };
   }
 
-  const title = payload.title || "PVC";
+  const title = payload.title || "Ping!";
   const options = {
     body: payload.body || "Pesan baru",
-    icon: "/icon.svg",
-    badge: "/icon.svg",
+    icon: "/favicon-192x192.png",
+    badge: "/badge-96x96.png",
     tag: `pvc-conv-${payload.conversationId || "general"}`,
     renotify: true,
     data: {
