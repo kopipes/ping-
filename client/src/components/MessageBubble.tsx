@@ -320,7 +320,7 @@ export function MessageBubble(props: {
         {!message.parentId && message.replyCount > 0 && (
           <button
             onClick={() => props.onOpenThread(message)}
-            className="flex items-center gap-1.5 mt-1 self-end text-xs font-medium px-2.5 py-1 rounded-full border transition hover:opacity-80"
+            className="flex items-center gap-1.5 mt-1 text-xs font-medium px-2.5 py-1 rounded-full border transition hover:opacity-80"
             style={{ color: "var(--sl-accent)", borderColor: "var(--sl-accent)", background: "var(--sl-accent-soft)" }}
           >
             <span>🧵</span>
