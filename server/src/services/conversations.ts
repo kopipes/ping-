@@ -68,6 +68,7 @@ interface SidebarItem {
   parentName?: string | null;
   parentIcon?: string | null;
   partnerId?: string | null;
+  partnerAvatarUrl?: string | null;
   lastMessageAt?: string | null;
   lastMessageText?: string | null;
   lastMessageSender?: string | null;
@@ -288,6 +289,7 @@ export async function getSidebar(userId: string) {
       d.name = partner?.name ?? d.name;
       d.icon = null;
       d.partnerId = partner?.id ?? null;
+      d.partnerAvatarUrl = partner?.avatarUrl ?? null;
       d.lastMessageAt = conv?.messages[0]?.createdAt?.toISOString() ?? null;
       const msgContent = conv?.messages[0]?.content;
       const msgAttachment = (conv?.messages[0] as any)?.attachments?.[0];

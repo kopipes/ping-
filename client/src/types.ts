@@ -26,6 +26,7 @@ export interface SidebarItem {
   parentName?: string | null;
   parentIcon?: string | null;
   partnerId?: string | null;
+  partnerAvatarUrl?: string | null;
   lastMessageAt?: string | null;
   lastMessageText?: string | null;
   lastMessageSender?: string | null;

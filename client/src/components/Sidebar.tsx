@@ -569,6 +569,7 @@ export function Sidebar() {
                       <WaItem
                         key={dm.id}
                         avatarName={dm.name || "?"}
+                        avatarUrl={dm.partnerAvatarUrl}
                         label={dm.name || "Direct Message"}
                         preview={dm.lastMessageText}
                         timestamp={formatLastTime(dm.lastMessageAt)}
@@ -644,6 +645,7 @@ export function Sidebar() {
                   <WaItem
                     key={dm.id}
                     avatarName={dm.name || "?"}
+                    avatarUrl={dm.partnerAvatarUrl}
                     label={dm.name || "Direct Message"}
                     preview={dm.lastMessageText}
                     timestamp={formatLastTime(dm.lastMessageAt)}
