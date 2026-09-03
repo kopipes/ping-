@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useAuthStore } from "../store/auth";
 import { api, apiUrl } from "../lib/api";
-
 export interface PollData {
   id: string;
   conversationId: string;
@@ -38,6 +37,9 @@ export function PollCard({
   const [poll, setPoll] = useState<PollData>(initialPoll);
   const [voting, setVoting] = useState(false);
   const [showVoters, setShowVoters] = useState<string | null>(null);
+  const [lightbox, setLightbox] = useState<string | null>(null);
+
+  const isImagePoll = poll.options.some((o) => o.imageUrl);
 
   const canClose = !poll.isClosed && (poll.createdBy.id === myId || isAdminish);
   const canDelete = poll.createdBy.id === myId || isAdminish;
@@ -109,7 +111,7 @@ export function PollCard({
       </div>
 
       {/* Options */}
-      <div className="p-3 space-y-2">
+      <div className={`p-3 ${isImagePoll ? "grid grid-cols-2 gap-2" : "space-y-2"}`}>
         {poll.options.map((opt) => {
           const isVoted = poll.myVotes.includes(opt.id);
           const pct = poll.totalVotes > 0 ? Math.round((opt.voteCount / poll.totalVotes) * 100) : 0;
@@ -123,16 +125,39 @@ export function PollCard({
                 style={{
                   border: `2px solid ${isVoted ? "var(--sl-accent)" : "var(--sl-line-strong)"}`,
                   background: "var(--sl-bg)",
+                  boxShadow: isVoted ? "0 0 0 1px var(--sl-accent)" : "none",
                 }}
               >
-                {/* Image option */}
+                {/* Image option — object-contain so full image is visible */}
                 {opt.imageUrl && (
-                  <img src={apiUrl(opt.imageUrl)} alt={opt.text || ""}
-                    className="w-full object-cover" style={{ maxHeight: 120, pointerEvents: "none" }} />
+                  <div className="relative"
+                    style={{ background: "var(--sl-surface)", minHeight: 120 }}>
+                    <img
+                      src={apiUrl(opt.imageUrl)}
+                      alt={opt.text || `Opsi ${opt.order + 1}`}
+                      className="w-full"
+                      style={{ maxHeight: 160, objectFit: "contain", display: "block", pointerEvents: "none" }}
+                    />
+                    {/* Voted checkmark overlay */}
+                    {isVoted && (
+                      <div className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full flex items-center justify-center"
+                        style={{ background: "var(--sl-accent)", pointerEvents: "none" }}>
+                        <span className="text-white text-xs font-bold">✓</span>
+                      </div>
+                    )}
+                    {/* Tap to enlarge button */}
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setLightbox(apiUrl(opt.imageUrl!)); }}
+                      className="absolute bottom-1.5 right-1.5 w-6 h-6 rounded-full flex items-center justify-center transition hover:opacity-100 opacity-70"
+                      style={{ background: "rgba(0,0,0,0.5)", color: "#fff", fontSize: 11 }}
+                      title="Lihat penuh">
+                      ⤢
+                    </button>
+                  </div>
                 )}
                 <div className="relative px-3 py-2">
-                  {/* Progress bar background — pointer-events none so it never blocks clicks */}
-                  <div className="absolute inset-0 rounded-lg"
+                  {/* Progress bar */}
+                  <div className="absolute inset-0 rounded-b-xl"
                     style={{
                       background: `var(--sl-accent-soft)`,
                       width: `${pct}%`,
@@ -142,8 +167,8 @@ export function PollCard({
                     }} />
                   <div className="relative flex items-center justify-between gap-2" style={{ pointerEvents: "none" }}>
                     <span className="text-sm font-medium" style={{ color: "var(--sl-ink)" }}>
-                      {isVoted && <span className="mr-1" style={{ color: "var(--sl-accent)" }}>✓</span>}
-                      {opt.text || `Opsi ${opt.order + 1}`}
+                      {isVoted && !opt.imageUrl && <span className="mr-1" style={{ color: "var(--sl-accent)" }}>✓</span>}
+                      {opt.text || (!opt.imageUrl ? `Opsi ${opt.order + 1}` : "")}
                     </span>
                     {(poll.myVotes.length > 0 || poll.isClosed) && (
                       <span className="text-xs font-semibold shrink-0" style={{ color: "var(--sl-accent)" }}>
@@ -153,7 +178,7 @@ export function PollCard({
                   </div>
                 </div>
               </button>
-              {/* Voters list on hover */}
+              {/* Voters */}
               {opt.voters.length > 0 && (
                 <button
                   onClick={() => setShowVoters(showVoters === opt.id ? null : opt.id)}
@@ -174,6 +199,25 @@ export function PollCard({
           {poll.isClosed && " · Poll ditutup"}
         </p>
       </div>
+
+      {/* Image lightbox */}
+      {lightbox && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85"
+          onClick={() => setLightbox(null)}>
+          <button
+            onClick={() => setLightbox(null)}
+            className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full bg-white/20 text-white text-xl hover:bg-white/30 transition">
+            ✕
+          </button>
+          <img
+            src={lightbox}
+            alt=""
+            className="max-w-[90vw] max-h-[85vh] object-contain rounded-xl shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 }
