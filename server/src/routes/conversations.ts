@@ -200,7 +200,11 @@ export async function conversationRoutes(app: FastifyInstance) {
 
     const nextCursor = messages.length === limit ? messages[messages.length - 1].id : null;
     return {
-      messages: messages.reverse(),
+      messages: messages.reverse().map((m) => ({
+        ...m,
+        replyCount: m._count.replies,
+        _count: undefined,
+      })),
       nextCursor: messages.length === 0 ? null : messages[0].id,
       prevCursor: nextCursor,
     };
