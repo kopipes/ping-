@@ -141,7 +141,7 @@ export function setupSocket(io: Server) {
               // Get updated replyCount + replyUsers for parent
               const parent = await prisma.message.findUnique({
                 where: { id: message.parentId },
-                select: { id: true, _count: { select: { replies: true } } },
+                select: { id: true, _count: { select: { replies: { where: { isDeleted: false } } } } },
               });
               if (parent) {
                 const firstReplies = await prisma.message.findMany({

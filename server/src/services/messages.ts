@@ -294,7 +294,7 @@ export async function serializeMessage(messageId: string, viewerId: string) {
       user: { select: { id: true, name: true, avatarUrl: true } },
       attachments: true,
       reactions: { select: { emoji: true, userId: true } },
-      _count: { select: { replies: true } },
+        _count: { select: { replies: { where: { isDeleted: false } } } },
     },
   });
   if (!msg) return null;

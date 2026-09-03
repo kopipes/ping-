@@ -313,7 +313,7 @@ export async function messageRoutes(app: FastifyInstance) {
         user: { select: { id: true, name: true, avatarUrl: true } },
         attachments: true,
         reactions: { select: { emoji: true, userId: true } },
-        _count: { select: { replies: true } },
+        _count: { select: { replies: { where: { isDeleted: false } } } },
       },
     });
     return { replies };
