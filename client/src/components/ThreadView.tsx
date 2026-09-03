@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useAuthStore } from "../store/auth";
+import { useChatStore } from "../store/chat";
 import { api, apiUrl } from "../lib/api";
 import { on, joinThread, leaveThread } from "../lib/socket";
 import { Composer } from "./Composer";
@@ -76,7 +77,32 @@ export function ThreadView({
   const loadReplies = async () => {
     try {
       const data = await api<{ replies: Message[] }>(`/api/messages/${rootMessage.id}/replies`);
-      setReplies(data.replies ?? []);
+      const fetched = data.replies ?? [];
+      setReplies(fetched);
+      // Self-correct the store's replyCount based on actual fetched count
+      // This fixes stale indicators without requiring a page refresh
+      const actualCount = fetched.length;
+      const uniqueUsers: { name: string }[] = [];
+      for (const r of fetched) {
+        if (!uniqueUsers.some((u) => u.name === r.user.name) && uniqueUsers.length < 3) {
+          uniqueUsers.push({ name: r.user.name });
+        }
+      }
+      useChatStore.setState((s) => {
+        const nextMessages: typeof s.messages = {};
+        for (const cid of Object.keys(s.messages)) {
+          const list = s.messages[cid];
+          if (list.some((m) => m.id === rootMessage.id)) {
+            nextMessages[cid] = list.map((m) => m.id === rootMessage.id
+              ? { ...m, replyCount: actualCount, replyUsers: uniqueUsers }
+              : m
+            );
+          } else {
+            nextMessages[cid] = list;
+          }
+        }
+        return { messages: nextMessages };
+      });
     } catch {
       setReplies([]);
     } finally {
