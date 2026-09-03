@@ -74,7 +74,7 @@ export async function messageRoutes(app: FastifyInstance) {
     const { id } = req.params as { id: string };
     const message = await prisma.message.findUnique({
       where: { id },
-      select: { id: true, userId: true, conversationId: true, createdAt: true },
+      select: { id: true, userId: true, conversationId: true, createdAt: true, parentId: true },
     });
     if (!message) {
       reply.code(404).send({ error: "Pesan tidak ditemukan" });
@@ -124,6 +124,19 @@ export async function messageRoutes(app: FastifyInstance) {
       messageId: id,
       isDeleted: true,
     });
+    // If deleted message was a thread reply, update replyCount on parent
+    if (message.parentId) {
+      const parent = await prisma.message.findUnique({
+        where: { id: message.parentId },
+        select: { id: true, _count: { select: { replies: true } } },
+      });
+      if (parent) {
+        req.server.io.to(`convo:${message.conversationId}`).emit("thread:count", {
+          messageId: parent.id,
+          replyCount: parent._count.replies,
+        });
+      }
+    }
     return { ok: true };
   });
 
@@ -292,5 +305,33 @@ export async function messageRoutes(app: FastifyInstance) {
       },
     });
     return { replies };
+  });
+
+  // DELETE /:id/thread — admin clears all replies in a thread
+  app.delete("/:id/thread", async (req, reply) => {
+    const { id } = req.params as { id: string };
+    const user = await prisma.user.findUnique({ where: { id: req.user.id }, select: { role: true } });
+    const isAdmin = user?.role === "ADMIN" || user?.role === "SUPER_ADMIN";
+    if (!isAdmin) return reply.code(403).send({ error: "Hanya admin yang bisa hapus thread" });
+
+    const parent = await prisma.message.findUnique({
+      where: { id },
+      select: { conversationId: true },
+    });
+    if (!parent) return reply.code(404).send({ error: "Pesan tidak ditemukan" });
+
+    // Mark all replies as deleted
+    const deleted = await prisma.message.updateMany({
+      where: { parentId: id, isDeleted: false },
+      data: { isDeleted: true, deletedById: req.user.id },
+    });
+
+    // Emit thread:count = 0 to conversation room
+    req.server.io.to(`convo:${parent.conversationId}`).emit("thread:count", {
+      messageId: id,
+      replyCount: 0,
+    });
+
+    return { ok: true, deleted: deleted.count };
   });
 }

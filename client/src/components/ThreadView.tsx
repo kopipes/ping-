@@ -4,7 +4,6 @@ import { api, apiUrl } from "../lib/api";
 import { on, joinThread, leaveThread } from "../lib/socket";
 import { Composer } from "./Composer";
 import type { Message } from "../types";
-
 function ThreadBubble({ message, isOwn }: { message: Message; isOwn: boolean }) {
   if (message.isDeleted) {
     return (
@@ -60,15 +59,18 @@ export function ThreadView({
   conversationId,
   onClose,
   readOnly,
+  isAdminish,
 }: {
   rootMessage: Message;
   conversationId: string;
   onClose: () => void;
   readOnly?: boolean;
+  isAdminish?: boolean;
 }) {
   const myId = useAuthStore((s) => s.user?.id);
   const [replies, setReplies] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
+  const [clearing, setClearing] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const loadReplies = async () => {
@@ -121,6 +123,26 @@ export function ThreadView({
             {replies.length} {replies.length === 1 ? "balasan" : "balasan"}
           </p>
         </div>
+        {/* Hapus Thread — admin only */}
+        {isAdminish && replies.length > 0 && (
+          <button
+            onClick={async () => {
+              if (!confirm("Hapus semua balasan di thread ini?")) return;
+              setClearing(true);
+              try {
+                await api(`/api/messages/${rootMessage.id}/thread`, { method: "DELETE" });
+                setReplies([]);
+              } catch {}
+              finally { setClearing(false); }
+            }}
+            disabled={clearing}
+            className="text-xs font-medium px-2 py-1 rounded-lg transition hover:bg-hover disabled:opacity-50"
+            style={{ color: "var(--sl-ink-faint)" }}
+            title="Hapus semua balasan thread"
+          >
+            {clearing ? "…" : "Hapus Thread"}
+          </button>
+        )}
       </div>
 
       {/* Original message */}

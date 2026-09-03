@@ -216,6 +216,7 @@ export function ChatView() {
             conversationId={id}
             onClose={() => setActiveThread(null)}
             readOnly={!!readOnly}
+            isAdminish={perms?.isAdmin || perms?.isManagerOrAbove || false}
           />
         </div>
       )}

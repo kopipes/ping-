@@ -316,15 +316,14 @@ export function MessageBubble(props: {
           )}
         </div>
 
-        {/* Thread reply count pill — own message */}
+        {/* Thread indicator — own message */}
         {!message.parentId && message.replyCount > 0 && (
           <button
             onClick={() => props.onOpenThread(message)}
-            className="w-fit flex items-center gap-1 mt-0.5 text-xs font-medium px-2 py-0.5 rounded-full border transition hover:opacity-80"
-            style={{ color: "var(--sl-accent)", borderColor: "var(--sl-accent)", background: "var(--sl-accent-soft)" }}
+            className="text-left transition hover:underline"
+            style={{ fontSize: 11, color: "var(--sl-accent)", marginTop: 2, letterSpacing: 0 }}
           >
-            <span>🧵</span>
-            <span>{message.replyCount} balasan</span>
+            🧵 {message.replyCount} balasan →
           </button>
         )}
       </div>
@@ -460,17 +459,15 @@ export function MessageBubble(props: {
         )}
       </div>
 
-      {/* Thread reply count pill — others' message */}
+      {/* Thread indicator — others' message */}
       {!message.parentId && message.replyCount > 0 && (
-        <div className="flex px-4 pb-0.5">
-          <div className="w-9 shrink-0" />{/* align with bubble content */}
+        <div className="flex px-4 pb-1 ml-9">
           <button
             onClick={() => props.onOpenThread(message)}
-            className="w-fit flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border transition hover:opacity-80"
-            style={{ color: "var(--sl-accent)", borderColor: "var(--sl-accent)", background: "var(--sl-accent-soft)" }}
+            className="transition hover:underline"
+            style={{ fontSize: 11, color: "var(--sl-accent)" }}
           >
-            <span>🧵</span>
-            <span>{message.replyCount} balasan</span>
+            🧵 {message.replyCount} balasan →
           </button>
         </div>
       )}
