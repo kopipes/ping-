@@ -31,6 +31,7 @@ model User {
   pushSubscriptions  PushSubscription[]
   tasksCreated       Task[]             @relation("TaskCreatedBy")
   tasksDone          Task[]             @relation("TaskDoneBy")
+  tasksAssigned      Task[]             @relation("TaskAssignedTo")
 }
 
 // ConversationType sebagai String: TOPIC | DM
@@ -187,12 +188,14 @@ model Task {
   messageId      String?   // pesan asal yang dijadikan task (opsional)
   content        String    // isi task
   createdById    String    // userId yang membuat task
+  assigneeId     String?   // userId yang bertanggung jawab (opsional)
   isDone         Boolean   @default(false)
   doneById       String?   // userId yang menyelesaikan task
   doneAt         DateTime? // waktu task diselesaikan
   createdAt      DateTime  @default(now())
 
   createdBy      User         @relation("TaskCreatedBy", fields: [createdById], references: [id])
+  assignee       User?        @relation("TaskAssignedTo", fields: [assigneeId], references: [id])
   doneBy         User?        @relation("TaskDoneBy", fields: [doneById], references: [id])
 
   @@index([conversationId, isDone])

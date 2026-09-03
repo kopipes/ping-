@@ -1,9 +1,17 @@
 import { useEffect } from "react";
 import { useChatStore, Task } from "../store/chat";
 import { useAuthStore } from "../store/auth";
-import { api } from "../lib/api";
+import { api, apiUrl } from "../lib/api";
 
-export function TaskBar({ conversationId }: { conversationId: string }) {
+const MAX_VISIBLE = 2;
+
+export function TaskBar({
+  conversationId,
+  onShowAll,
+}: {
+  conversationId: string;
+  onShowAll?: () => void;
+}) {
   const tasks = useChatStore((s) => s.tasks[conversationId] || []);
   const loadTasks = useChatStore((s) => s.loadTasks);
   const receiveTask = useChatStore((s) => s.receiveTask);
@@ -15,6 +23,9 @@ export function TaskBar({ conversationId }: { conversationId: string }) {
   }, [conversationId, loadTasks]);
 
   if (tasks.length === 0) return null;
+
+  const visible = tasks.slice(0, MAX_VISIBLE);
+  const overflow = tasks.length - MAX_VISIBLE;
 
   const completeTask = async (task: Task) => {
     try {
@@ -32,14 +43,25 @@ export function TaskBar({ conversationId }: { conversationId: string }) {
 
   return (
     <div className="shrink-0 mx-4 mt-2 rounded-xl border border-amber-200 bg-amber-50 overflow-hidden">
+      {/* Header */}
       <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-100 border-b border-amber-200">
         <span className="text-amber-600 text-sm">📋</span>
-        <span className="text-xs font-semibold text-amber-800 uppercase tracking-wide">
+        <span className="text-xs font-semibold text-amber-800 uppercase tracking-wide flex-1">
           Tasks ({tasks.length})
         </span>
+        {overflow > 0 && onShowAll && (
+          <button
+            onClick={onShowAll}
+            className="text-xs text-amber-700 font-semibold hover:text-amber-900 underline underline-offset-2 transition"
+          >
+            +{overflow} lainnya →
+          </button>
+        )}
       </div>
-      <div className="divide-y divide-amber-100 max-h-40 overflow-y-auto">
-        {tasks.map((task) => (
+
+      {/* Task rows — max 2 */}
+      <div className="divide-y divide-amber-100">
+        {visible.map((task) => (
           <div key={task.id} className="flex items-start gap-2.5 px-3 py-2 group">
             {/* Checkbox */}
             <button
@@ -52,13 +74,24 @@ export function TaskBar({ conversationId }: { conversationId: string }) {
 
             {/* Content */}
             <div className="flex-1 min-w-0">
-              <p className="text-sm text-gray-800 leading-snug break-words">{task.content}</p>
-              <p className="text-xs text-gray-400 mt-0.5">
-                Dibuat oleh {task.createdBy.name}
+              <p className="text-sm leading-snug break-words" style={{ color: "var(--sl-ink, #22221D)" }}>
+                {task.content}
               </p>
+              <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                <span className="text-xs text-gray-400">oleh {task.createdBy.name}</span>
+                {task.assignee && (
+                  <span className="flex items-center gap-1 text-xs font-medium text-amber-700 bg-amber-100 rounded-full px-1.5 py-0.5">
+                    {task.assignee.avatarUrl
+                      ? <img src={apiUrl(task.assignee.avatarUrl)} alt="" className="w-3.5 h-3.5 rounded-full object-cover" />
+                      : <span className="w-3.5 h-3.5 rounded-full bg-amber-400 text-white flex items-center justify-center text-[8px] font-bold">{task.assignee.name.charAt(0)}</span>
+                    }
+                    {task.assignee.name}
+                  </span>
+                )}
+              </div>
             </div>
 
-            {/* Delete (creator or admin can delete) */}
+            {/* Delete */}
             {task.createdById === myId && (
               <button
                 onClick={() => deleteTask(task)}
@@ -71,6 +104,16 @@ export function TaskBar({ conversationId }: { conversationId: string }) {
           </div>
         ))}
       </div>
+
+      {/* "Lihat semua" footer when overflow */}
+      {overflow > 0 && onShowAll && (
+        <button
+          onClick={onShowAll}
+          className="w-full text-xs text-amber-700 font-semibold py-1.5 bg-amber-50 hover:bg-amber-100 transition border-t border-amber-200"
+        >
+          Lihat semua {tasks.length} task di tab Pin →
+        </button>
+      )}
     </div>
   );
 }

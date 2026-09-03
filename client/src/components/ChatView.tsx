@@ -143,8 +143,41 @@ export function ChatView() {
 
   const handleCreateTask = async (m: Message) => {
     if (!m.content) return;
+    // Step 1: get task title
+    const content = await prompt({
+      title: "Buat Task",
+      message: "Judul task:",
+      placeholder: m.content.slice(0, 80),
+      confirmLabel: "Lanjut",
+    });
+    if (content === null) return;
+    const taskContent = content.trim() || m.content.trim();
+
+    // Step 2: pick assignee from members
+    const members = convo?.members?.filter((mem) => mem.user.id !== myId) ?? [];
+    let assigneeId: string | null = null;
+    if (members.length > 0) {
+      // Use a simple inline modal via existing prompt — ask for assignee name
+      const assigneeChoice = await prompt({
+        title: "Tugaskan ke",
+        message: `Pilih penanggung jawab (ketik nama, atau kosongkan untuk tidak ada):`,
+        placeholder: "Nama member…",
+        confirmLabel: "Buat Task",
+      });
+      if (assigneeChoice === null) return; // cancelled
+      if (assigneeChoice.trim()) {
+        const found = members.find((mem) =>
+          mem.user.name.toLowerCase().includes(assigneeChoice.trim().toLowerCase())
+        );
+        assigneeId = found?.user.id ?? null;
+      }
+    }
+
     try {
-      await api(`/api/tasks/${id}`, { method: "POST", body: { content: m.content, messageId: m.id } });
+      await api(`/api/tasks/${id}`, {
+        method: "POST",
+        body: { content: taskContent, messageId: m.id, assigneeId },
+      });
       // Socket event task:created will update the store for all members including sender
     } catch (e: any) { toast(e?.message || "Gagal buat task"); }
   };
@@ -250,8 +283,8 @@ export function ChatView() {
       {tab === "pinned" ? <PinnedTab conversationId={id} /> :
        tab === "library" ? <LibraryTab conversationId={id} /> : (
         <>
-          {/* Task bar — pinned top */}
-          <TaskBar conversationId={id} />
+          {/* Task bar — shows max 2, overflow goes to Pin tab */}
+          <TaskBar conversationId={id} onShowAll={() => setTab("pinned")} />
 
           {/* Message list */}
           <div ref={scrollRef} className="flex-1 overflow-y-auto overflow-x-clip slim-scroll pt-4 pb-2">

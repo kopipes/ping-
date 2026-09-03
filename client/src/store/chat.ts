@@ -77,6 +77,8 @@ export interface Task {
   content: string;
   createdById: string;
   createdBy: { id: string; name: string; avatarUrl: string | null };
+  assigneeId?: string | null;
+  assignee?: { id: string; name: string; avatarUrl: string | null } | null;
   isDone: boolean;
   doneById?: string | null;
   doneBy?: { id: string; name: string } | null;
