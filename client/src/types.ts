@@ -67,6 +67,7 @@ export interface Message {
   attachments: Attachment[];
   reactions: Reaction[];
   replyCount: number;
+  replyUsers?: { name: string }[];
   status?: "sending" | "sent" | "failed";
   isForwarded?: boolean;
   forwardedFromName?: string | null;

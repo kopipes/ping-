@@ -199,10 +199,31 @@ export async function conversationRoutes(app: FastifyInstance) {
     });
 
     const nextCursor = messages.length === limit ? messages[messages.length - 1].id : null;
+
+    // Fetch first 3 unique repliers for messages that have replies — single query
+    const rootIds = messages.filter((m) => m._count.replies > 0).map((m) => m.id);
+    const replyUsersMap: Record<string, { name: string }[]> = {};
+    if (rootIds.length > 0) {
+      const firstReplies = await prisma.message.findMany({
+        where: { parentId: { in: rootIds }, isDeleted: false },
+        orderBy: { createdAt: "asc" },
+        select: { parentId: true, user: { select: { name: true } } },
+      });
+      for (const r of firstReplies) {
+        if (!r.parentId) continue;
+        if (!replyUsersMap[r.parentId]) replyUsersMap[r.parentId] = [];
+        const list = replyUsersMap[r.parentId];
+        if (!list.some((u) => u.name === r.user.name) && list.length < 3) {
+          list.push({ name: r.user.name });
+        }
+      }
+    }
+
     return {
       messages: messages.reverse().map((m) => ({
         ...m,
         replyCount: m._count.replies,
+        replyUsers: replyUsersMap[m.id] ?? [],
         _count: undefined,
       })),
       nextCursor: messages.length === 0 ? null : messages[0].id,

@@ -321,9 +321,11 @@ export function MessageBubble(props: {
           <button
             onClick={() => props.onOpenThread(message)}
             className="text-left transition hover:underline"
-            style={{ fontSize: 11, color: "var(--sl-accent)", marginTop: 2, letterSpacing: 0 }}
+            style={{ fontSize: 11, color: "var(--sl-accent)", marginTop: 2 }}
           >
-            🧵 {message.replyCount} balasan →
+            🧵 {message.replyUsers && message.replyUsers.length > 0
+              ? `${message.replyUsers.map((u) => u.name.split(" ")[0]).join(", ")} · ${message.replyCount} balasan →`
+              : `${message.replyCount} balasan →`}
           </button>
         )}
       </div>
@@ -467,7 +469,9 @@ export function MessageBubble(props: {
             className="transition hover:underline"
             style={{ fontSize: 11, color: "var(--sl-accent)" }}
           >
-            🧵 {message.replyCount} balasan →
+            🧵 {message.replyUsers && message.replyUsers.length > 0
+              ? `${message.replyUsers.map((u) => u.name.split(" ")[0]).join(", ")} · ${message.replyCount} balasan →`
+              : `${message.replyCount} balasan →`}
           </button>
         </div>
       )}
