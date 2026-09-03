@@ -294,7 +294,7 @@ export function ChatView() {
       </div>
 
       {/* Content */}
-      {tab === "pinned" ? <PinnedTab conversationId={id} /> :
+      {tab === "pinned" ? <PinnedTab conversationId={id} onOpenThread={setActiveThread} /> :
        tab === "library" ? <LibraryTab conversationId={id} /> : (
         <>
           {/* Task bar — shows max 2, overflow goes to Pin tab */}

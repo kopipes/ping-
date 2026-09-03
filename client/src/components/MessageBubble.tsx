@@ -315,6 +315,18 @@ export function MessageBubble(props: {
             </div>
           )}
         </div>
+
+        {/* Thread reply count pill — own message */}
+        {!message.parentId && message.replyCount > 0 && (
+          <button
+            onClick={() => props.onOpenThread(message)}
+            className="flex items-center gap-1.5 mt-1 self-end text-xs font-medium px-2.5 py-1 rounded-full border transition hover:opacity-80"
+            style={{ color: "var(--sl-accent)", borderColor: "var(--sl-accent)", background: "var(--sl-accent-soft)" }}
+          >
+            <span>🧵</span>
+            <span>{message.replyCount} balasan</span>
+          </button>
+        )}
       </div>
       {lightboxSrc && <ImageLightbox src={lightboxSrc} alt="" onClose={() => setLightboxSrc(null)} />}
     </>
@@ -447,6 +459,18 @@ export function MessageBubble(props: {
           </div>
         )}
       </div>
+
+      {/* Thread reply count pill — others' message */}
+      {!message.parentId && message.replyCount > 0 && (
+        <button
+          onClick={() => props.onOpenThread(message)}
+          className="flex items-center gap-1.5 mt-1 text-xs font-medium px-2.5 py-1 rounded-full border transition hover:opacity-80 ml-9"
+          style={{ color: "var(--sl-accent)", borderColor: "var(--sl-accent)", background: "var(--sl-accent-soft)" }}
+        >
+          <span>🧵</span>
+          <span>{message.replyCount} balasan</span>
+        </button>
+      )}
 
       {/* Floating action bar (on hover, desktop) */}
       {!isSending && !isFailed && (

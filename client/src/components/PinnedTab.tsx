@@ -1,14 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useChatStore, Task } from "../store/chat";
 import { assetUrl } from "../store/chat";
-import { MessageBubble, buildShareText } from "./MessageBubble";
+import { buildShareText } from "./MessageBubble";
 import { useUIStore } from "../store/ui";
 import { useAuthStore } from "../store/auth";
 import { api, apiUrl } from "../lib/api";
 import type { Message } from "../types";
 
-export function PinnedTab({ conversationId }: { conversationId: string }) {
+export function PinnedTab({
+  conversationId,
+  onOpenThread,
+}: {
+  conversationId: string;
+  onOpenThread?: (m: Message) => void;
+}) {
   const { t } = useTranslation();
   const pinned = useChatStore((s) => s.pinned[conversationId]);
   const loadPinned = useChatStore((s) => s.loadPinned);
@@ -18,6 +24,9 @@ export function PinnedTab({ conversationId }: { conversationId: string }) {
   const removeTask = useChatStore((s) => s.removeTask);
   const openForward = useUIStore((s) => s.openForward);
   const myId = useAuthStore((s) => s.user?.id);
+  // Get all loaded messages for this conversation — find ones with threads
+  const allMessages = useChatStore((s) => s.messages[conversationId] || []);
+  const threadedMessages = allMessages.filter((m) => !m.parentId && m.replyCount > 0);
 
   useEffect(() => {
     loadPinned(conversationId);
@@ -47,13 +56,14 @@ export function PinnedTab({ conversationId }: { conversationId: string }) {
 
   const hasTasks = tasks.length > 0;
   const hasPinned = pinned && pinned.length > 0;
+  const hasThreads = threadedMessages.length > 0;
 
-  if (!hasTasks && !hasPinned) {
+  if (!hasTasks && !hasPinned && !hasThreads) {
     return (
       <div className="flex-1 overflow-y-auto p-3 no-scrollbar">
         <div className="h-full flex flex-col items-center justify-center text-textm gap-2">
           <span className="text-4xl">📌</span>
-          <p className="text-sm">Belum ada pin atau task di chat ini.</p>
+          <p className="text-sm">Belum ada pin, task, atau thread di chat ini.</p>
         </div>
       </div>
     );
@@ -74,7 +84,6 @@ export function PinnedTab({ conversationId }: { conversationId: string }) {
           <div className="rounded-xl border border-amber-200 bg-amber-50 overflow-hidden divide-y divide-amber-100">
             {tasks.map((task) => (
               <div key={task.id} className="flex items-start gap-2.5 px-3 py-2.5 group">
-                {/* Checkbox */}
                 <button
                   onClick={() => completeTask(task)}
                   className="shrink-0 w-5 h-5 mt-0.5 rounded border-2 border-amber-400 hover:border-green-500 hover:bg-green-50 transition flex items-center justify-center"
@@ -82,12 +91,8 @@ export function PinnedTab({ conversationId }: { conversationId: string }) {
                 >
                   <span className="text-[10px] text-transparent group-hover:text-green-500">✓</span>
                 </button>
-
-                {/* Content */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm leading-snug break-words" style={{ color: "var(--sl-ink, #22221D)" }}>
-                    {task.content}
-                  </p>
+                  <p className="text-sm leading-snug break-words" style={{ color: "var(--sl-ink, #22221D)" }}>{task.content}</p>
                   <div className="flex items-center gap-1.5 mt-1 flex-wrap">
                     <span className="text-xs text-gray-400">oleh {task.createdBy.name}</span>
                     {task.assignee && (
@@ -101,18 +106,55 @@ export function PinnedTab({ conversationId }: { conversationId: string }) {
                     )}
                   </div>
                 </div>
-
-                {/* Delete */}
                 {task.createdById === myId && (
-                  <button
-                    onClick={() => deleteTask(task)}
+                  <button onClick={() => deleteTask(task)}
                     className="shrink-0 opacity-0 group-hover:opacity-100 w-5 h-5 flex items-center justify-center text-gray-400 hover:text-red-500 transition text-xs"
-                    title="Hapus task"
-                  >
-                    ✕
-                  </button>
+                    title="Hapus task">✕</button>
                 )}
               </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Threads section ── */}
+      {hasThreads && onOpenThread && (
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <span>🧵</span>
+            <span className="text-xs font-bold uppercase tracking-wide" style={{ color: "var(--sl-ink-faint)" }}>
+              Threads ({threadedMessages.length})
+            </span>
+          </div>
+          <div className="space-y-2">
+            {threadedMessages.map((m) => (
+              <button
+                key={m.id}
+                onClick={() => onOpenThread(m)}
+                className="w-full text-left rounded-xl border p-3 transition hover:opacity-80"
+                style={{ background: "var(--sl-surface)", borderColor: "var(--sl-line-strong)" }}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  {m.user.avatarUrl
+                    ? <img src={apiUrl(m.user.avatarUrl)} alt="" className="w-5 h-5 rounded-full object-cover" />
+                    : <span className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[8px] font-bold uppercase"
+                        style={{ background: "var(--sl-accent)" }}>{m.user.name.charAt(0)}</span>
+                  }
+                  <span className="text-xs font-semibold" style={{ color: "var(--sl-ink)" }}>{m.user.name}</span>
+                  <span className="text-[10px] ml-auto" style={{ color: "var(--sl-ink-fainter)" }}>
+                    {new Date(m.createdAt).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Jakarta" })}
+                  </span>
+                </div>
+                {m.content && (
+                  <p className="text-sm truncate" style={{ color: "var(--sl-ink-soft)" }}>{m.content}</p>
+                )}
+                <div className="flex items-center gap-1 mt-1.5">
+                  <span className="text-xs font-medium" style={{ color: "var(--sl-accent)" }}>
+                    🧵 {m.replyCount} balasan
+                  </span>
+                  <span className="text-[10px]" style={{ color: "var(--sl-ink-fainter)" }}>· klik untuk buka</span>
+                </div>
+              </button>
             ))}
           </div>
         </div>
@@ -135,7 +177,7 @@ export function PinnedTab({ conversationId }: { conversationId: string }) {
                   Dipin oleh <span className="font-medium text-texts">{p.pinnedBy.name}</span> · {new Date(p.pinnedAt).toLocaleDateString()}
                 </div>
                 <PinnedBubble message={p.message} />
-                <div className="flex gap-2 mt-2">
+                <div className="flex gap-2 mt-2 flex-wrap">
                   <button
                     onClick={() => openForward({ message: p.message, sourceConversationId: conversationId, sourceName: null })}
                     className="text-xs text-primary font-medium px-2 py-1 rounded-lg hover:bg-hover"
@@ -145,6 +187,12 @@ export function PinnedTab({ conversationId }: { conversationId: string }) {
                   <button onClick={() => shareText(buildShareText(p.message))} className="text-xs text-primary font-medium px-2 py-1 rounded-lg hover:bg-hover">
                     {t("chat.share")}
                   </button>
+                  {onOpenThread && p.message.replyCount > 0 && (
+                    <button onClick={() => onOpenThread(p.message)} className="text-xs font-medium px-2 py-1 rounded-lg hover:bg-hover"
+                      style={{ color: "var(--sl-accent)" }}>
+                      🧵 {p.message.replyCount} balasan
+                    </button>
+                  )}
                   <button onClick={() => unpin(p.message.id)} className="text-xs text-danger font-medium px-2 py-1 rounded-lg hover:bg-hover">
                     {t("chat.delete")}
                   </button>
