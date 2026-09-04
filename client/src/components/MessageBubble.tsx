@@ -563,7 +563,7 @@ export const EMOJI_SET = EMOJIS;
 
 // ── Thread link card ──────────────────────────────────────────────────────────
 // Format: [THREAD:messageId:conversationId:encodedQuestion]
-const THREAD_LINK_RE = /^\[THREAD:([^:]+):([^:]+):([^\]]*)\]$/;
+const THREAD_LINK_RE = /^\[THREAD:([^:]+):([^:]+):(.+)\]$/;
 
 export function parseThreadLink(content: string | null): { messageId: string; conversationId: string; question: string } | null {
   if (!content) return null;
