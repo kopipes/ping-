@@ -584,15 +584,16 @@ export function ThreadLinkCard({
   return (
     <button
       onClick={onClick}
-      className="w-full text-left rounded-xl border transition hover:opacity-80 overflow-hidden"
+      className="w-full max-w-full text-left rounded-xl border transition hover:opacity-80 overflow-hidden"
       style={{
         background: dark ? "rgba(255,255,255,0.12)" : "var(--sl-surface)",
         borderColor: dark ? "rgba(255,255,255,0.2)" : "var(--sl-line-strong)",
+        minWidth: 0,
       }}
     >
-      <div className="flex items-center gap-2 px-3 py-2.5">
+      <div className="flex items-center gap-2 px-3 py-2.5 min-w-0">
         <span className="text-base shrink-0">🧵</span>
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 overflow-hidden">
           <p className="text-xs font-semibold mb-0.5" style={{ color: dark ? "rgba(255,255,255,0.7)" : "var(--sl-ink-faint)" }}>Thread</p>
           <p className="text-sm font-medium truncate" style={{ color: dark ? "#fff" : "var(--sl-ink)" }}>
             {threadLink.question || "Lihat thread"}
