@@ -595,7 +595,7 @@ export function ThreadLinkCard({
         <span className="text-base shrink-0">🧵</span>
         <div className="flex-1 min-w-0 overflow-hidden">
           <p className="text-xs font-semibold mb-0.5" style={{ color: dark ? "rgba(255,255,255,0.7)" : "var(--sl-ink-faint)" }}>Thread</p>
-          <p className="text-sm font-medium truncate" style={{ color: dark ? "#fff" : "var(--sl-ink)" }}>
+          <p className="text-sm font-medium break-words whitespace-normal" style={{ color: dark ? "#fff" : "var(--sl-ink)" }}>
             {threadLink.question || "Lihat thread"}
           </p>
         </div>
