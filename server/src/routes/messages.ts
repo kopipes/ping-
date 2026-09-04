@@ -14,6 +14,16 @@ async function canEditOrDelete(userId: string, message: { userId: string }) {
 export async function messageRoutes(app: FastifyInstance) {
   app.addHook("preHandler", app.authenticate);
 
+  // GET /api/messages/:id — fetch a single message (used for thread card navigation)
+  app.get("/:id", async (req, reply) => {
+    const { id } = req.params as { id: string };
+    const msg = await serializeMessage(id, req.user.id);
+    if (!msg) return reply.code(404).send({ error: "Pesan tidak ditemukan" });
+    const member = await getMemberRole(msg.conversationId, req.user.id);
+    if (!member) return reply.code(403).send({ error: "Anda bukan member topic ini" });
+    return msg;
+  });
+
   app.patch("/:id", async (req, reply) => {
     const { id } = req.params as { id: string };
     const body = (req.body ?? {}) as { content?: string };

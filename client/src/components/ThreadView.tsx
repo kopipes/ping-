@@ -3,7 +3,7 @@ import { useAuthStore } from "../store/auth";
 import { useChatStore } from "../store/chat";
 import { useUIStore } from "../store/ui";
 import { api, apiUrl } from "../lib/api";
-import { on, joinThread, leaveThread } from "../lib/socket";
+import { on, joinThread, leaveThread, socketSend } from "../lib/socket";
 import { Composer } from "./Composer";
 import type { Message } from "../types";
 function ThreadBubble({ message, isOwn }: { message: Message; isOwn: boolean }) {
@@ -73,7 +73,11 @@ export function ThreadView({
   const [replies, setReplies] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [clearing, setClearing] = useState(false);
+  const [showSharePicker, setShowSharePicker] = useState(false);
+  const [shareFilter, setShareFilter] = useState("");
+  const [shareSending, setShareSending] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const sidebar = useChatStore((s) => s.sidebar);
 
   const loadReplies = async () => {
     try {
@@ -152,17 +156,7 @@ export function ThreadView({
         </div>
         {/* Share thread button */}
         <button
-          onClick={() => {
-            const openForward = useUIStore.getState().openForward;
-            openForward({
-              message: {
-                ...rootMessage,
-                content: `🧵 Thread: ${rootMessage.content?.slice(0, 80) ?? ""}${replies.length > 0 ? ` · ${replies.length} balasan` : ""}`,
-              },
-              sourceConversationId: conversationId,
-              sourceName: null,
-            });
-          }}
+          onClick={() => setShowSharePicker(true)}
           className="text-xs font-medium px-2 py-1 rounded-lg transition hover:opacity-70"
           style={{ color: "var(--sl-accent)", background: "var(--sl-accent-soft)" }}
           title="Bagikan thread">
@@ -249,6 +243,76 @@ export function ThreadView({
           onCancelReply={undefined}
         />
       )}
+
+      {/* Share thread picker */}
+      {showSharePicker && (() => {
+        const allConvos = [
+          ...(sidebar?.pinnedTop || []),
+          ...(sidebar?.level1 || []).flatMap((l) => [l, ...(l.subTopics || [])]),
+          ...(sidebar?.dms || []),
+        ].filter((c) => c.id !== conversationId);
+        const filtered = allConvos.filter((c) =>
+          !shareFilter || (c.name || "").toLowerCase().includes(shareFilter.toLowerCase())
+        );
+        return (
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/40" onClick={() => setShowSharePicker(false)} />
+            <div className="relative w-full max-w-sm rounded-2xl shadow-lg overflow-hidden"
+              style={{ background: "var(--sl-bg)", border: "1px solid var(--sl-line-strong)" }}>
+              <div className="flex items-center justify-between px-4 py-3 border-b"
+                style={{ borderColor: "var(--sl-line-strong)" }}>
+                <p className="text-sm font-semibold" style={{ color: "var(--sl-ink)" }}>Bagikan Thread ke…</p>
+                <button onClick={() => setShowSharePicker(false)}
+                  className="w-7 h-7 flex items-center justify-center rounded hover:bg-hover text-textm">✕</button>
+              </div>
+              <div className="px-3 py-2 border-b" style={{ borderColor: "var(--sl-line-strong)" }}>
+                <input
+                  autoFocus
+                  value={shareFilter}
+                  onChange={(e) => setShareFilter(e.target.value)}
+                  placeholder="Cari group atau DM…"
+                  className="w-full text-sm bg-transparent outline-none"
+                  style={{ color: "var(--sl-ink)" }}
+                />
+              </div>
+              <div className="max-h-60 overflow-y-auto slim-scroll">
+                {filtered.length === 0 ? (
+                  <p className="text-xs text-center py-4" style={{ color: "var(--sl-ink-faint)" }}>Tidak ada hasil</p>
+                ) : filtered.map((c) => (
+                  <button
+                    key={c.id}
+                    disabled={shareSending}
+                    onClick={async () => {
+                      setShareSending(true);
+                      try {
+                        const q = rootMessage.content?.slice(0, 60) ?? "";
+                        const threadRef = `[THREAD:${rootMessage.id}:${conversationId}:${encodeURIComponent(q)}]`;
+                        socketSend("message:send", {
+                          conversationId: c.id,
+                          content: threadRef,
+                          attachments: [],
+                          parentId: null,
+                        });
+                        setShowSharePicker(false);
+                        setShareFilter("");
+                      } finally {
+                        setShareSending(false);
+                      }
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-hover transition text-left"
+                  >
+                    <span className="w-7 h-7 flex items-center justify-center rounded-lg text-sm shrink-0"
+                      style={{ background: "var(--sl-accent-soft)", color: "var(--sl-accent)" }}>
+                      {c.type === "DM" ? "💬" : (c.icon || "#")}
+                    </span>
+                    <span className="text-sm" style={{ color: "var(--sl-ink)" }}>{c.name || "Direct Message"}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

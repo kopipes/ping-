@@ -261,13 +261,23 @@ export function MessageBubble(props: {
               </a>
             ))}
 
-            {/* Text */}
-            {message.content && (
-              <div className="px-3.5 py-2 text-white leading-[1.46] whitespace-pre-wrap break-words"
-                style={{ fontSize: "var(--app-font-size, 15px)" }}>
-                {renderContent(message.content, true)}
-              </div>
-            )}
+            {/* Text or Thread Card */}
+            {message.content && (() => {
+              const threadLink = parseThreadLink(message.content);
+              if (threadLink) {
+                return (
+                  <div className="px-2 py-2">
+                    <ThreadLinkCard threadLink={threadLink} dark onClick={() => props.onOpenThread({ ...message, content: message.content })} />
+                  </div>
+                );
+              }
+              return (
+                <div className="px-3.5 py-2 text-white leading-[1.46] whitespace-pre-wrap break-words"
+                  style={{ fontSize: "var(--app-font-size, 15px)" }}>
+                  {renderContent(message.content, true)}
+                </div>
+              );
+            })()}
 
             {/* Meta row — INSIDE bubble so white text is visible on dark blue */}
             <div className="flex items-center justify-end gap-1.5 px-3 pb-1.5 -mt-1">
@@ -427,13 +437,23 @@ export function MessageBubble(props: {
               );
             })}
 
-            {/* Text */}
-            {message.content && (
-              <p className="leading-[1.46668] text-textp whitespace-pre-wrap break-words"
-                style={{ fontSize: "var(--app-font-size, 15px)" }}>
-                {renderContent(message.content, false)}
-              </p>
-            )}
+            {/* Text or Thread Card */}
+            {message.content && (() => {
+              const threadLink = parseThreadLink(message.content);
+              if (threadLink) {
+                return (
+                  <div className="px-1 py-1">
+                    <ThreadLinkCard threadLink={threadLink} dark={false} onClick={() => props.onOpenThread({ ...message, content: message.content })} />
+                  </div>
+                );
+              }
+              return (
+                <p className="leading-[1.46668] text-textp whitespace-pre-wrap break-words"
+                  style={{ fontSize: "var(--app-font-size, 15px)" }}>
+                  {renderContent(message.content, false)}
+                </p>
+              );
+            })()}
 
             {/* Edited */}
             {message.isEdited && <span className="text-[10px] text-textm">(diubah)</span>}
@@ -540,6 +560,52 @@ export function buildShareText(message: Message) {
   return [message.content, ...(message.attachments || []).map((a) => a.fileUrl), "— via Ping!"].filter(Boolean).join("\n");
 }
 export const EMOJI_SET = EMOJIS;
+
+// ── Thread link card ──────────────────────────────────────────────────────────
+// Format: [THREAD:messageId:conversationId:encodedQuestion]
+const THREAD_LINK_RE = /^\[THREAD:([^:]+):([^:]+):([^\]]*)\]$/;
+
+export function parseThreadLink(content: string | null): { messageId: string; conversationId: string; question: string } | null {
+  if (!content) return null;
+  const m = content.match(THREAD_LINK_RE);
+  if (!m) return null;
+  return { messageId: m[1], conversationId: m[2], question: decodeURIComponent(m[3]) };
+}
+
+export function ThreadLinkCard({
+  threadLink,
+  dark,
+  onClick,
+}: {
+  threadLink: { messageId: string; conversationId: string; question: string };
+  dark?: boolean;
+  onClick?: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="w-full text-left rounded-xl border transition hover:opacity-80 overflow-hidden"
+      style={{
+        background: dark ? "rgba(255,255,255,0.12)" : "var(--sl-surface)",
+        borderColor: dark ? "rgba(255,255,255,0.2)" : "var(--sl-line-strong)",
+      }}
+    >
+      <div className="flex items-center gap-2 px-3 py-2.5">
+        <span className="text-base shrink-0">🧵</span>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-semibold mb-0.5" style={{ color: dark ? "rgba(255,255,255,0.7)" : "var(--sl-ink-faint)" }}>Thread</p>
+          <p className="text-sm font-medium truncate" style={{ color: dark ? "#fff" : "var(--sl-ink)" }}>
+            {threadLink.question || "Lihat thread"}
+          </p>
+        </div>
+        <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"
+          style={{ color: dark ? "rgba(255,255,255,0.5)" : "var(--sl-ink-faint)" }}>
+          <path d="M9 18l6-6-6-6"/>
+        </svg>
+      </div>
+    </button>
+  );
+}
 
 // ── URL detection & link preview ─────────────────────────────────────────────
 

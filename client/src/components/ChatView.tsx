@@ -5,7 +5,7 @@ import { useChatStore } from "../store/chat";
 import { useUIStore } from "../store/ui";
 import { api, apiUrl } from "../lib/api";
 import { markRead, joinConversation, on } from "../lib/socket";
-import { MessageBubble, Avatar } from "./MessageBubble";
+import { MessageBubble, Avatar, parseThreadLink } from "./MessageBubble";
 import { Composer } from "./Composer";
 import { PinnedTab } from "./PinnedTab";
 import { LibraryTab } from "./LibraryTab";
@@ -495,7 +495,40 @@ export function ChatView() {
                       onDelete={handleDelete}
                       onPin={handlePin}
                       onCreateTask={handleCreateTask}
-                      onOpenThread={setActiveThread}
+                      onOpenThread={(m) => {
+                        // Check if this is a thread-link card click
+                        const threadLink = parseThreadLink(m.content);
+                        if (threadLink) {
+                          // Cross-conversation thread: navigate to source conversation first
+                          if (threadLink.conversationId !== id) {
+                            openConversation(threadLink.conversationId);
+                          }
+                          // Fetch the root message and open the thread
+                          api<Message>(`/api/messages/${threadLink.messageId}`)
+                          .then((msg) => {
+                            setActiveThread({ ...msg, replyCount: msg.replyCount ?? 0 });
+                          }).catch(() => {
+                            // Fallback: create a minimal message object from thread link data
+                            setActiveThread({
+                              id: threadLink.messageId,
+                              conversationId: threadLink.conversationId,
+                              content: threadLink.question,
+                              parentId: null,
+                              isEdited: false,
+                              isDeleted: false,
+                              createdAt: new Date().toISOString(),
+                              userId: "",
+                              user: { id: "", name: "", avatarUrl: null },
+                              attachments: [],
+                              reactions: [],
+                              replyCount: 0,
+                              status: "sent",
+                            });
+                          });
+                        } else {
+                          setActiveThread(m);
+                        }
+                      }}
                       onRetry={handleRetry}
                     />
                   </div>
