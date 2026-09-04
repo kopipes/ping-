@@ -432,6 +432,45 @@ export function Sidebar() {
         {/* ─ Home / Topics view ─ */}
         {showTopics && railView !== "activity" && (
           <>
+            {/* ── Most Active Groups (collapsed by default) ── */}
+            {(() => {
+              const allGroups = [
+                ...(sidebar?.pinnedTop || []),
+                ...(sidebar?.level1 || []).flatMap((l) => [l, ...(l.subTopics || [])]),
+              ]
+                .filter((g) => g.type !== "DM" && g.lastMessageAt)
+                .sort((a, b) => new Date(b.lastMessageAt!).getTime() - new Date(a.lastMessageAt!).getTime())
+                .slice(0, 5);
+              if (allGroups.length === 0) return null;
+              return (
+                <>
+                  <SectionHeader
+                    label="Paling Aktif"
+                    icon={<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>}
+                    collapsed={collapsed["active"] !== false}
+                    onToggle={() => toggleCollapse("active")}
+                  />
+                  {collapsed["active"] === false && (
+                    <div>
+                      {allGroups.map((g) => (
+                        <WaItem
+                          key={`active-${g.id}`}
+                          avatarIcon={g.icon || "#"}
+                          label={g.name || "Group"}
+                          preview={g.lastMessageText}
+                          previewSender={g.lastMessageSender}
+                          timestamp={formatLastTime(g.lastMessageAt)}
+                          active={activeId === g.id}
+                          unread={g.unread > 0}
+                          unreadCount={g.unread}
+                          onClick={() => onOpen(g.id)}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </>
+              );
+            })()}
             {/* Pinned section */}
             {(sidebar?.pinnedTop || []).filter(matchItem).length > 0 && (
               <>

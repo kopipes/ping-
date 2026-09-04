@@ -33,9 +33,10 @@ export function PinnedTab({
     loadTasks(conversationId);
   }, [conversationId, loadPinned, loadTasks]);
 
-  const unpin = async (messageId: string) => {
+  const unpin = async (messageId: string, scope?: string) => {
     try {
-      await api(`/api/messages/${messageId}/pin`, { method: "DELETE" });
+      const qs = scope === "personal" ? "?scope=personal" : "";
+      await api(`/api/messages/${messageId}/pin${qs}`, { method: "DELETE" });
       loadPinned(conversationId);
     } catch { /* ignore */ }
   };
@@ -171,8 +172,20 @@ export function PinnedTab({
           </div>
           <div className="space-y-2">
             {pinned!.map((p) => (
-              <div key={p.id} className="card p-3 border-l-4 border-amber-400">
-                {p.note && <div className="text-sm font-semibold text-warning mb-1">{p.note}</div>}
+              <div key={p.id} className={`card p-3 border-l-4 ${(p as any).scope === "personal" ? "border-blue-400" : "border-amber-400"}`}>
+                {/* Scope badge */}
+                <div className="flex items-center gap-1.5 mb-1">
+                  {(p as any).scope === "personal" ? (
+                    <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background: "rgba(59,130,246,0.12)", color: "#3B82F6" }}>
+                      Hanya Saya
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background: "var(--sl-accent-soft)", color: "var(--sl-accent)" }}>
+                      Group
+                    </span>
+                  )}
+                  {p.note && <span className="text-sm font-semibold text-warning">{p.note}</span>}
+                </div>
                 <div className="text-xs text-textm mb-1.5">
                   Dipin oleh <span className="font-medium text-texts">{p.pinnedBy.name}</span> · {new Date(p.pinnedAt).toLocaleDateString()}
                 </div>
@@ -193,7 +206,7 @@ export function PinnedTab({
                       🧵 {p.message.replyCount} balasan
                     </button>
                   )}
-                  <button onClick={() => unpin(p.message.id)} className="text-xs text-danger font-medium px-2 py-1 rounded-lg hover:bg-hover">
+                  <button onClick={() => unpin(p.message.id, (p as any).scope)} className="text-xs text-danger font-medium px-2 py-1 rounded-lg hover:bg-hover">
                     {t("chat.delete")}
                   </button>
                 </div>

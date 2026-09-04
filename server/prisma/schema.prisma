@@ -134,13 +134,14 @@ model PinnedItem {
   messageId      String
   pinnedById     String
   note           String?
+  scope          String   @default("group") // "group" | "personal"
   pinnedAt       DateTime @default(now())
 
   conversation   Conversation @relation(fields: [conversationId], references: [id])
   message        Message      @relation(fields: [messageId], references: [id])
   pinnedBy       User         @relation(fields: [pinnedById], references: [id])
 
-  @@unique([conversationId, messageId])
+  @@unique([conversationId, messageId, pinnedById, scope])
 }
 
 model Reaction {

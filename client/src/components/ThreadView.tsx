@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useAuthStore } from "../store/auth";
 import { useChatStore } from "../store/chat";
+import { useUIStore } from "../store/ui";
 import { api, apiUrl } from "../lib/api";
 import { on, joinThread, leaveThread } from "../lib/socket";
 import { Composer } from "./Composer";
@@ -149,6 +150,24 @@ export function ThreadView({
             {replies.length} {replies.length === 1 ? "balasan" : "balasan"}
           </p>
         </div>
+        {/* Share thread button */}
+        <button
+          onClick={() => {
+            const openForward = useUIStore.getState().openForward;
+            openForward({
+              message: {
+                ...rootMessage,
+                content: `🧵 Thread: ${rootMessage.content?.slice(0, 80) ?? ""}${replies.length > 0 ? ` · ${replies.length} balasan` : ""}`,
+              },
+              sourceConversationId: conversationId,
+              sourceName: null,
+            });
+          }}
+          className="text-xs font-medium px-2 py-1 rounded-lg transition hover:opacity-70"
+          style={{ color: "var(--sl-accent)", background: "var(--sl-accent-soft)" }}
+          title="Bagikan thread">
+          ⤴ Bagikan
+        </button>
         {/* Hapus Thread — admin only */}
         {isAdminish && replies.length > 0 && (
           <button

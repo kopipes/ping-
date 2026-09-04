@@ -201,7 +201,8 @@ export async function messageRoutes(app: FastifyInstance) {
 
   app.post("/:id/pin", async (req, reply) => {
     const { id } = req.params as { id: string };
-    const body = (req.body ?? {}) as { note?: string };
+    const body = (req.body ?? {}) as { note?: string; scope?: string };
+    const scope = body.scope === "personal" ? "personal" : "group";
     const message = await prisma.message.findUnique({
       where: { id },
       select: { id: true, conversationId: true, userId: true },
@@ -221,16 +222,18 @@ export async function messageRoutes(app: FastifyInstance) {
       select: { allowStaffPin: true },
     });
     const rank = user?.role === "SUPER_ADMIN" || user?.role === "ADMIN" || user?.role === "MANAGER";
-    if (!rank && !(conv?.allowStaffPin ?? true)) {
+    if (scope === "group" && !rank && !(conv?.allowStaffPin ?? true)) {
       reply.code(403).send({ error: "Pin note tidak diizinkan untuk Staff di topic ini" });
       return;
     }
 
     const existing = await prisma.pinnedItem.findUnique({
       where: {
-        conversationId_messageId: {
+        conversationId_messageId_pinnedById_scope: {
           conversationId: message.conversationId,
           messageId: id,
+          pinnedById: req.user.id,
+          scope,
         },
       },
     });
@@ -245,18 +248,24 @@ export async function messageRoutes(app: FastifyInstance) {
         messageId: id,
         pinnedById: req.user.id,
         note: (body.note as string) ?? null,
+        scope,
       },
     });
-    req.server.io.to(`convo:${message.conversationId}`).emit("pinned:added", {
-      conversationId: message.conversationId,
-      messageId: id,
-      pinnedById: req.user.id,
-    });
+    // Only broadcast group pins to all members
+    if (scope === "group") {
+      req.server.io.to(`convo:${message.conversationId}`).emit("pinned:added", {
+        conversationId: message.conversationId,
+        messageId: id,
+        pinnedById: req.user.id,
+      });
+    }
     reply.code(201).send({ ok: true });
   });
 
   app.delete("/:id/pin", async (req, reply) => {
     const { id } = req.params as { id: string };
+    const query = req.query as { scope?: string };
+    const scope = query.scope === "personal" ? "personal" : "group";
     const message = await prisma.message.findUnique({
       where: { id },
       select: { id: true, conversationId: true },
@@ -274,13 +283,23 @@ export async function messageRoutes(app: FastifyInstance) {
     const isAdmin = user?.role === "ADMIN" || user?.role === "SUPER_ADMIN";
     const pinned = await prisma.pinnedItem.findUnique({
       where: {
-        conversationId_messageId: {
+        conversationId_messageId_pinnedById_scope: {
           conversationId: message.conversationId,
           messageId: id,
+          pinnedById: req.user.id,
+          scope,
         },
       },
     });
-    if (pinned && (isAdmin || pinned.pinnedById === req.user.id)) {
+    if (!pinned) {
+      // Admin can unpin any group pin
+      if (isAdmin && scope === "group") {
+        const anyPin = await prisma.pinnedItem.findFirst({
+          where: { messageId: id, conversationId: message.conversationId, scope: "group" },
+        });
+        if (anyPin) await prisma.pinnedItem.delete({ where: { id: anyPin.id } });
+      }
+    } else {
       await prisma.pinnedItem.delete({ where: { id: pinned.id } });
     }
     req.server.io.to(`convo:${message.conversationId}`).emit("pinned:removed", {

@@ -51,6 +51,9 @@ export function ChatView() {
   const [activeThread, setActiveThread] = useState<Message | null>(null);
   const [polls, setPolls] = useState<Record<string, PollData>>({});
   const [showCreatePoll, setShowCreatePoll] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<Message[]>([]);
   const bottomRef = useRef<HTMLDivElement>(null);
   const topRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -150,10 +153,22 @@ export function ChatView() {
     openForward({ message: m, sourceConversationId: id, sourceName: convo?.name ?? null });
 
   const handlePin = async (m: Message) => {
-    const note = await prompt({ title: "Pin Pesan", message: "Label/catatan (opsional):", placeholder: "Tulis catatan…", confirmLabel: "Pin" });
+    // Step 1: choose scope
+    const scopeChoice = await confirm({
+      title: "Pin Pesan",
+      message: "Pin untuk semua anggota group, atau hanya untuk kamu?",
+      confirmLabel: "Pin ke Group",
+      cancelLabel: "Pin untuk Saya",
+    });
+    // null = cancelled (user dismissed)
+    if (scopeChoice === null) return;
+    const scope = scopeChoice ? "group" : "personal";
+    const note = await prompt({ title: "Catatan (opsional)", message: "Label/catatan:", placeholder: "Tulis catatan…", confirmLabel: "Pin" });
     if (note === null) return;
-    try { await api(`/api/messages/${m.id}/pin`, { method: "POST", body: { note: note || undefined } }); setTab("pinned"); }
-    catch (e: any) { toast(e?.message || "Gagal pin"); }
+    try {
+      await api(`/api/messages/${m.id}/pin`, { method: "POST", body: { note: note || undefined, scope } });
+      setTab("pinned");
+    } catch (e: any) { toast(e?.message || "Gagal pin"); }
   };
 
   const handleDelete = async (m: Message) => {
@@ -307,6 +322,13 @@ export function ChatView() {
 
         {/* Right actions */}
         <div className="flex items-center gap-0.5">
+          {/* In-conversation search */}
+          <button onClick={() => { setSearchOpen(!searchOpen); setSearchQuery(""); setSearchResults([]); }}
+            className="w-8 h-8 flex items-center justify-center rounded-lg transition"
+            style={{ color: searchOpen ? "var(--sl-accent)" : "var(--sl-ink-faint)", background: searchOpen ? "var(--sl-accent-soft)" : "transparent" }}
+            title="Cari di chat ini">
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          </button>
           {memberCount && !isDM && (
             <button onClick={() => setInfoOpen(true)} className="flex items-center gap-1 px-2 h-8 rounded-lg transition text-sm"
               style={{ color: "var(--sl-ink-faint, #8B8A7E)" }}>
@@ -331,6 +353,59 @@ export function ChatView() {
           ))}
         </div>
       </div>
+
+      {/* In-conversation search bar */}
+      {searchOpen && (
+        <div className="shrink-0 px-4 py-2 border-b" style={{ borderColor: "var(--sl-line-strong)", background: "var(--sl-surface)" }}>
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl border"
+            style={{ background: "var(--sl-bg)", borderColor: "var(--sl-line-strong)" }}>
+            <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"
+              style={{ color: "var(--sl-ink-faint)" }}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input
+              autoFocus
+              value={searchQuery}
+              onChange={async (e) => {
+                const q = e.target.value;
+                setSearchQuery(q);
+                if (q.trim().length < 2) { setSearchResults([]); return; }
+                try {
+                  const res = await api<{ messages: { id: string; content: string | null; createdAt: string; user: { name: string } }[] }>(
+                    `/api/search?q=${encodeURIComponent(q)}&conversationId=${id}&limit=20`
+                  );
+                  setSearchResults((res.messages || []) as any);
+                } catch { setSearchResults([]); }
+              }}
+              placeholder="Cari pesan di chat ini…"
+              className="flex-1 bg-transparent text-sm outline-none"
+              style={{ color: "var(--sl-ink)" }}
+              onKeyDown={(e) => { if (e.key === "Escape") { setSearchOpen(false); setSearchQuery(""); setSearchResults([]); } }}
+            />
+            {searchQuery && <button onClick={() => { setSearchQuery(""); setSearchResults([]); }}
+              className="text-xs opacity-50 hover:opacity-80" style={{ color: "var(--sl-ink)" }}>✕</button>}
+          </div>
+          {searchResults.length > 0 && (
+            <div className="mt-2 space-y-1 max-h-48 overflow-y-auto slim-scroll">
+              {searchResults.map((r: any) => (
+                <button key={r.id}
+                  onClick={() => {
+                    setSearchOpen(false); setSearchQuery(""); setSearchResults([]);
+                    // Scroll to message if loaded
+                    setTimeout(() => {
+                      document.getElementById(`msg-${r.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }, 100);
+                  }}
+                  className="w-full text-left px-3 py-2 rounded-lg hover:bg-hover transition">
+                  <span className="text-xs font-semibold" style={{ color: "var(--sl-ink-faint)" }}>{r.user?.name} · {new Date(r.createdAt).toLocaleDateString()}</span>
+                  <p className="text-sm truncate" style={{ color: "var(--sl-ink)" }}>{r.content}</p>
+                </button>
+              ))}
+            </div>
+          )}
+          {searchQuery.trim().length >= 2 && searchResults.length === 0 && (
+            <p className="text-xs text-center py-2" style={{ color: "var(--sl-ink-faint)" }}>Tidak ada hasil</p>
+          )}
+        </div>
+      )}
 
       {/* Content */}
       {tab === "pinned" ? <PinnedTab conversationId={id} onOpenThread={setActiveThread} /> :
@@ -399,7 +474,7 @@ export function ChatView() {
                   return d.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
                 })();
                 return (
-                  <div key={m.id}>
+                  <div key={m.id} id={`msg-${m.id}`}>
                     {showDateSep && (
                       <div className="flex items-center gap-3 px-5 py-3">
                         <div className="flex-1 h-px bg-border" />

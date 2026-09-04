@@ -279,8 +279,15 @@ export async function conversationRoutes(app: FastifyInstance) {
       reply.code(403).send({ error: "Anda bukan member topic ini" });
       return;
     }
+    // Return group pins (visible to all) + personal pins for this user only
     const pinned = await prisma.pinnedItem.findMany({
-      where: { conversationId: id },
+      where: {
+        conversationId: id,
+        OR: [
+          { scope: "group" },
+          { scope: "personal", pinnedById: req.user.id },
+        ],
+      },
       orderBy: { pinnedAt: "desc" },
       include: {
         message: {
