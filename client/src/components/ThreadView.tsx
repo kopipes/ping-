@@ -76,6 +76,7 @@ export function ThreadView({
   const [showSharePicker, setShowSharePicker] = useState(false);
   const [shareFilter, setShareFilter] = useState("");
   const [shareSending, setShareSending] = useState(false);
+  const [accessDenied, setAccessDenied] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const sidebar = useChatStore((s) => s.sidebar);
 
@@ -83,6 +84,8 @@ export function ThreadView({
     try {
       const data = await api<{ replies: Message[] }>(`/api/messages/${rootMessage.id}/replies`);
       const fetched = data.replies ?? [];
+      setReplies(fetched);
+      setAccessDenied(false);
       setReplies(fetched);
       // Self-correct the store's replyCount based on actual fetched count
       // This fixes stale indicators without requiring a page refresh
@@ -108,7 +111,10 @@ export function ThreadView({
         }
         return { messages: nextMessages };
       });
-    } catch {
+    } catch (err: any) {
+      if (err?.status === 403) {
+        setAccessDenied(true);
+      }
       setReplies([]);
     } finally {
       setLoading(false);
@@ -223,6 +229,16 @@ export function ThreadView({
                 <div className="flex-1 space-y-1"><div className="skeleton h-3 w-24 rounded" /><div className="skeleton h-4 w-48 rounded" /></div>
               </div>
             ))}
+          </div>
+        ) : accessDenied ? (
+          <div className="flex flex-col items-center justify-center h-full gap-3 px-6 py-8">
+            <span className="text-4xl">🔒</span>
+            <p className="text-sm font-semibold text-center" style={{ color: "var(--sl-ink)" }}>
+              Tidak bisa mengakses thread ini
+            </p>
+            <p className="text-xs text-center" style={{ color: "var(--sl-ink-faint)" }}>
+              Thread ini berasal dari group yang kamu bukan anggotanya. Minta admin untuk menambahkanmu ke group tersebut.
+            </p>
           </div>
         ) : replies.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-20 gap-1">
