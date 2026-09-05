@@ -84,6 +84,7 @@ export async function taskRoutes(app: FastifyInstance) {
   // PATCH /api/tasks/:taskId/done — mark task as done
   app.patch("/:taskId/done", async (req, reply) => {
     const { taskId } = req.params as { taskId: string };
+    const { note } = (req.body ?? {}) as { note?: string };
     const task = await prisma.task.findUnique({
       where: { id: taskId },
       include: {
@@ -106,13 +107,14 @@ export async function taskRoutes(app: FastifyInstance) {
       include: TASK_INCLUDE,
     });
 
-    // System message — include assignee info if present
+    // System message — include assignee info and optional note
     const assigneePart = task.assignee ? ` (ditugaskan ke *${task.assignee.name}*)` : "";
+    const notePart = note?.trim() ? `\n> ${note.trim()}` : "";
     const systemMsg = await prisma.message.create({
       data: {
         conversationId: task.conversationId,
         userId: req.user.id,
-        content: `✅ *${doneBy?.name ?? "Seseorang"}* menyelesaikan task: _${task.content}_${assigneePart}`,
+        content: `✅ *${doneBy?.name ?? "Seseorang"}* menyelesaikan task: _${task.content}_${assigneePart}${notePart}`,
       },
     });
 

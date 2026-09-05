@@ -6,6 +6,7 @@ import { buildShareText } from "./MessageBubble";
 import { useUIStore } from "../store/ui";
 import { useAuthStore } from "../store/auth";
 import { api, apiUrl } from "../lib/api";
+import { useModal } from "./Modal";
 import type { Message } from "../types";
 
 export function PinnedTab({
@@ -24,6 +25,7 @@ export function PinnedTab({
   const removeTask = useChatStore((s) => s.removeTask);
   const openForward = useUIStore((s) => s.openForward);
   const myId = useAuthStore((s) => s.user?.id);
+  const { prompt } = useModal();
   // Get all loaded messages for this conversation — find ones with threads
   const allMessages = useChatStore((s) => s.messages[conversationId] || []);
   const threadedMessages = allMessages.filter((m) => !m.parentId && m.replyCount > 0);
@@ -42,8 +44,18 @@ export function PinnedTab({
   };
 
   const completeTask = async (task: Task) => {
+    const note = await prompt({
+      title: "Selesaikan Task",
+      message: `"${task.content}"`,
+      placeholder: "Tulis catatan penyelesaian… (opsional)",
+      confirmLabel: "Selesai",
+    });
+    if (note === null) return; // cancelled
     try {
-      const updated = await api<Task>(`/api/tasks/${task.id}/done`, { method: "PATCH" });
+      const updated = await api<Task>(`/api/tasks/${task.id}/done`, {
+        method: "PATCH",
+        body: { note: note.trim() || undefined },
+      });
       receiveTask(updated);
     } catch {}
   };

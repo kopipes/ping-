@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useChatStore, Task } from "../store/chat";
 import { useAuthStore } from "../store/auth";
 import { api, apiUrl } from "../lib/api";
+import { useModal } from "./Modal";
 
 const MAX_VISIBLE = 2;
 
@@ -17,6 +18,7 @@ export function TaskBar({
   const receiveTask = useChatStore((s) => s.receiveTask);
   const removeTask = useChatStore((s) => s.removeTask);
   const myId = useAuthStore((s) => s.user?.id);
+  const { prompt } = useModal();
 
   useEffect(() => {
     loadTasks(conversationId);
@@ -28,8 +30,18 @@ export function TaskBar({
   const overflow = tasks.length - MAX_VISIBLE;
 
   const completeTask = async (task: Task) => {
+    const note = await prompt({
+      title: "Selesaikan Task",
+      message: `"${task.content}"`,
+      placeholder: "Tulis catatan penyelesaian… (opsional)",
+      confirmLabel: "Selesai",
+    });
+    if (note === null) return; // cancelled
     try {
-      const updated = await api<Task>(`/api/tasks/${task.id}/done`, { method: "PATCH" });
+      const updated = await api<Task>(`/api/tasks/${task.id}/done`, {
+        method: "PATCH",
+        body: { note: note.trim() || undefined },
+      });
       receiveTask(updated);
     } catch {}
   };
